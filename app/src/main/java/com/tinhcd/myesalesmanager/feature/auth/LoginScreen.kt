@@ -9,7 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -54,14 +55,18 @@ fun LoginScreen(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .safeDrawingPadding()
+            .navigationBarsPadding()
             .imePadding()
             .verticalScroll(rememberScrollState()),
     ) {
+        // The blue band runs up behind the status bar: the activity draws the
+        // status-bar icons light on every screen, so they need the brand blue
+        // under them here too.
         Column(
             Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.brand.header)
+                .statusBarsPadding()
                 .padding(horizontal = 24.dp, vertical = 40.dp),
         ) {
             Text(

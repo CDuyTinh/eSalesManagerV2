@@ -229,7 +229,7 @@ private fun DetailBody(
                     LabeledLine("Kênh", detail.channelName)
                     LabeledLine("Loại cửa hàng", detail.shopTypeName)
                     if (detail.lat != null && detail.lng != null) {
-                        LabeledLine("Toạ độ", "%.5f, %.5f".format(detail.lat, detail.lng))
+                        LabeledLine("Toạ độ", "%.5f, %.5f".format(java.util.Locale.US, detail.lat, detail.lng))
                     }
                     LabeledLine("Nhân viên", c.salesperson?.let { "${it.name} (${it.code})" })
                     LabeledLine("Ngày đăng ký", formatIsoDate(c.createdAt))
