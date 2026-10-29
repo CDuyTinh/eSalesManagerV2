@@ -9,6 +9,7 @@ import com.tinhcd.myesalesmanager.data.remote.http.SupabaseSessionTokens
 import com.tinhcd.myesalesmanager.data.remote.http.SupabaseTokenAuthenticator
 import com.tinhcd.myesalesmanager.data.remote.service.ApprovalService
 import com.tinhcd.myesalesmanager.data.remote.service.BootstrapService
+import com.tinhcd.myesalesmanager.data.remote.service.DashboardService
 import com.tinhcd.myesalesmanager.data.remote.service.WorkPlanService
 import dagger.Binds
 import dagger.Module
@@ -110,4 +111,9 @@ object NetworkModule {
     @Singleton
     fun provideWorkPlanService(retrofit: Retrofit): WorkPlanService =
         retrofit.create(WorkPlanService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideDashboardService(retrofit: Retrofit): DashboardService =
+        retrofit.create(DashboardService::class.java)
 }

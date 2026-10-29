@@ -2,6 +2,8 @@ package com.tinhcd.myesalesmanager.data.di
 
 import com.tinhcd.myesalesmanager.data.repository.ApprovalRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.AuthRepositoryImpl
+import com.tinhcd.myesalesmanager.data.repository.DashboardRepositoryImpl
+import com.tinhcd.myesalesmanager.domain.repository.DashboardRepository
 import com.tinhcd.myesalesmanager.data.repository.WorkPlanRepositoryImpl
 import com.tinhcd.myesalesmanager.domain.repository.ApprovalRepository
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
@@ -27,4 +29,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindWorkPlanRepository(impl: WorkPlanRepositoryImpl): WorkPlanRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDashboardRepository(impl: DashboardRepositoryImpl): DashboardRepository
 }

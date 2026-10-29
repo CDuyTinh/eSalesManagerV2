@@ -45,6 +45,7 @@ import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalMenu
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalTarget
+import com.tinhcd.myesalesmanager.feature.dashboard.DashboardTab
 import com.tinhcd.myesalesmanager.feature.workplan.TaskTarget
 import com.tinhcd.myesalesmanager.feature.workplan.TasksMenu
 
@@ -96,6 +97,7 @@ fun MainShell(
                 )
 
                 else -> when (Tab.entries[tab]) {
+                    Tab.OVERVIEW -> DashboardTab()
                     Tab.TASKS -> TasksMenu(onOpen = onOpenTask)
                     Tab.APPROVALS -> ApprovalMenu(onOpen = onOpenApproval)
                     Tab.OTHER -> OtherTab(state.team, onSignOut = viewModel::signOut)
