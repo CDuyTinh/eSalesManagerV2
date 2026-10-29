@@ -34,7 +34,7 @@ class ApprovalRepositoryImpl @Inject constructor(
 
     override suspend fun counts(): DataResult<ApprovalCounts> = call {
         service.counts().orThrow().let {
-            ApprovalCounts(it.leave, it.customer, it.display, it.loyalty, it.posm)
+            ApprovalCounts(it.leave, it.customer, it.display, it.loyalty, it.posm, it.workPlan)
         }
     }
 

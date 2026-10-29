@@ -44,4 +44,6 @@ data class TeamMember(
     val fullName: String,
     val position: Position,
     val phone: String?,
+    /** The rep's distributor, which is what a "work with the distributor" task names. */
+    val branchId: String?,
 )

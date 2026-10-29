@@ -128,6 +128,10 @@ data class PendingDecision(
     val title: String,
     /** POSM: the quantity asked for, so the dialog can offer to grant less. */
     val maxQty: Int? = null,
+    /** Overrides "Duyệt"/"Từ chối" for moves that are neither, e.g. calling a task off. */
+    val heading: String? = null,
+    /** Overrides the reason field's label to match [heading]. */
+    val reasonLabel: String? = null,
 )
 
 /**
@@ -150,7 +154,7 @@ fun DecisionDialog(
 
     AlertDialog(
         onDismissRequest = { if (!busy) onDismiss() },
-        title = { Text(if (pending.approve) "Duyệt" else "Từ chối") },
+        title = { Text(pending.heading ?: if (pending.approve) "Duyệt" else "Từ chối") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(pending.title, style = MaterialTheme.typography.bodyLarge)
@@ -168,7 +172,12 @@ fun DecisionDialog(
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
-                    label = { Text(if (pending.approve) "Ghi chú (không bắt buộc)" else "Lý do từ chối *") },
+                    label = {
+                        Text(
+                            pending.reasonLabel
+                                ?: if (pending.approve) "Ghi chú (không bắt buộc)" else "Lý do từ chối *",
+                        )
+                    },
                     minLines = 2,
                     modifier = Modifier.fillMaxWidth(),
                 )

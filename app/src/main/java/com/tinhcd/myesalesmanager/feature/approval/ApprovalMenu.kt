@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Inventory2
@@ -51,6 +52,9 @@ sealed interface ApprovalTarget {
     data object Leave : ApprovalTarget
     data object Customer : ApprovalTarget
     data class Trade(val kind: TradeKind) : ApprovalTarget
+
+    /** Plans reps sent up — the team plan list, opened on "Chờ duyệt". Legacy TaskApprove. */
+    data object WorkPlan : ApprovalTarget
 }
 
 @HiltViewModel
@@ -78,6 +82,7 @@ private data class MenuEntry(
 )
 
 private val entries = listOf(
+    MenuEntry(ApprovalTarget.WorkPlan, "Kế hoạch làm việc", Icons.AutoMirrored.Filled.Assignment) { it.workPlan },
     MenuEntry(ApprovalTarget.Leave, "Nghỉ phép", Icons.Default.EventBusy) { it.leave },
     MenuEntry(ApprovalTarget.Customer, "Khách hàng mới", Icons.Default.Storefront) { it.customer },
     MenuEntry(ApprovalTarget.Trade(TradeKind.DISPLAY), "Đăng ký trưng bày", Icons.AutoMirrored.Filled.ViewQuilt) { it.display },
@@ -85,7 +90,7 @@ private val entries = listOf(
     MenuEntry(ApprovalTarget.Trade(TradeKind.POSM), "Đăng ký POSM", Icons.Default.Inventory2) { it.posm },
 )
 
-/** Tab "Phê duyệt". Legacy ApprovalMenuScreen; task approval arrives with G6. */
+/** Tab "Phê duyệt". Legacy ApprovalMenuScreen. */
 @Composable
 fun ApprovalMenu(
     onOpen: (ApprovalTarget) -> Unit,

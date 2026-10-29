@@ -175,6 +175,7 @@ private fun StaffDto.toTeamMember() = TeamMember(
     fullName = fullName,
     position = Position.of(position),
     phone = phone,
+    branchId = branchId,
 )
 
 internal fun Exception.toAppError(): AppError {

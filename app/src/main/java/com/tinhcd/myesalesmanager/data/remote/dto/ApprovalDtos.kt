@@ -10,6 +10,7 @@ data class ApprovalCountsDto(
     val display: Int = 0,
     val loyalty: Int = 0,
     val posm: Int = 0,
+    @SerialName("work_plan") val workPlan: Int = 0,
 )
 
 @Serializable

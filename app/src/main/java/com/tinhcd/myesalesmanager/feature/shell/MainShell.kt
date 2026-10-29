@@ -14,7 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.FactCheck
+import androidx.compose.material.icons.automirrored.filled.FactCheck
 import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -45,6 +45,8 @@ import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalMenu
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalTarget
+import com.tinhcd.myesalesmanager.feature.workplan.TaskTarget
+import com.tinhcd.myesalesmanager.feature.workplan.TasksMenu
 
 /**
  * The legacy manager app's five bottom tabs, in its order. Công việc and Khác
@@ -54,7 +56,7 @@ private enum class Tab(val label: String, val icon: ImageVector) {
     OVERVIEW("Tổng quan", Icons.Default.Dashboard),
     TASKS("Công việc", Icons.AutoMirrored.Filled.Assignment),
     REPORTS("Báo cáo", Icons.Default.BarChart),
-    APPROVALS("Phê duyệt", Icons.Default.FactCheck),
+    APPROVALS("Phê duyệt", Icons.AutoMirrored.Filled.FactCheck),
     OTHER("Khác", Icons.Default.MoreHoriz),
 }
 
@@ -62,6 +64,7 @@ private enum class Tab(val label: String, val icon: ImageVector) {
 fun MainShell(
     onSignedOut: () -> Unit,
     onOpenApproval: (ApprovalTarget) -> Unit,
+    onOpenTask: (TaskTarget) -> Unit,
     viewModel: ShellViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -93,6 +96,7 @@ fun MainShell(
                 )
 
                 else -> when (Tab.entries[tab]) {
+                    Tab.TASKS -> TasksMenu(onOpen = onOpenTask)
                     Tab.APPROVALS -> ApprovalMenu(onOpen = onOpenApproval)
                     Tab.OTHER -> OtherTab(state.team, onSignOut = viewModel::signOut)
                     else -> ComingSoon(Tab.entries[tab].label)

@@ -2,8 +2,10 @@ package com.tinhcd.myesalesmanager.data.di
 
 import com.tinhcd.myesalesmanager.data.repository.ApprovalRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.AuthRepositoryImpl
+import com.tinhcd.myesalesmanager.data.repository.WorkPlanRepositoryImpl
 import com.tinhcd.myesalesmanager.domain.repository.ApprovalRepository
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
+import com.tinhcd.myesalesmanager.domain.repository.WorkPlanRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -21,4 +23,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindApprovalRepository(impl: ApprovalRepositoryImpl): ApprovalRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorkPlanRepository(impl: WorkPlanRepositoryImpl): WorkPlanRepository
 }
