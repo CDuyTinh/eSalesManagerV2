@@ -7,6 +7,7 @@ import com.tinhcd.myesalesmanager.data.remote.http.SupabaseApiKey
 import com.tinhcd.myesalesmanager.data.remote.http.SupabaseAuthInterceptor
 import com.tinhcd.myesalesmanager.data.remote.http.SupabaseSessionTokens
 import com.tinhcd.myesalesmanager.data.remote.http.SupabaseTokenAuthenticator
+import com.tinhcd.myesalesmanager.data.remote.service.ApprovalService
 import com.tinhcd.myesalesmanager.data.remote.service.BootstrapService
 import dagger.Binds
 import dagger.Module
@@ -98,4 +99,9 @@ object NetworkModule {
     @Singleton
     fun provideBootstrapService(retrofit: Retrofit): BootstrapService =
         retrofit.create(BootstrapService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideApprovalService(retrofit: Retrofit): ApprovalService =
+        retrofit.create(ApprovalService::class.java)
 }

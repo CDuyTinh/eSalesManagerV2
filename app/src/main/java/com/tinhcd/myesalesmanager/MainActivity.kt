@@ -3,6 +3,7 @@ package com.tinhcd.myesalesmanager
 import android.os.Bundle
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -44,7 +45,10 @@ class MainActivity : ComponentActivity() {
                 SystemClock.elapsedRealtime() - launchedAt < SPLASH_HOLD_MS
         }
 
-        enableEdgeToEdge()
+        // Every screen opens on the blue brand header, so the status bar icons
+        // are always drawn light; the default follows the system theme and
+        // put dark icons on the blue in light mode.
+        enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         setContent {
             MyeSalesTheme {
                 val start by rootViewModel.startDestination.collectAsStateWithLifecycle()

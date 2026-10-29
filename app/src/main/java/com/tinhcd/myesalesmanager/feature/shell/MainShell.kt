@@ -43,6 +43,8 @@ import com.tinhcd.myesalesmanager.core.ui.LoadingBox
 import com.tinhcd.myesalesmanager.core.ui.theme.brand
 import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
+import com.tinhcd.myesalesmanager.feature.approval.ApprovalMenu
+import com.tinhcd.myesalesmanager.feature.approval.ApprovalTarget
 
 /**
  * The legacy manager app's five bottom tabs, in its order. Công việc and Khác
@@ -59,6 +61,7 @@ private enum class Tab(val label: String, val icon: ImageVector) {
 @Composable
 fun MainShell(
     onSignedOut: () -> Unit,
+    onOpenApproval: (ApprovalTarget) -> Unit,
     viewModel: ShellViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -90,6 +93,7 @@ fun MainShell(
                 )
 
                 else -> when (Tab.entries[tab]) {
+                    Tab.APPROVALS -> ApprovalMenu(onOpen = onOpenApproval)
                     Tab.OTHER -> OtherTab(state.team, onSignOut = viewModel::signOut)
                     else -> ComingSoon(Tab.entries[tab].label)
                 }
