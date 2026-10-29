@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      BrandBlue, kept in step with core/ui/theme/Theme.kt. Duplicated as a resource
+      rather than read from Compose because the system draws the splash window before
+      any of our code runs, so it can only come from the theme.
+    -->
+    <color name="splash_background">#00549F</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
