@@ -50,11 +50,20 @@ import com.tinhcd.myesalesmanager.domain.model.SalesReport
 import com.tinhcd.myesalesmanager.domain.model.SkuReport
 import com.tinhcd.myesalesmanager.domain.model.StaffBrief
 import com.tinhcd.myesalesmanager.domain.model.TradeReport
+import com.tinhcd.myesalesmanager.domain.model.TrainingReport
 import com.tinhcd.myesalesmanager.domain.model.WorkReport
 import com.tinhcd.myesalesmanager.domain.model.percent
 
+/**
+ * @param onOpenTraining a coaching day picked from Kết quả huấn luyện: its id and
+ *   whether it is finished (result screen) or still open (the day itself).
+ */
 @Composable
-fun ReportScreen(onBack: () -> Unit, viewModel: ReportViewModel = hiltViewModel()) {
+fun ReportScreen(
+    onBack: () -> Unit,
+    onOpenTraining: (String, Boolean) -> Unit = { _, _ -> },
+    viewModel: ReportViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val team = state.salespersonId == null
 
@@ -89,6 +98,7 @@ fun ReportScreen(onBack: () -> Unit, viewModel: ReportViewModel = hiltViewModel(
                 data is SkuReport -> sku(data)
                 data is TradeReport -> trade(data, team)
                 data is WorkReport -> work(data, team)
+                data is TrainingReport -> training(data, team, onOpenTraining)
             }
         }
     }
@@ -365,6 +375,58 @@ private fun LazyListScope.work(d: WorkReport, team: Boolean) {
             }
             Faint(listOfNotNull(r.categoryName, formatWindow(r.fromAt, r.toAt), if (team) who(r.salesperson) else null).joinToString(" · "))
             r.outcome?.let { Text("Kết quả: $it", style = MaterialTheme.typography.bodyLarge) }
+        }
+    }
+}
+
+// --- Kết quả huấn luyện ---------------------------------------------------------------
+
+private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (String, Boolean) -> Unit) {
+    item {
+        Block {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatTile("Đã huấn luyện", "${d.trained}/${d.plans}", Kpi.Green, Modifier.weight(1f))
+                StatTile("Chưa huấn luyện", "${d.untrained}", Kpi.Orange, Modifier.weight(1f))
+                StatTile("Điểm đánh giá", d.score?.let { "$it%" } ?: "—", Kpi.Blue, Modifier.weight(1f))
+            }
+            Faint("${d.outlets} điểm bán đã kèm cặp · điểm = trung bình bước Đánh giá theo thang tối đa")
+        }
+    }
+    if (team && d.members.isNotEmpty()) {
+        item {
+            Block {
+                Title("Theo nhân viên")
+                d.members.forEach { m ->
+                    Line(m.name, "${m.trained}/${m.plans} buổi" + (m.score?.let { " · $it%" } ?: ""))
+                }
+            }
+        }
+    }
+    if (d.items.isEmpty()) empty("Không có kế hoạch huấn luyện trong kỳ này") else items(d.items, key = { it.planId }) { r ->
+        val open = r.trainingId
+        Card(
+            onClick = { if (open != null) onOpen(open, r.status == "completed") },
+            enabled = open != null,
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        ) {
+            Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row {
+                    Text(r.rep.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                    when (r.status) {
+                        "completed" -> StatusPill("Đã huấn luyện", Kpi.Green.first())
+                        "in_progress" -> StatusPill("Đang ở bước ${(r.currentStep ?: 0) + 1}/8", Kpi.Orange.first())
+                        else -> StatusPill("Chưa huấn luyện", Kpi.Slate.first())
+                    }
+                }
+                Faint(
+                    listOfNotNull(
+                        formatWindow(r.fromAt, r.toAt),
+                        if (r.outlets > 0) "${r.outlets} điểm bán" else null,
+                        r.score?.let { "điểm $it%" },
+                    ).joinToString(" · "),
+                )
+                r.result?.let { Text("Kết quả: $it", style = MaterialTheme.typography.bodyLarge) }
+            }
         }
     }
 }

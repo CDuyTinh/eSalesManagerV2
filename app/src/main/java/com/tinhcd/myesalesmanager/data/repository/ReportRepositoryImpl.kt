@@ -4,6 +4,9 @@ import com.tinhcd.myesalesmanager.data.remote.dto.StaffBriefDto
 import com.tinhcd.myesalesmanager.data.remote.http.PostgrestException
 import com.tinhcd.myesalesmanager.data.remote.http.orThrow
 import com.tinhcd.myesalesmanager.data.remote.service.ReportService
+import com.tinhcd.myesalesmanager.domain.model.TrainingMember
+import com.tinhcd.myesalesmanager.domain.model.TrainingReport
+import com.tinhcd.myesalesmanager.domain.model.TrainingRow
 import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.ActivitiesReport
@@ -114,7 +117,22 @@ class ReportRepositoryImpl @Inject constructor(
             )
         }
 
-        ReportKind.TRAINING, ReportKind.DAILY_TRACKING, ReportKind.MAP ->
+        ReportKind.TRAINING -> service.training(p.from, p.to, sp).orThrow().let { d ->
+            TrainingReport(
+                plans = d.summary.plans,
+                trained = d.summary.trained,
+                untrained = d.summary.untrained,
+                outlets = d.summary.outlets,
+                score = d.summary.score,
+                members = d.members.map { TrainingMember(it.code, it.name, it.plans, it.trained, it.untrained, it.score) },
+                items = d.items.map {
+                    TrainingRow(it.planId, it.trainingId, it.content, it.fromAt, it.toAt, it.rep.toDomain(),
+                        it.status, it.currentStep, it.result, it.outlets, it.score)
+                },
+            )
+        }
+
+        ReportKind.DAILY_TRACKING, ReportKind.MAP ->
             throw IllegalStateException("Báo cáo này chưa có")
     }
 }

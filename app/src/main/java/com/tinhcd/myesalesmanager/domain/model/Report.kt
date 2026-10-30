@@ -14,7 +14,7 @@ enum class ReportKind(val code: String, val title: String, val period: PeriodKin
     SKU("sku", "Sản lượng SKU", PeriodKind.RANGE),
     TRADE("trade", "Đăng ký chương trình", PeriodKind.RANGE),
     WORK("work", "Kết quả công việc", PeriodKind.RANGE),
-    TRAINING("training", "Kết quả huấn luyện", PeriodKind.RANGE, ready = false),
+    TRAINING("training", "Kết quả huấn luyện", PeriodKind.RANGE),
     DAILY_TRACKING("tracking", "Theo dõi bán hàng trong ngày", PeriodKind.DAY, ready = false),
     MAP("map", "Bản đồ vị trí nhân viên", PeriodKind.DAY, ready = false),
     ;
@@ -159,4 +159,41 @@ data class WorkReport(
     val cancelled: Int,
     val total: Int,
     val items: List<WorkRow>,
+) : ReportData
+
+// --- Kết quả huấn luyện ---------------------------------------------------------------
+
+/** One rep's coaching in the period. [score] is the Đánh giá average, 0–100. */
+data class TrainingMember(
+    val code: String,
+    val name: String,
+    val plans: Int,
+    val trained: Int,
+    val untrained: Int,
+    val score: Int?,
+)
+
+data class TrainingRow(
+    val planId: String,
+    val trainingId: String?,
+    val content: String,
+    val fromAt: String,
+    val toAt: String,
+    val rep: StaffBrief,
+    /** completed, in_progress or not_started. */
+    val status: String,
+    val currentStep: Int?,
+    val result: String?,
+    val outlets: Int,
+    val score: Int?,
+)
+
+data class TrainingReport(
+    val plans: Int,
+    val trained: Int,
+    val untrained: Int,
+    val outlets: Int,
+    val score: Int?,
+    val members: List<TrainingMember>,
+    val items: List<TrainingRow>,
 ) : ReportData

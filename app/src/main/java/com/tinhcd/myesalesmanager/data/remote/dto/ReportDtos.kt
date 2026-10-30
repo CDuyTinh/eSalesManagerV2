@@ -151,3 +151,44 @@ data class WorkReportDto(
     val total: Int = 0,
     val items: List<WorkRowDto> = emptyList(),
 )
+
+@Serializable
+data class TrainingSummaryDto(
+    val plans: Int = 0,
+    val trained: Int = 0,
+    val untrained: Int = 0,
+    val outlets: Int = 0,
+    val score: Int? = null,
+)
+
+@Serializable
+data class TrainingMemberDto(
+    val code: String,
+    val name: String,
+    val plans: Int = 0,
+    val trained: Int = 0,
+    val untrained: Int = 0,
+    val score: Int? = null,
+)
+
+@Serializable
+data class TrainingRowDto(
+    @SerialName("plan_id") val planId: String,
+    @SerialName("training_id") val trainingId: String? = null,
+    val content: String = "",
+    @SerialName("from_at") val fromAt: String,
+    @SerialName("to_at") val toAt: String,
+    val rep: StaffBriefDto,
+    val status: String = "not_started",
+    @SerialName("current_step") val currentStep: Int? = null,
+    val result: String? = null,
+    val outlets: Int = 0,
+    val score: Int? = null,
+)
+
+@Serializable
+data class TrainingReportDto(
+    val summary: TrainingSummaryDto = TrainingSummaryDto(),
+    val members: List<TrainingMemberDto> = emptyList(),
+    val items: List<TrainingRowDto> = emptyList(),
+)

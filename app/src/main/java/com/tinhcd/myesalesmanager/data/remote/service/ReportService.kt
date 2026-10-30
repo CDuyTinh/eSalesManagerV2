@@ -5,6 +5,7 @@ import com.tinhcd.myesalesmanager.data.remote.dto.OrdersReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.SalesReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.SkuReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.TradeReportDto
+import com.tinhcd.myesalesmanager.data.remote.dto.TrainingReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.WorkReportDto
 import retrofit2.Response
 import retrofit2.http.GET
@@ -52,4 +53,11 @@ interface ReportService {
         @Query("toDate") to: String,
         @Query("salespersonId") salespersonId: String?,
     ): Response<WorkReportDto>
+
+    @GET("mgr-reports?report=training")
+    suspend fun training(
+        @Query("fromDate") from: String,
+        @Query("toDate") to: String,
+        @Query("salespersonId") salespersonId: String?,
+    ): Response<TrainingReportDto>
 }
