@@ -46,6 +46,8 @@ import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalMenu
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalTarget
 import com.tinhcd.myesalesmanager.feature.dashboard.DashboardTab
+import com.tinhcd.myesalesmanager.domain.model.ReportKind
+import com.tinhcd.myesalesmanager.feature.report.ReportsMenu
 import com.tinhcd.myesalesmanager.feature.workplan.TaskTarget
 import com.tinhcd.myesalesmanager.feature.workplan.TasksMenu
 
@@ -66,6 +68,7 @@ fun MainShell(
     onSignedOut: () -> Unit,
     onOpenApproval: (ApprovalTarget) -> Unit,
     onOpenTask: (TaskTarget) -> Unit,
+    onOpenReport: (ReportKind) -> Unit,
     viewModel: ShellViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -99,9 +102,9 @@ fun MainShell(
                 else -> when (Tab.entries[tab]) {
                     Tab.OVERVIEW -> DashboardTab()
                     Tab.TASKS -> TasksMenu(onOpen = onOpenTask)
+                    Tab.REPORTS -> ReportsMenu(onOpen = onOpenReport)
                     Tab.APPROVALS -> ApprovalMenu(onOpen = onOpenApproval)
                     Tab.OTHER -> OtherTab(state.team, onSignOut = viewModel::signOut)
-                    else -> ComingSoon(Tab.entries[tab].label)
                 }
             }
         }
@@ -160,21 +163,3 @@ private fun OtherTab(team: List<TeamMember>, onSignOut: () -> Unit) {
     }
 }
 
-@Composable
-private fun ComingSoon(title: String) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(title, style = MaterialTheme.typography.titleLarge)
-        Text(
-            "Đang phát triển",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
-}

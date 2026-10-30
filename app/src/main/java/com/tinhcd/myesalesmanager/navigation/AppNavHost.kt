@@ -13,7 +13,10 @@ import com.tinhcd.myesalesmanager.feature.approval.CustomerApprovalDetailScreen
 import com.tinhcd.myesalesmanager.feature.approval.CustomerApprovalScreen
 import com.tinhcd.myesalesmanager.feature.approval.LeaveApprovalScreen
 import com.tinhcd.myesalesmanager.feature.approval.TradeApprovalScreen
+import com.tinhcd.myesalesmanager.domain.model.ReportKind
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanStatus
+import com.tinhcd.myesalesmanager.feature.report.ARG_REPORT
+import com.tinhcd.myesalesmanager.feature.report.ReportScreen
 import com.tinhcd.myesalesmanager.feature.auth.LoginScreen
 import com.tinhcd.myesalesmanager.feature.shell.MainShell
 import com.tinhcd.myesalesmanager.feature.workplan.ARG_PLAN_ID
@@ -48,6 +51,9 @@ object Routes {
         ApprovalTarget.WorkPlan -> plans(WorkPlanStatus.SUBMITTED.code)
     }
 
+    const val REPORT = "reports/{$ARG_REPORT}"
+    fun report(kind: ReportKind) = "reports/${kind.code}"
+
     fun of(target: TaskTarget): String = when (target) {
         TaskTarget.TEAM_PLANS -> plans()
         TaskTarget.ASSIGN -> ASSIGN_PLAN
@@ -74,8 +80,14 @@ fun AppNavHost(startDestination: String) {
                 },
                 onOpenApproval = { nav.navigate(Routes.of(it)) },
                 onOpenTask = { nav.navigate(Routes.of(it)) },
+                onOpenReport = { nav.navigate(Routes.report(it)) },
             )
         }
+
+        composable(
+            Routes.REPORT,
+            arguments = listOf(navArgument(ARG_REPORT) { type = NavType.StringType }),
+        ) { ReportScreen(onBack = back) }
 
         composable(
             Routes.TEAM_PLANS,
