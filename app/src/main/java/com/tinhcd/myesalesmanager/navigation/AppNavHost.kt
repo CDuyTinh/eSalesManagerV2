@@ -17,6 +17,15 @@ import com.tinhcd.myesalesmanager.domain.model.ReportKind
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanStatus
 import com.tinhcd.myesalesmanager.feature.report.ARG_REPORT
 import com.tinhcd.myesalesmanager.feature.report.ReportScreen
+import com.tinhcd.myesalesmanager.domain.model.EdacStep
+import com.tinhcd.myesalesmanager.feature.edac.ARG_EDAC_CUSTOMER
+import com.tinhcd.myesalesmanager.feature.edac.ARG_EDAC_STEP
+import com.tinhcd.myesalesmanager.feature.edac.ARG_TRAINING_ID
+import com.tinhcd.myesalesmanager.feature.edac.EdacFinishScreen
+import com.tinhcd.myesalesmanager.feature.edac.EdacHomeScreen
+import com.tinhcd.myesalesmanager.feature.edac.EdacResultScreen
+import com.tinhcd.myesalesmanager.feature.edac.EdacStepScreen
+import com.tinhcd.myesalesmanager.feature.edac.EdacTrainingScreen
 import com.tinhcd.myesalesmanager.feature.route.ARG_ROUTE_ID
 import com.tinhcd.myesalesmanager.feature.route.RouteDetailScreen
 import com.tinhcd.myesalesmanager.feature.route.RoutesScreen
@@ -68,11 +77,23 @@ object Routes {
     const val ROUTE_DETAIL = "routes/{$ARG_ROUTE_ID}"
     fun routeDetail(id: String) = "routes/$id"
 
+    const val EDAC = "edac"
+    const val EDAC_TRAINING = "edac/{$ARG_TRAINING_ID}"
+    const val EDAC_STEP = "edac/{$ARG_TRAINING_ID}/step/{$ARG_EDAC_STEP}?$ARG_EDAC_CUSTOMER={$ARG_EDAC_CUSTOMER}"
+    const val EDAC_FINISH = "edac/{$ARG_TRAINING_ID}/finish"
+    const val EDAC_RESULT = "edac/{$ARG_TRAINING_ID}/result"
+    fun edacTraining(id: String) = "edac/$id"
+    fun edacStep(id: String, step: EdacStep, customerId: String? = null) =
+        if (step == EdacStep.FINISH) "edac/$id/finish"
+        else "edac/$id/step/${step.index}" + (customerId?.let { "?$ARG_EDAC_CUSTOMER=$it" } ?: "")
+    fun edacResult(id: String) = "edac/$id/result"
+
     fun of(target: TaskTarget): String = when (target) {
         TaskTarget.TEAM_PLANS -> plans()
         TaskTarget.ASSIGN -> ASSIGN_PLAN
         TaskTarget.WORK_WITH -> WORK_WITH
         TaskTarget.ROUTES -> ROUTES
+        TaskTarget.EDAC -> EDAC
     }
 }
 
@@ -107,6 +128,45 @@ fun AppNavHost(startDestination: String) {
             Routes.WORK_WITH_VISIT,
             arguments = listOf(navArgument(ARG_VISIT_ID) { type = NavType.StringType }),
         ) { WorkWithVisitScreen(onBack = back) }
+
+        composable(Routes.EDAC) {
+            EdacHomeScreen(
+                onBack = back,
+                onOpenTraining = { nav.navigate(Routes.edacTraining(it)) },
+                onOpenResult = { nav.navigate(Routes.edacResult(it)) },
+            )
+        }
+        composable(
+            Routes.EDAC_TRAINING,
+            arguments = listOf(navArgument(ARG_TRAINING_ID) { type = NavType.StringType }),
+        ) {
+            EdacTrainingScreen(
+                onBack = back,
+                onOpenStep = { id, step -> nav.navigate(Routes.edacStep(id, step)) },
+                onOpenResult = { nav.navigate(Routes.edacResult(it)) },
+            )
+        }
+        composable(
+            Routes.EDAC_STEP,
+            arguments = listOf(
+                navArgument(ARG_TRAINING_ID) { type = NavType.StringType },
+                navArgument(ARG_EDAC_STEP) { type = NavType.StringType },
+                navArgument(ARG_EDAC_CUSTOMER) { type = NavType.StringType; nullable = true; defaultValue = null },
+            ),
+        ) {
+            EdacStepScreen(
+                onBack = back,
+                onOpenOutlet = { id, step, customer -> nav.navigate(Routes.edacStep(id, step, customer)) },
+            )
+        }
+        composable(
+            Routes.EDAC_FINISH,
+            arguments = listOf(navArgument(ARG_TRAINING_ID) { type = NavType.StringType }),
+        ) { EdacFinishScreen(onBack = back, onDone = back) }
+        composable(
+            Routes.EDAC_RESULT,
+            arguments = listOf(navArgument(ARG_TRAINING_ID) { type = NavType.StringType }),
+        ) { EdacResultScreen(onBack = back) }
 
         composable(Routes.ROUTES) {
             RoutesScreen(onBack = back, onOpen = { nav.navigate(Routes.routeDetail(it)) })
