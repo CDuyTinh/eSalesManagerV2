@@ -88,6 +88,12 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
+    // Đi tuyến cùng nhân viên: a GPS fix at check-in, and shelf photos whose
+    // rotation lives in EXIF.
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.androidx.exifinterface)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 

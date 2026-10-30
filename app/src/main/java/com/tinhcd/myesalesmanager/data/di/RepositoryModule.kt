@@ -4,6 +4,8 @@ import com.tinhcd.myesalesmanager.data.repository.ApprovalRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.AuthRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.DashboardRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.ReportRepositoryImpl
+import com.tinhcd.myesalesmanager.data.repository.WorkWithRepositoryImpl
+import com.tinhcd.myesalesmanager.domain.repository.WorkWithRepository
 import com.tinhcd.myesalesmanager.domain.repository.ReportRepository
 import com.tinhcd.myesalesmanager.domain.repository.DashboardRepository
 import com.tinhcd.myesalesmanager.data.repository.WorkPlanRepositoryImpl
@@ -39,4 +41,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindReportRepository(impl: ReportRepositoryImpl): ReportRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorkWithRepository(impl: WorkWithRepositoryImpl): WorkWithRepository
 }

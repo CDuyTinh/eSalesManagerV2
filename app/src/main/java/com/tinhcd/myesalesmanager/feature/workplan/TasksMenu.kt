@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 /** Where an entry on the tasks tab leads; null for one not built yet. */
-enum class TaskTarget { TEAM_PLANS, ASSIGN }
+enum class TaskTarget { TEAM_PLANS, ASSIGN, WORK_WITH }
 
 private data class TaskEntry(
     val title: String,
@@ -47,7 +47,7 @@ private data class TaskEntry(
 private val entries = listOf(
     TaskEntry("Công việc của nhóm", "Kế hoạch, việc đã giao, duyệt kế hoạch", Icons.AutoMirrored.Filled.Assignment, TaskTarget.TEAM_PLANS),
     TaskEntry("Giao việc mới", "Giao công việc cho nhân viên", Icons.Default.AddTask, TaskTarget.ASSIGN),
-    TaskEntry("Đi tuyến cùng nhân viên", "Sắp có", Icons.AutoMirrored.Filled.DirectionsWalk, null),
+    TaskEntry("Đi tuyến cùng nhân viên", "Check-in cùng nhân viên, chấm trưng bày", Icons.AutoMirrored.Filled.DirectionsWalk, TaskTarget.WORK_WITH),
     TaskEntry("Huấn luyện EDAC", "Sắp có", Icons.Default.School, null),
     TaskEntry("Ghi chú công việc", "Sắp có", Icons.AutoMirrored.Filled.StickyNote2, null),
     TaskEntry("Tồn kho công ty", "Sắp có", Icons.Default.Warehouse, null),
