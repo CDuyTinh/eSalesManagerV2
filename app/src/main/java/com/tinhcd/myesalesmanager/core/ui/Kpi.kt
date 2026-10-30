@@ -162,7 +162,8 @@ fun compactMoney(value: Long): String = when {
     value >= 1_000_000_000 -> trimZero(value / 1_000_000_000.0) + " tỷ"
     value >= 1_000_000 -> trimZero(value / 1_000_000.0) + " tr"
     value >= 1_000 -> trimZero(value / 1_000.0) + " ng"
-    else -> value.toString()
+    // Small amounts keep their unit: a bare "0" beside "3,8 tr" reads as a count.
+    else -> "$value đ"
 }
 
 private fun trimZero(value: Double): String {

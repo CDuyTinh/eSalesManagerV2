@@ -323,7 +323,7 @@ private fun MemberRow(rank: Int, m: MemberFigures, onClick: () -> Unit) {
             )
             if (pct != null) KpiBar(pct / 100f, ramp)
             Text(
-                "Hôm nay: ${m.todayVisits}/${m.todayPlanned} viếng thăm · ${m.todayOrders} đơn · ${money(m.todayRevenue)}",
+                "Hôm nay: ${m.todayVisits}/${m.todayPlanned} viếng thăm · ${m.todayOrders} đơn · ${compactMoney(m.todayRevenue)}",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -335,5 +335,3 @@ private fun MemberRow(rank: Int, m: MemberFigures, onClick: () -> Unit) {
 private fun oneDecimal(value: Double): String =
     "%.1f".format(java.util.Locale.US, value).replace('.', ',').removeSuffix(",0")
 
-/** compactMoney says "tr"/"ng" for big amounts but nothing for small ones. */
-private fun money(value: Long): String = if (value < 1_000) "$value đ" else compactMoney(value)
