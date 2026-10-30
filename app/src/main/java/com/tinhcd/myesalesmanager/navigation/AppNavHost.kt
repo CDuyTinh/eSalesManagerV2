@@ -17,7 +17,15 @@ import com.tinhcd.myesalesmanager.domain.model.ReportKind
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanStatus
 import com.tinhcd.myesalesmanager.feature.report.ARG_REPORT
 import com.tinhcd.myesalesmanager.feature.report.ReportScreen
+import com.tinhcd.myesalesmanager.domain.model.AppNotification
 import com.tinhcd.myesalesmanager.domain.model.EdacStep
+import com.tinhcd.myesalesmanager.domain.model.NotificationKind
+import com.tinhcd.myesalesmanager.domain.model.TradeKind
+import com.tinhcd.myesalesmanager.feature.personal.MyLeaveScreen
+import com.tinhcd.myesalesmanager.feature.personal.NotificationsScreen
+import com.tinhcd.myesalesmanager.feature.personal.PersonalTarget
+import com.tinhcd.myesalesmanager.feature.personal.WorkDayScreen
+import com.tinhcd.myesalesmanager.feature.personal.WorkNotesScreen
 import com.tinhcd.myesalesmanager.feature.edac.ARG_EDAC_CUSTOMER
 import com.tinhcd.myesalesmanager.feature.edac.ARG_EDAC_STEP
 import com.tinhcd.myesalesmanager.feature.edac.ARG_TRAINING_ID
@@ -94,6 +102,30 @@ object Routes {
         TaskTarget.WORK_WITH -> WORK_WITH
         TaskTarget.ROUTES -> ROUTES
         TaskTarget.EDAC -> EDAC
+        TaskTarget.NOTES -> of(PersonalTarget.NOTES)
+    }
+
+    fun of(target: PersonalTarget): String = when (target) {
+        PersonalTarget.WORK_DAY -> "personal/workday"
+        PersonalTarget.LEAVE -> "personal/leave"
+        PersonalTarget.NOTES -> "personal/notes"
+        PersonalTarget.NOTIFICATIONS -> "personal/notifications"
+    }
+
+    /** Where a bell entry leads: the request to rule on, or the manager's own item. */
+    fun of(n: AppNotification): String? = when (n.kind) {
+        NotificationKind.TEAM_LEAVE -> APPROVAL_LEAVE
+        NotificationKind.TEAM_CUSTOMER -> customerDetail(n.sourceId)
+        NotificationKind.TEAM_TRADE -> trade(
+            when {
+                n.title.startsWith("Đăng ký tích lũy") -> TradeKind.LOYALTY
+                n.title.startsWith("Đăng ký POSM") -> TradeKind.POSM
+                else -> TradeKind.DISPLAY
+            }.code,
+        )
+        NotificationKind.TEAM_WORK_PLAN, NotificationKind.WORK_PLAN -> planDetail(n.sourceId)
+        NotificationKind.LEAVE_RESULT -> of(PersonalTarget.LEAVE)
+        NotificationKind.OTHER -> null
     }
 }
 
@@ -118,7 +150,15 @@ fun AppNavHost(startDestination: String) {
                 onOpenApproval = { nav.navigate(Routes.of(it)) },
                 onOpenTask = { nav.navigate(Routes.of(it)) },
                 onOpenReport = { nav.navigate(Routes.report(it)) },
+                onOpenPersonal = { nav.navigate(Routes.of(it)) },
             )
+        }
+
+        composable(Routes.of(PersonalTarget.WORK_DAY)) { WorkDayScreen(onBack = back) }
+        composable(Routes.of(PersonalTarget.LEAVE)) { MyLeaveScreen(onBack = back) }
+        composable(Routes.of(PersonalTarget.NOTES)) { WorkNotesScreen(onBack = back) }
+        composable(Routes.of(PersonalTarget.NOTIFICATIONS)) {
+            NotificationsScreen(onBack = back, onOpen = { n -> Routes.of(n)?.let { nav.navigate(it) } })
         }
 
         composable(Routes.WORK_WITH) {
@@ -179,7 +219,14 @@ fun AppNavHost(startDestination: String) {
         composable(
             Routes.REPORT,
             arguments = listOf(navArgument(ARG_REPORT) { type = NavType.StringType }),
-        ) { ReportScreen(onBack = back) }
+        ) {
+            ReportScreen(
+                onBack = back,
+                onOpenTraining = { id, finished ->
+                    nav.navigate(if (finished) Routes.edacResult(id) else Routes.edacTraining(id))
+                },
+            )
+        }
 
         composable(
             Routes.TEAM_PLANS,

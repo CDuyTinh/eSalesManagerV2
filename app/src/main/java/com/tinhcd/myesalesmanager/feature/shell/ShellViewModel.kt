@@ -6,6 +6,7 @@ import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.SessionState
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
+import com.tinhcd.myesalesmanager.domain.repository.PersonalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +26,15 @@ data class ShellUiState(
 @HiltViewModel
 class ShellViewModel @Inject constructor(
     private val auth: AuthRepository,
+    private val personal: PersonalRepository,
 ) : ViewModel() {
+
+    /** The bell's badge; refreshed whenever the shell comes back into view. */
+    val unread: StateFlow<Int> = personal.unread
+
+    fun refreshUnread() {
+        viewModelScope.launch { personal.notifications() }
+    }
 
     val state: StateFlow<ShellUiState> =
         combine(auth.sessionState, auth.team) { session, team ->

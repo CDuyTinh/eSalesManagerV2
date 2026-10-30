@@ -1,6 +1,15 @@
 package com.tinhcd.myesalesmanager.feature.shell
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.IconButton
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import com.tinhcd.myesalesmanager.feature.personal.PersonalTarget
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,15 +78,21 @@ fun MainShell(
     onOpenApproval: (ApprovalTarget) -> Unit,
     onOpenTask: (TaskTarget) -> Unit,
     onOpenReport: (ReportKind) -> Unit,
+    onOpenPersonal: (PersonalTarget) -> Unit,
     viewModel: ShellViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val unread by viewModel.unread.collectAsStateWithLifecycle()
     var tab by rememberSaveable { mutableIntStateOf(0) }
 
     LaunchedEffect(state.signedOut) { if (state.signedOut) onSignedOut() }
+    LifecycleResumeEffect(Unit) {
+        viewModel.refreshUnread()
+        onPauseOrDispose { }
+    }
 
     Scaffold(
-        topBar = { Header(state.manager) },
+        topBar = { Header(state.manager, unread) { onOpenPersonal(PersonalTarget.NOTIFICATIONS) } },
         bottomBar = {
             NavigationBar {
                 Tab.entries.forEachIndexed { index, t ->
@@ -104,7 +119,7 @@ fun MainShell(
                     Tab.TASKS -> TasksMenu(onOpen = onOpenTask)
                     Tab.REPORTS -> ReportsMenu(onOpen = onOpenReport)
                     Tab.APPROVALS -> ApprovalMenu(onOpen = onOpenApproval)
-                    Tab.OTHER -> OtherTab(state.team, onSignOut = viewModel::signOut)
+                    Tab.OTHER -> OtherTab(state.team, onOpen = onOpenPersonal, onSignOut = viewModel::signOut)
                 }
             }
         }
@@ -112,32 +127,49 @@ fun MainShell(
 }
 
 @Composable
-private fun Header(manager: Manager?) {
-    Column(
-        Modifier
+private fun Header(manager: Manager?, unread: Int, onBell: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.brand.header)
             .statusBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .padding(start = 16.dp, end = 4.dp, top = 12.dp, bottom = 12.dp),
     ) {
-        Text(
-            manager?.fullName ?: "eSales Manager",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.brand.onHeader,
-        )
-        if (manager != null) {
+        Column(Modifier.weight(1f)) {
             Text(
-                "${manager.code} · Giám sát · ${manager.branchName}",
-                style = MaterialTheme.typography.bodyLarge,
+                manager?.fullName ?: "eSales Manager",
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.brand.onHeader,
             )
+            if (manager != null) {
+                Text(
+                    "${manager.code} · Giám sát · ${manager.branchName}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.brand.onHeader,
+                )
+            }
+        }
+        IconButton(onClick = onBell) {
+            BadgedBox(badge = { if (unread > 0) Badge { Text(if (unread > 99) "99+" else "$unread") } }) {
+                Icon(Icons.Default.Notifications, contentDescription = "Thông báo", tint = MaterialTheme.brand.onHeader)
+            }
         }
     }
 }
 
 @Composable
-private fun OtherTab(team: List<TeamMember>, onSignOut: () -> Unit) {
+private fun OtherTab(team: List<TeamMember>, onOpen: (PersonalTarget) -> Unit, onSignOut: () -> Unit) {
     LazyColumn(Modifier.fillMaxSize()) {
+        items(PersonalTarget.entries) { t ->
+            ListItem(
+                headlineContent = { Text(t.title) },
+                supportingContent = { Text(t.subtitle) },
+                trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
+                modifier = Modifier.clickable { onOpen(t) },
+            )
+            HorizontalDivider()
+        }
         item {
             Text(
                 "Nhân viên trong nhóm (${team.size})",
