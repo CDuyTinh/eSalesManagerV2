@@ -17,6 +17,9 @@ import com.tinhcd.myesalesmanager.domain.model.ReportKind
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanStatus
 import com.tinhcd.myesalesmanager.feature.report.ARG_REPORT
 import com.tinhcd.myesalesmanager.feature.report.ReportScreen
+import com.tinhcd.myesalesmanager.feature.route.ARG_ROUTE_ID
+import com.tinhcd.myesalesmanager.feature.route.RouteDetailScreen
+import com.tinhcd.myesalesmanager.feature.route.RoutesScreen
 import com.tinhcd.myesalesmanager.feature.workwith.ARG_VISIT_ID
 import com.tinhcd.myesalesmanager.feature.workwith.WorkWithRouteScreen
 import com.tinhcd.myesalesmanager.feature.workwith.WorkWithVisitScreen
@@ -61,10 +64,15 @@ object Routes {
     const val WORK_WITH_VISIT = "workwith/visit/{$ARG_VISIT_ID}"
     fun workWithVisit(id: String) = "workwith/visit/$id"
 
+    const val ROUTES = "routes"
+    const val ROUTE_DETAIL = "routes/{$ARG_ROUTE_ID}"
+    fun routeDetail(id: String) = "routes/$id"
+
     fun of(target: TaskTarget): String = when (target) {
         TaskTarget.TEAM_PLANS -> plans()
         TaskTarget.ASSIGN -> ASSIGN_PLAN
         TaskTarget.WORK_WITH -> WORK_WITH
+        TaskTarget.ROUTES -> ROUTES
     }
 }
 
@@ -99,6 +107,14 @@ fun AppNavHost(startDestination: String) {
             Routes.WORK_WITH_VISIT,
             arguments = listOf(navArgument(ARG_VISIT_ID) { type = NavType.StringType }),
         ) { WorkWithVisitScreen(onBack = back) }
+
+        composable(Routes.ROUTES) {
+            RoutesScreen(onBack = back, onOpen = { nav.navigate(Routes.routeDetail(it)) })
+        }
+        composable(
+            Routes.ROUTE_DETAIL,
+            arguments = listOf(navArgument(ARG_ROUTE_ID) { type = NavType.StringType }),
+        ) { RouteDetailScreen(onBack = back) }
 
         composable(
             Routes.REPORT,

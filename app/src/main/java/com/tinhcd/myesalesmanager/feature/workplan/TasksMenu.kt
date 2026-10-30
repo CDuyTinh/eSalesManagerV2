@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.StickyNote2
 import androidx.compose.material.icons.filled.AddTask
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Warehouse
@@ -31,7 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 /** Where an entry on the tasks tab leads; null for one not built yet. */
-enum class TaskTarget { TEAM_PLANS, ASSIGN, WORK_WITH }
+enum class TaskTarget { TEAM_PLANS, ASSIGN, WORK_WITH, ROUTES }
 
 private data class TaskEntry(
     val title: String,
@@ -48,6 +49,7 @@ private val entries = listOf(
     TaskEntry("Công việc của nhóm", "Kế hoạch, việc đã giao, duyệt kế hoạch", Icons.AutoMirrored.Filled.Assignment, TaskTarget.TEAM_PLANS),
     TaskEntry("Giao việc mới", "Giao công việc cho nhân viên", Icons.Default.AddTask, TaskTarget.ASSIGN),
     TaskEntry("Đi tuyến cùng nhân viên", "Check-in cùng nhân viên, chấm trưng bày", Icons.AutoMirrored.Filled.DirectionsWalk, TaskTarget.WORK_WITH),
+    TaskEntry("Lập tuyến (MCP) & phân tuyến", "Điểm bán, lịch ghé, giao tuyến cho nhân viên", Icons.Default.Route, TaskTarget.ROUTES),
     TaskEntry("Huấn luyện EDAC", "Sắp có", Icons.Default.School, null),
     TaskEntry("Ghi chú công việc", "Sắp có", Icons.AutoMirrored.Filled.StickyNote2, null),
     TaskEntry("Tồn kho công ty", "Sắp có", Icons.Default.Warehouse, null),

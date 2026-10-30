@@ -12,6 +12,7 @@ import com.tinhcd.myesalesmanager.data.remote.service.BootstrapService
 import com.tinhcd.myesalesmanager.data.remote.service.DashboardService
 import com.tinhcd.myesalesmanager.data.remote.service.ReportService
 import com.tinhcd.myesalesmanager.data.remote.service.WorkWithService
+import com.tinhcd.myesalesmanager.data.remote.service.RouteService
 import com.tinhcd.myesalesmanager.data.remote.service.WorkPlanService
 import dagger.Binds
 import dagger.Module
@@ -128,4 +129,9 @@ object NetworkModule {
     @Singleton
     fun provideWorkWithService(retrofit: Retrofit): WorkWithService =
         retrofit.create(WorkWithService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideRouteService(retrofit: Retrofit): RouteService =
+        retrofit.create(RouteService::class.java)
 }
