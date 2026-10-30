@@ -1,7 +1,21 @@
 package com.tinhcd.myesalesmanager.domain.model
 
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+
 /** Weekday numbers as the database keeps them: ISO, 1 = Monday … 7 = Sunday. */
 val WEEKDAY_LABELS = listOf("T2", "T3", "T4", "T5", "T6", "T7", "CN")
+
+/**
+ * Week 1..4 of the MCL cycle (legacy PPC_WeekofVisitMCL), counted in whole weeks
+ * from Monday 2024-01-01. Mirrors the database's mcl_week(), which decides what
+ * the rep is shown; here it only labels the picker.
+ */
+fun mclWeek(date: LocalDate): Int {
+    val monday = date.minusDays(date.dayOfWeek.value - 1L)
+    val weeks = Math.floorDiv(ChronoUnit.DAYS.between(LocalDate.of(2024, 1, 1), monday), 7L)
+    return Math.floorMod(weeks, 4L).toInt() + 1
+}
 
 /** "T2, T4, T6" for {1,3,5}; "· Tuần 1, 3" appended when only some weeks. */
 fun formatSchedule(weekdays: List<Int>, weeks: List<Int>): String {

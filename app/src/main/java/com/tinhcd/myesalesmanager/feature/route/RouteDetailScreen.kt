@@ -59,6 +59,8 @@ import com.tinhcd.myesalesmanager.domain.model.RouteOutlet
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.domain.model.WEEKDAY_LABELS
 import com.tinhcd.myesalesmanager.domain.model.formatSchedule
+import com.tinhcd.myesalesmanager.domain.model.mclWeek
+import com.tinhcd.myesalesmanager.core.ui.todayVn
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
 import com.tinhcd.myesalesmanager.domain.repository.RouteRepository
 import com.tinhcd.myesalesmanager.feature.approval.toMessage
@@ -346,7 +348,10 @@ private fun ScheduleDialog(edit: ScheduleEdit, busy: Boolean, viewModel: RouteDe
                         FilterChip(selected = (i + 1) in edit.weekdays, onClick = { viewModel.toggleDay(i + 1) }, label = { Text(label) })
                     }
                 }
-                Text("Tuần trong tháng (bỏ trống = mọi tuần)", style = MaterialTheme.typography.labelSmall)
+                Text(
+                    "Tuần trong chu kỳ 4 tuần (bỏ trống = mọi tuần) · tuần này là tuần ${mclWeek(todayVn())}",
+                    style = MaterialTheme.typography.labelSmall,
+                )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     (1..4).forEach { w ->
                         FilterChip(selected = w in edit.weeks, onClick = { viewModel.toggleWeek(w) }, label = { Text("Tuần $w") })
