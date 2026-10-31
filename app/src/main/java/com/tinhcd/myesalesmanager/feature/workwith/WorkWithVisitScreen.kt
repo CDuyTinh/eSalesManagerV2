@@ -440,6 +440,7 @@ enum class InStoreStep(val title: String) {
     ORDER("Đặt hàng hộ"),
     POSM("Kiểm POSM"),
     MARKET("Thông tin thị trường"),
+    FEEDBACK("Phản hồi khách hàng"),
 }
 
 @Composable
@@ -453,6 +454,7 @@ private fun InStoreSteps(t: VisitTasks, open: Boolean, onOpen: (InStoreStep) -> 
                     InStoreStep.ORDER -> t.orders.takeIf { it.isNotEmpty() }?.let { o -> "${o.size} đơn · ${formatDong(o.sumOf { it.totalAmount })}" }
                     InStoreStep.POSM -> t.posmChecked.takeIf { it > 0 }?.let { "$it vật phẩm" }
                     InStoreStep.MARKET -> t.surveysDone.takeIf { it > 0 }?.let { "$it khảo sát" }
+                    InStoreStep.FEEDBACK -> if (t.feedback) "Đã ghi" else null
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {

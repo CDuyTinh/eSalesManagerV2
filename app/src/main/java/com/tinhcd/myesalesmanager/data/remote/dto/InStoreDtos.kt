@@ -49,6 +49,7 @@ data class VisitTasksDto(
     val orders: List<OrderBriefDto> = emptyList(),
     @SerialName("posm_checked") val posmChecked: Int = 0,
     @SerialName("surveys_done") val surveysDone: Int = 0,
+    val feedback: Boolean = false,
     @SerialName("min_minutes") val minMinutes: Int = 0,
 )
 
@@ -201,4 +202,34 @@ data class InStoreActionDto(
     val order: OrderDto? = null,
     val check: PosmCheckDto? = null,
     val survey: SurveySubmitDto? = null,
+    val feedback: FeedbackInDto? = null,
+)
+
+@Serializable
+data class FeedbackTopicDto(val id: String, val name: String)
+
+@Serializable
+data class FiledFeedbackDto(
+    @SerialName("topic_id") val topicId: String? = null,
+    val note: String? = null,
+    val photos: Int = 0,
+)
+
+@Serializable
+data class FeedbackFormDto(
+    val topics: List<FeedbackTopicDto> = emptyList(),
+    @SerialName("note_min_length") val noteMinLength: Int = 1,
+    @SerialName("photo_min") val photoMin: Int = 0,
+    @SerialName("photo_max") val photoMax: Int = 5,
+    val filed: FiledFeedbackDto? = null,
+)
+
+@Serializable
+data class FeedbackInDto(
+    val id: String,
+    @SerialName("visit_id") val visitId: String,
+    @SerialName("topic_id") val topicId: String? = null,
+    val note: String,
+    @SerialName("client_created_at") val clientCreatedAt: String,
+    val photos: List<AuditPhotoDto>,
 )

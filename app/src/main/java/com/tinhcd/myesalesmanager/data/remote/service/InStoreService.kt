@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.data.remote.service
 
 import com.tinhcd.myesalesmanager.data.remote.dto.CompetitorSurveyDto
+import com.tinhcd.myesalesmanager.data.remote.dto.FeedbackFormDto
 import com.tinhcd.myesalesmanager.data.remote.dto.InStoreActionDto
 import com.tinhcd.myesalesmanager.data.remote.dto.MarketSurveysDto
 import com.tinhcd.myesalesmanager.data.remote.dto.PosmListDto
@@ -27,6 +28,9 @@ interface InStoreService {
 
     @GET("mgr-work-with")
     suspend fun survey(@Query("visit") visitId: String, @Query("survey") surveyId: String): Response<CompetitorSurveyDto>
+
+    @GET("mgr-work-with?feedback=1")
+    suspend fun feedback(@Query("visit") visitId: String): Response<FeedbackFormDto>
 
     @POST("mgr-work-with")
     suspend fun preview(@Body body: InStoreActionDto): Response<PromotionPreviewDto>

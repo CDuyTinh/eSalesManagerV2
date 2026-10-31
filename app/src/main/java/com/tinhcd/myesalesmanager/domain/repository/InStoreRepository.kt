@@ -2,6 +2,7 @@ package com.tinhcd.myesalesmanager.domain.repository
 
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.CompetitorSurvey
+import com.tinhcd.myesalesmanager.domain.model.FeedbackForm
 import com.tinhcd.myesalesmanager.domain.model.MarketSurvey
 import com.tinhcd.myesalesmanager.domain.model.PosmCheck
 import com.tinhcd.myesalesmanager.domain.model.PosmPlaced
@@ -36,4 +37,9 @@ interface InStoreRepository {
         surveyId: String,
         answers: Map<Triple<String, String, String>, String>,
     ): DataResult<Unit>
+
+    suspend fun feedbackForm(visitId: String): DataResult<FeedbackForm>
+
+    /** Uploads the photos, then files the feedback; filing again replaces it. */
+    suspend fun submitFeedback(visitId: String, topicId: String?, note: String, photoPaths: List<String>): DataResult<Unit>
 }

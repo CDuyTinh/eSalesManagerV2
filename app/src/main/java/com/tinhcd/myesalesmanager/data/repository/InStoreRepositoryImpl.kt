@@ -3,6 +3,7 @@ package com.tinhcd.myesalesmanager.data.repository
 import com.tinhcd.myesalesmanager.core.photo.PhotoStore
 import com.tinhcd.myesalesmanager.core.ui.todayVn
 import com.tinhcd.myesalesmanager.data.remote.dto.AuditPhotoDto
+import com.tinhcd.myesalesmanager.data.remote.dto.FeedbackInDto
 import com.tinhcd.myesalesmanager.data.remote.dto.InStoreActionDto
 import com.tinhcd.myesalesmanager.data.remote.dto.OrderDto
 import com.tinhcd.myesalesmanager.data.remote.dto.OrderLineDto
@@ -19,6 +20,8 @@ import com.tinhcd.myesalesmanager.data.session.SessionStore
 import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.CompetitorSurvey
+import com.tinhcd.myesalesmanager.domain.model.FeedbackForm
+import com.tinhcd.myesalesmanager.domain.model.FiledFeedback
 import com.tinhcd.myesalesmanager.domain.model.MarketSurvey
 import com.tinhcd.myesalesmanager.domain.model.PosmCheck
 import com.tinhcd.myesalesmanager.domain.model.PosmPlaced
@@ -187,6 +190,41 @@ class InStoreRepositoryImpl @Inject constructor(
                 ),
             ),
         ).orThrow()
+        Unit
+    }
+
+    override suspend fun feedbackForm(visitId: String) = call {
+        val d = service.feedback(visitId).orThrow()
+        FeedbackForm(
+            topics = d.topics.map { it.id to it.name },
+            noteMinLength = d.noteMinLength,
+            photoMin = d.photoMin,
+            photoMax = d.photoMax,
+            filed = d.filed?.let { FiledFeedback(it.topicId, it.note.orEmpty(), it.photos) },
+        )
+    }
+
+    /** Photos first, as for POSM: submit_feedback refuses a path not in storage yet. */
+    override suspend fun submitFeedback(visitId: String, topicId: String?, note: String, photoPaths: List<String>) = call {
+        val me = session.current.value?.id ?: error("Chưa tải được thông tin người dùng")
+        val uploaded = photoPaths.map { local ->
+            val size = photos.compress(local)
+            AuditPhotoDto(uploader.upload(me, visitId, local), size)
+        }
+        service.act(
+            InStoreActionDto(
+                action = "feedback",
+                feedback = FeedbackInDto(
+                    id = UUID.randomUUID().toString(),
+                    visitId = visitId,
+                    topicId = topicId,
+                    note = note.trim(),
+                    clientCreatedAt = now(),
+                    photos = uploaded,
+                ),
+            ),
+        ).orThrow()
+        photoPaths.forEach(uploader::deleteLocal)
         Unit
     }
 

@@ -91,6 +91,7 @@ class WorkWithRepositoryImpl @Inject constructor(
                     orders = t.orders.map { OrderBrief(it.id, it.orderNo, it.totalAmount, it.discountAmount) },
                     posmChecked = t.posmChecked,
                     surveysDone = t.surveysDone,
+                    feedback = t.feedback,
                     minMinutes = t.minMinutes,
                 )
             },

@@ -39,6 +39,8 @@ data class VisitTasks(
     val orders: List<OrderBrief>,
     val posmChecked: Int,
     val surveysDone: Int,
+    /** Phản hồi khách hàng filed on this call. */
+    val feedback: Boolean = false,
     /** Minutes the supervisor must stay before checking out; 0 means no limit. */
     val minMinutes: Int,
 )
@@ -108,4 +110,16 @@ data class CompetitorSurvey(
     val name: String,
     val criteria: List<SurveyCriterion>,
     val pairings: List<SurveyPairing>,
+)
+
+/** What was filed on this call already, if anything. */
+data class FiledFeedback(val topicId: String?, val note: String, val photos: Int)
+
+/** The feedback step's form: the topics and the rules submit_feedback applies. */
+data class FeedbackForm(
+    val topics: List<Pair<String, String>>,
+    val noteMinLength: Int,
+    val photoMin: Int,
+    val photoMax: Int,
+    val filed: FiledFeedback?,
 )

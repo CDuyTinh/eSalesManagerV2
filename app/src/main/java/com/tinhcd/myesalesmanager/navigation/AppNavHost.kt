@@ -52,6 +52,7 @@ import com.tinhcd.myesalesmanager.feature.workwith.ARG_QTY_MODE
 import com.tinhcd.myesalesmanager.feature.workwith.ARG_SURVEY_ID
 import com.tinhcd.myesalesmanager.feature.workwith.CompetitorSurveyScreen
 import com.tinhcd.myesalesmanager.feature.workwith.InStoreStep
+import com.tinhcd.myesalesmanager.feature.workwith.CustomerFeedbackScreen
 import com.tinhcd.myesalesmanager.feature.workwith.MarketInfoScreen
 import com.tinhcd.myesalesmanager.feature.workwith.PosmCheckScreen
 import com.tinhcd.myesalesmanager.feature.workwith.ProductQtyScreen
@@ -101,11 +102,13 @@ object Routes {
     const val WORK_WITH_POSM = "workwith/visit/{$ARG_VISIT_ID}/posm"
     const val WORK_WITH_MARKET = "workwith/visit/{$ARG_VISIT_ID}/market"
     const val WORK_WITH_SURVEY = "workwith/visit/{$ARG_VISIT_ID}/market/{$ARG_SURVEY_ID}"
+    const val WORK_WITH_FEEDBACK = "workwith/visit/{$ARG_VISIT_ID}/feedback"
     fun inStore(step: InStoreStep, visitId: String) = when (step) {
         InStoreStep.STOCK -> "workwith/visit/$visitId/qty/${QtyMode.COUNT.code}"
         InStoreStep.ORDER -> "workwith/visit/$visitId/qty/${QtyMode.ORDER.code}"
         InStoreStep.POSM -> "workwith/visit/$visitId/posm"
         InStoreStep.MARKET -> "workwith/visit/$visitId/market"
+        InStoreStep.FEEDBACK -> "workwith/visit/$visitId/feedback"
     }
     fun workWithVisit(id: String) = "workwith/visit/$id"
 
@@ -235,6 +238,10 @@ fun AppNavHost(startDestination: String) {
             Routes.WORK_WITH_POSM,
             arguments = listOf(navArgument(ARG_VISIT_ID) { type = NavType.StringType }),
         ) { PosmCheckScreen(onBack = back) }
+        composable(
+            Routes.WORK_WITH_FEEDBACK,
+            arguments = listOf(navArgument(ARG_VISIT_ID) { type = NavType.StringType }),
+        ) { CustomerFeedbackScreen(onBack = back) }
         composable(
             Routes.WORK_WITH_MARKET,
             arguments = listOf(navArgument(ARG_VISIT_ID) { type = NavType.StringType }),
