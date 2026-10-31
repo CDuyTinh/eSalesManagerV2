@@ -26,7 +26,7 @@ data class MyLeave(
     val fromDate: String,
     val toDate: String,
     val reason: String,
-    /** pending, approved, rejected or withdrawn. */
+    /** pending, approved, rejected or cancelled (withdrawn by the requester). */
     val status: String,
     val decisionNote: String?,
     val decidedAt: String?,

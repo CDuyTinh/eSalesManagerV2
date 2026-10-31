@@ -199,8 +199,9 @@ private fun LeaveCard(l: MyLeave, onWithdraw: () -> Unit) {
                 val (label, color) = when (l.status) {
                     "approved" -> "Đã duyệt" to Kpi.Green.first()
                     "rejected" -> "Từ chối" to Kpi.Orange.first()
-                    "withdrawn" -> "Đã rút" to Kpi.Slate.first()
-                    else -> "Chờ duyệt" to Kpi.Blue.first()
+                    "cancelled" -> "Đã rút" to Kpi.Slate.first()
+                    "pending" -> "Chờ duyệt" to Kpi.Blue.first()
+                    else -> l.status to Kpi.Slate.first()
                 }
                 StatusPill(label, color)
             }

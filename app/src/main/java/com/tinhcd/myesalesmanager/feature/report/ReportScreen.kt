@@ -385,9 +385,9 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
     item {
         Block {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("Đã huấn luyện", "${d.trained}/${d.plans}", Kpi.Green, Modifier.weight(1f))
-                StatTile("Chưa huấn luyện", "${d.untrained}", Kpi.Orange, Modifier.weight(1f))
-                StatTile("Điểm đánh giá", d.score?.let { "$it%" } ?: "—", Kpi.Blue, Modifier.weight(1f))
+                StatTile("Đã xong", "${d.trained}/${d.plans}", Kpi.Green, Modifier.weight(1f))
+                StatTile("Chưa xong", "${d.untrained}", Kpi.Orange, Modifier.weight(1f))
+                StatTile("Điểm", d.score?.let { "$it%" } ?: "—", Kpi.Blue, Modifier.weight(1f))
             }
             Faint("${d.outlets} điểm bán đã kèm cặp · điểm = trung bình bước Đánh giá theo thang tối đa")
         }
