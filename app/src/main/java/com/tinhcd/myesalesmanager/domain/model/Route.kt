@@ -41,6 +41,8 @@ data class RouteOutlet(
     val code: String,
     val name: String,
     val address: String?,
+    val lat: Double? = null,
+    val lng: Double? = null,
     val visitOrder: Int?,
     val weekdays: List<Int>,
     /** Empty means every week. */

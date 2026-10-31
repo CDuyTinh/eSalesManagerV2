@@ -18,6 +18,9 @@ interface RouteRepository {
 
     suspend fun removeOutlet(routeId: String, customerId: String): DataResult<Unit>
 
+    /** Sets the call order: every active outlet of the route, first call first. */
+    suspend fun reorder(routeId: String, customerIds: List<String>): DataResult<Unit>
+
     /** Hands the route to another rep of the team. */
     suspend fun assign(routeId: String, salespersonId: String, note: String?): DataResult<Unit>
 }

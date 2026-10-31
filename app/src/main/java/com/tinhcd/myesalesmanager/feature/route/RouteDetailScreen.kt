@@ -2,6 +2,7 @@ package com.tinhcd.myesalesmanager.feature.route
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -9,15 +10,21 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.SwapHoriz
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
@@ -99,6 +106,9 @@ data class RouteDetailState(
     /** Non-null while the add-outlet picker is open. */
     val candidates: List<RouteCandidate>? = null,
     val candidateQuery: String = "",
+    /** The call order being arranged, unsaved; null when not arranging. */
+    val ordering: List<RouteOutlet>? = null,
+    val showMap: Boolean = false,
 )
 
 @HiltViewModel
@@ -157,6 +167,34 @@ class RouteDetailViewModel @Inject constructor(
     fun remove() {
         val o = _state.value.removing ?: return
         run("Đã bỏ ${o.code} khỏi tuyến") { repository.removeOutlet(routeId, o.customerId) }
+    }
+
+    fun toggleMap() = _state.update { it.copy(showMap = !it.showMap) }
+
+    fun startOrdering() = _state.update { it.copy(ordering = it.route?.outlets, showMap = false) }
+    fun cancelOrdering() = _state.update { it.copy(ordering = null) }
+
+    /** Moves the outlet at [index] one place up (-1) or down (+1). */
+    fun move(index: Int, delta: Int) = _state.update { s ->
+        val list = s.ordering?.toMutableList() ?: return@update s
+        val to = index + delta
+        if (to !in list.indices) return@update s
+        list.add(to, list.removeAt(index))
+        s.copy(ordering = list)
+    }
+
+    fun saveOrder() {
+        val order = _state.value.ordering ?: return
+        viewModelScope.launch {
+            _state.update { it.copy(busy = true) }
+            when (val r = repository.reorder(routeId, order.map { it.customerId })) {
+                is DataResult.Success -> {
+                    _state.update { it.copy(busy = false, ordering = null, message = "Đã lưu thứ tự ghé") }
+                    refresh()
+                }
+                is DataResult.Failure -> _state.update { it.copy(busy = false, message = r.error.toMessage()) }
+            }
+        }
     }
 
     fun askAssign() = _state.update { it.copy(assigning = true) }
@@ -235,7 +273,7 @@ fun RouteDetailScreen(
         when {
             route == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
             route == null -> LoadingBox(Modifier.padding(padding))
-            else -> RouteBody(route, Modifier.padding(padding), viewModel)
+            else -> RouteBody(route, state, Modifier.padding(padding), viewModel)
         }
     }
 
@@ -254,27 +292,52 @@ fun RouteDetailScreen(
 }
 
 @Composable
-private fun RouteBody(route: RouteDetail, modifier: Modifier, viewModel: RouteDetailViewModel) {
+private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Modifier, viewModel: RouteDetailViewModel) {
+    val ordering = state.ordering
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedButton(onClick = viewModel::openCandidates, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Text(" Thêm điểm")
+            if (ordering == null) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        OutlinedButton(onClick = viewModel::openCandidates, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                            Text(" Thêm điểm")
+                        }
+                        OutlinedButton(onClick = viewModel::askAssign, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Default.SwapHoriz, contentDescription = null)
+                            Text(" Giao tuyến")
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        OutlinedButton(onClick = viewModel::startOrdering, enabled = route.outlets.size > 1, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Default.SwapVert, contentDescription = null)
+                            Text(" Thứ tự ghé")
+                        }
+                        OutlinedButton(onClick = viewModel::toggleMap, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Default.Map, contentDescription = null)
+                            Text(if (state.showMap) " Ẩn bản đồ" else " Bản đồ")
+                        }
+                    }
                 }
-                OutlinedButton(onClick = viewModel::askAssign, modifier = Modifier.weight(1f)) {
-                    Icon(Icons.Default.SwapHoriz, contentDescription = null)
-                    Text(" Giao tuyến")
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedButton(onClick = viewModel::cancelOrdering, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text("Huỷ") }
+                    OutlinedButton(onClick = viewModel::saveOrder, enabled = !state.busy, modifier = Modifier.weight(1f)) {
+                        Text(if (state.busy) "Đang lưu…" else "Lưu thứ tự")
+                    }
                 }
             }
         }
+        if (state.showMap && ordering == null) {
+            item { Box(Modifier.fillMaxWidth().height(300.dp)) { RouteMap(route.outlets) } }
+        }
         item {
             Text(
-                "${route.outlets.size} điểm bán trên tuyến",
+                if (ordering != null) "Sắp thứ tự ghé (ghé trước ở trên)" else "${route.outlets.size} điểm bán trên tuyến",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -282,8 +345,24 @@ private fun RouteBody(route: RouteDetail, modifier: Modifier, viewModel: RouteDe
         if (route.outlets.isEmpty()) {
             item { Text("Tuyến chưa có điểm bán nào", color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
-        items(route.outlets, key = { it.customerId }) { o ->
-            OutletCard(o, onEdit = { viewModel.editOutlet(o) }, onRemove = { viewModel.askRemove(o) })
+        if (ordering != null) {
+            itemsIndexed(ordering, key = { _, o -> o.customerId }) { i, o ->
+                Card(Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(start = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text("${i + 1}. ${o.code} – ${o.name}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                        IconButton(onClick = { viewModel.move(i, -1) }, enabled = i > 0) {
+                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Lên")
+                        }
+                        IconButton(onClick = { viewModel.move(i, 1) }, enabled = i < ordering.lastIndex) {
+                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Xuống")
+                        }
+                    }
+                }
+            }
+        } else {
+            items(route.outlets, key = { it.customerId }) { o ->
+                OutletCard(o, onEdit = { viewModel.editOutlet(o) }, onRemove = { viewModel.askRemove(o) })
+            }
         }
         if (route.history.isNotEmpty()) {
             item {

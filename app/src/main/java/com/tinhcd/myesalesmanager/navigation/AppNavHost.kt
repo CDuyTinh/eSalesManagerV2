@@ -35,6 +35,7 @@ import com.tinhcd.myesalesmanager.feature.personal.WorkNotesScreen
 import com.tinhcd.myesalesmanager.feature.edac.ARG_EDAC_CUSTOMER
 import com.tinhcd.myesalesmanager.feature.edac.ARG_EDAC_STEP
 import com.tinhcd.myesalesmanager.feature.edac.ARG_TRAINING_ID
+import com.tinhcd.myesalesmanager.feature.edac.EdacCriteriaScreen
 import com.tinhcd.myesalesmanager.feature.edac.EdacFinishScreen
 import com.tinhcd.myesalesmanager.feature.edac.EdacHomeScreen
 import com.tinhcd.myesalesmanager.feature.edac.EdacResultScreen
@@ -112,6 +113,7 @@ object Routes {
     fun routeDetail(id: String) = "routes/$id"
 
     const val EDAC = "edac"
+    const val EDAC_CRITERIA = "edac-criteria"
     const val EDAC_TRAINING = "edac/{$ARG_TRAINING_ID}"
     const val EDAC_STEP = "edac/{$ARG_TRAINING_ID}/step/{$ARG_EDAC_STEP}?$ARG_EDAC_CUSTOMER={$ARG_EDAC_CUSTOMER}"
     const val EDAC_FINISH = "edac/{$ARG_TRAINING_ID}/finish"
@@ -249,8 +251,10 @@ fun AppNavHost(startDestination: String) {
                 onBack = back,
                 onOpenTraining = { nav.navigate(Routes.edacTraining(it)) },
                 onOpenResult = { nav.navigate(Routes.edacResult(it)) },
+                onOpenCriteria = { nav.navigate(Routes.EDAC_CRITERIA) },
             )
         }
+        composable(Routes.EDAC_CRITERIA) { EdacCriteriaScreen(onBack = back) }
         composable(
             Routes.EDAC_TRAINING,
             arguments = listOf(navArgument(ARG_TRAINING_ID) { type = NavType.StringType }),

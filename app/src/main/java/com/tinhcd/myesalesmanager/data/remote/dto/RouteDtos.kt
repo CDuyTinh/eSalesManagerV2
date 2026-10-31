@@ -20,6 +20,8 @@ data class RouteOutletDto(
     val code: String,
     val name: String,
     val address: String? = null,
+    val lat: Double? = null,
+    val lng: Double? = null,
     @SerialName("visit_order") val visitOrder: Int? = null,
     @SerialName("visit_weekdays") val weekdays: List<Int> = emptyList(),
     @SerialName("visit_weeks") val weeks: List<Int> = emptyList(),
@@ -58,4 +60,5 @@ data class RouteActionDto(
     val weekdays: List<Int>? = null,
     val weeks: List<Int>? = null,
     val note: String? = null,
+    @SerialName("customer_ids") val customerIds: List<String>? = null,
 )

@@ -15,7 +15,7 @@ enum class ReportKind(val code: String, val title: String, val period: PeriodKin
     TRADE("trade", "Đăng ký chương trình", PeriodKind.RANGE),
     WORK("work", "Kết quả công việc", PeriodKind.RANGE),
     TRAINING("training", "Kết quả huấn luyện", PeriodKind.RANGE),
-    DAILY_TRACKING("tracking", "Theo dõi bán hàng trong ngày", PeriodKind.DAY, ready = false),
+    DAILY_TRACKING("tracking", "Theo dõi bán hàng trong ngày", PeriodKind.DAY),
     MAP("map", "Bản đồ vị trí nhân viên", PeriodKind.DAY),
     ;
 
@@ -197,3 +197,46 @@ data class TrainingReport(
     val members: List<TrainingMember>,
     val items: List<TrainingRow>,
 ) : ReportData
+
+// --- Theo dõi bán hàng trong ngày ---------------------------------------------------
+
+/** A rep's most recent sign of life: a punch, a call, an order or a GPS fix. */
+data class LastActivity(val kind: String, val at: String, val detail: String?) {
+    val label: String
+        get() = when (kind) {
+            "clock_check_in" -> "Chấm công vào"
+            "clock_check_out" -> "Chấm công ra"
+            "check_in" -> "Check-in"
+            "check_out" -> "Check-out"
+            "order" -> "Đặt hàng"
+            "gps" -> "Vị trí GPS"
+            else -> kind
+        }
+}
+
+data class TrackingMember(
+    val code: String,
+    val name: String,
+    val clockIn: String?,
+    val clockOut: String?,
+    val planned: Int,
+    val visited: Int,
+    /** The outlet the rep is in right now, if a call is open. */
+    val inVisit: String?,
+    val inVisitSince: String?,
+    val orders: Int,
+    val revenue: Long,
+    val last: LastActivity?,
+    val batteryPct: Int?,
+)
+
+data class TrackingOrder(
+    val orderNo: String,
+    val at: String,
+    val amount: Long,
+    val salesperson: StaffBrief,
+    val customer: String,
+    val status: String,
+)
+
+data class TrackingReport(val members: List<TrackingMember>, val orders: List<TrackingOrder>) : ReportData

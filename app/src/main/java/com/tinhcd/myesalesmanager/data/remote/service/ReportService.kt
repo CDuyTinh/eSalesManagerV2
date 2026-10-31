@@ -5,6 +5,7 @@ import com.tinhcd.myesalesmanager.data.remote.dto.OrdersReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.SalesReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.SkuReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.TradeReportDto
+import com.tinhcd.myesalesmanager.data.remote.dto.TrackingReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.TrainingReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.WorkReportDto
 import retrofit2.Response
@@ -59,6 +60,13 @@ interface ReportService {
         @Query("salespersonId") salespersonId: String?,
         @Query("supervisorId") supervisorId: String? = null,
     ): Response<WorkReportDto>
+
+    @GET("mgr-reports?report=tracking")
+    suspend fun tracking(
+        @Query("date") date: String,
+        @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
+    ): Response<TrackingReportDto>
 
     @GET("mgr-reports?report=training")
     suspend fun training(

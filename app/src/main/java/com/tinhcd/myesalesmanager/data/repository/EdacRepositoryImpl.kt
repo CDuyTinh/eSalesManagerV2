@@ -3,6 +3,8 @@ package com.tinhcd.myesalesmanager.data.repository
 import com.tinhcd.myesalesmanager.core.photo.PhotoStore
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacActionDto
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacAnswerInDto
+import com.tinhcd.myesalesmanager.data.remote.dto.EdacCriterionInDto
+import com.tinhcd.myesalesmanager.data.remote.dto.EdacOptionDto
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacSavedDto
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacStartedDto
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacTrainingDto
@@ -16,7 +18,9 @@ import com.tinhcd.myesalesmanager.data.session.SessionStore
 import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.EdacAnswer
+import com.tinhcd.myesalesmanager.domain.model.EdacCriteriaBook
 import com.tinhcd.myesalesmanager.domain.model.EdacCriterion
+import com.tinhcd.myesalesmanager.domain.model.EdacCriterionAdmin
 import com.tinhcd.myesalesmanager.domain.model.EdacHistoryItem
 import com.tinhcd.myesalesmanager.domain.model.EdacKind
 import com.tinhcd.myesalesmanager.domain.model.EdacObserved
@@ -160,6 +164,44 @@ class EdacRepositoryImpl @Inject constructor(
             lines = d.answers.map { EdacResultLine(it.step, it.customer, it.content.orEmpty(), it.answer, it.note) },
             notes = d.notes.map { EdacResultLine(it.step, it.customer, "Làm mẫu", it.note, null) },
         )
+    }
+
+    override suspend fun criteria() = call {
+        val d = service.criteria().orThrow()
+        EdacCriteriaBook(
+            canEdit = d.canEdit,
+            criteria = d.criteria.map { c ->
+                EdacCriterionAdmin(
+                    id = c.id, step = c.step, code = c.code, content = c.content,
+                    kind = when (c.kind) {
+                        "yes_no" -> EdacKind.YES_NO
+                        "text" -> EdacKind.TEXT
+                        else -> EdacKind.SCALE
+                    },
+                    kpi = c.kpi, required = c.required, active = c.active, answered = c.answered,
+                    options = c.options.map { EdacOption(it.value, it.label) },
+                )
+            },
+        )
+    }
+
+    override suspend fun saveCriterion(c: EdacCriterionAdmin) = call {
+        service.act(
+            EdacActionDto(
+                action = "criterion",
+                criterion = EdacCriterionInDto(
+                    id = c.id, step = c.step, content = c.content.trim(),
+                    kind = when (c.kind) {
+                        EdacKind.YES_NO -> "yes_no"
+                        EdacKind.TEXT -> "text"
+                        EdacKind.SCALE -> "scale"
+                    },
+                    kpi = c.kpi?.trim()?.takeIf { it.isNotEmpty() }, required = c.required, active = c.active,
+                    options = if (c.kind == EdacKind.SCALE) c.options.map { EdacOptionDto(it.value, it.label.trim()) } else emptyList(),
+                ),
+            ),
+        ).orThrow()
+        Unit
     }
 
     private fun EdacTrainingDto.toDomain() = EdacTraining(

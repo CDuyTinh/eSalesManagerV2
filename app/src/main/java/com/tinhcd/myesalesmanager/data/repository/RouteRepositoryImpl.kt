@@ -40,8 +40,9 @@ class RouteRepositoryImpl @Inject constructor(
             rep = d.salesperson?.let { StaffBrief(it.id, it.code, it.name) },
             outlets = d.customers.map {
                 RouteOutlet(
-                    it.customerId, it.code, it.name, it.address, it.visitOrder,
-                    it.weekdays, it.weeks, it.lastVisit, it.lastOrder,
+                    customerId = it.customerId, code = it.code, name = it.name, address = it.address,
+                    lat = it.lat, lng = it.lng, visitOrder = it.visitOrder,
+                    weekdays = it.weekdays, weeks = it.weeks, lastVisit = it.lastVisit, lastOrder = it.lastOrder,
                 )
             },
             history = d.history.map { RouteHistoryEntry(it.at, it.text, it.actor) },
@@ -63,6 +64,11 @@ class RouteRepositoryImpl @Inject constructor(
 
     override suspend fun removeOutlet(routeId: String, customerId: String) = call {
         service.act(RouteActionDto("remove", routeId, customerId = customerId)).orThrow()
+        Unit
+    }
+
+    override suspend fun reorder(routeId: String, customerIds: List<String>) = call {
+        service.act(RouteActionDto("reorder", routeId, customerIds = customerIds)).orThrow()
         Unit
     }
 

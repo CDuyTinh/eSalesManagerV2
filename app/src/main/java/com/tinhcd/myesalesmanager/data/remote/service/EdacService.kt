@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.data.remote.service
 
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacActionDto
+import com.tinhcd.myesalesmanager.data.remote.dto.EdacCriteriaDto
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacHistoryDto
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacSessionDto
 import com.tinhcd.myesalesmanager.data.remote.dto.EdacStepDto
@@ -33,6 +34,9 @@ interface EdacService {
 
     @GET("mgr-edac")
     suspend fun result(@Query("result") id: String): Response<EdacTrainingDto>
+
+    @GET("mgr-edac?criteria=1")
+    suspend fun criteria(): Response<EdacCriteriaDto>
 
     @POST("mgr-edac")
     suspend fun act(@Body body: EdacActionDto): Response<JsonElement>

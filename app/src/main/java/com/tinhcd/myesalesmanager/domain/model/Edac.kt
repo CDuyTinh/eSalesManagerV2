@@ -126,3 +126,20 @@ data class EdacHistoryItem(
     val rep: StaffBrief,
     val outlets: Int,
 )
+
+/** A criterion as the criteria editor sees it, retired ones included. */
+data class EdacCriterionAdmin(
+    val id: String?,
+    val step: Int,
+    val code: String,
+    val content: String,
+    val kind: EdacKind,
+    val kpi: String?,
+    val required: Boolean,
+    val active: Boolean,
+    /** Has answers: its kind is fixed and the options answered with stay. */
+    val answered: Boolean,
+    val options: List<EdacOption>,
+)
+
+data class EdacCriteriaBook(val canEdit: Boolean, val criteria: List<EdacCriterionAdmin>)

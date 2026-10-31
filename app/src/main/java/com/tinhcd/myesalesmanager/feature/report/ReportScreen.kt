@@ -51,6 +51,7 @@ import com.tinhcd.myesalesmanager.domain.model.SalesReport
 import com.tinhcd.myesalesmanager.domain.model.SkuReport
 import com.tinhcd.myesalesmanager.domain.model.StaffBrief
 import com.tinhcd.myesalesmanager.domain.model.TradeReport
+import com.tinhcd.myesalesmanager.domain.model.TrackingReport
 import com.tinhcd.myesalesmanager.domain.model.TrainingReport
 import com.tinhcd.myesalesmanager.domain.model.WorkReport
 import com.tinhcd.myesalesmanager.domain.model.percent
@@ -96,6 +97,7 @@ fun ReportScreen(
                 data is TradeReport -> trade(data, team)
                 data is WorkReport -> work(data, team)
                 data is TrainingReport -> training(data, team, onOpenTraining)
+                data is TrackingReport -> tracking(data, team)
             }
         }
     }
@@ -423,6 +425,58 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
                     ).joinToString(" · "),
                 )
                 r.result?.let { Text("Kết quả: $it", style = MaterialTheme.typography.bodyLarge) }
+            }
+        }
+    }
+}
+
+// --- Theo dõi bán hàng trong ngày ---------------------------------------------------
+
+private fun LazyListScope.tracking(d: TrackingReport, team: Boolean) {
+    item {
+        Block {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatTile("Đã ghé", "${d.members.sumOf { it.visited }}/${d.members.sumOf { it.planned }}", Kpi.Blue, Modifier.weight(1f))
+                StatTile("Đơn hàng", "${d.members.sumOf { it.orders }}", Kpi.Green, Modifier.weight(1f))
+                StatTile("Doanh số", compactMoney(d.members.sumOf { it.revenue }), Kpi.Orange, Modifier.weight(1f))
+            }
+        }
+    }
+    if (d.members.isEmpty()) empty() else items(d.members, key = { it.code }) { m ->
+        Block {
+            Row {
+                Text(m.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                when {
+                    m.inVisit != null -> StatusPill("Đang ghé", Kpi.Orange.first())
+                    m.clockOut != null -> StatusPill("Đã nghỉ", Kpi.Slate.first())
+                    m.clockIn != null -> StatusPill("Đang làm", Kpi.Green.first())
+                    else -> StatusPill("Chưa vào ca", Kpi.Slate.first())
+                }
+            }
+            m.inVisit?.let { Text("Tại $it" + (m.inVisitSince?.let { s -> " từ ${formatDateTime(s).takeLast(5)}" } ?: ""), style = MaterialTheme.typography.bodyLarge) }
+            Faint(
+                listOfNotNull(
+                    m.clockIn?.let { "vào ${formatDateTime(it).takeLast(5)}" },
+                    m.clockOut?.let { "ra ${formatDateTime(it).takeLast(5)}" },
+                    "ghé ${m.visited}/${m.planned}",
+                    "${m.orders} đơn · ${compactMoney(m.revenue)}",
+                    m.batteryPct?.let { "pin $it%" },
+                ).joinToString(" · "),
+            )
+            m.last?.let { l ->
+                Faint("Gần nhất: ${l.label} ${formatDateTime(l.at).takeLast(5)}" + (l.detail?.let { " · $it" } ?: ""))
+            }
+        }
+    }
+    if (d.orders.isNotEmpty()) {
+        item { Text("Đơn hàng trong ngày (${d.orders.size})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 16.dp)) }
+        items(d.orders, key = { it.orderNo }) { o ->
+            Block {
+                Row {
+                    Text(o.customer, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    Text(formatDong(o.amount), fontWeight = FontWeight.SemiBold)
+                }
+                Faint(listOfNotNull(o.orderNo, formatDateTime(o.at).takeLast(5), if (team) who(o.salesperson) else null).joinToString(" · "))
             }
         }
     }

@@ -131,6 +131,7 @@ data class EdacActionDto(
     val result: String? = null,
     @SerialName("supervisor_photo") val supervisorPhoto: String? = null,
     @SerialName("salesperson_photo") val salespersonPhoto: String? = null,
+    val criterion: EdacCriterionInDto? = null,
 )
 
 @Serializable
@@ -138,3 +139,35 @@ data class EdacStartedDto(val id: String)
 
 @Serializable
 data class EdacSavedDto(@SerialName("current_step") val currentStep: Int = 0)
+
+@Serializable
+data class EdacCriterionAdminDto(
+    val id: String,
+    val step: Int,
+    val code: String = "",
+    val content: String,
+    val kind: String,
+    val kpi: String? = null,
+    val required: Boolean = true,
+    val active: Boolean = true,
+    val answered: Boolean = false,
+    val options: List<EdacOptionDto> = emptyList(),
+)
+
+@Serializable
+data class EdacCriteriaDto(
+    @SerialName("can_edit") val canEdit: Boolean = false,
+    val criteria: List<EdacCriterionAdminDto> = emptyList(),
+)
+
+@Serializable
+data class EdacCriterionInDto(
+    val id: String? = null,
+    val step: Int,
+    val content: String,
+    val kind: String,
+    val kpi: String? = null,
+    val required: Boolean,
+    val active: Boolean,
+    val options: List<EdacOptionDto> = emptyList(),
+)

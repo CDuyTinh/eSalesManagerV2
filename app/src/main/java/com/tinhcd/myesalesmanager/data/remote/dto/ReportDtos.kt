@@ -192,3 +192,40 @@ data class TrainingReportDto(
     val members: List<TrainingMemberDto> = emptyList(),
     val items: List<TrainingRowDto> = emptyList(),
 )
+
+@Serializable
+data class LastActivityDto(val kind: String, val at: String, val detail: String? = null)
+
+@Serializable
+data class InVisitDto(val code: String, val name: String, val since: String? = null)
+
+@Serializable
+data class TrackingMemberDto(
+    val code: String,
+    val name: String,
+    @SerialName("clock_in") val clockIn: String? = null,
+    @SerialName("clock_out") val clockOut: String? = null,
+    val planned: Int = 0,
+    val visited: Int = 0,
+    @SerialName("in_visit") val inVisit: InVisitDto? = null,
+    val orders: Int = 0,
+    val revenue: Long = 0,
+    val last: LastActivityDto? = null,
+    @SerialName("battery_pct") val batteryPct: Int? = null,
+)
+
+@Serializable
+data class TrackingOrderDto(
+    @SerialName("order_no") val orderNo: String,
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("total_amount") val totalAmount: Long = 0,
+    val salesperson: StaffBriefDto,
+    val customer: String = "",
+    val status: String = "new",
+)
+
+@Serializable
+data class TrackingReportDto(
+    val members: List<TrackingMemberDto> = emptyList(),
+    val orders: List<TrackingOrderDto> = emptyList(),
+)

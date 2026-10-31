@@ -123,6 +123,7 @@ fun EdacHomeScreen(
     onBack: () -> Unit,
     onOpenTraining: (String) -> Unit,
     onOpenResult: (String) -> Unit,
+    onOpenCriteria: () -> Unit = {},
     viewModel: EdacHomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -146,6 +147,9 @@ fun EdacHomeScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
+                item {
+                    TextButton(onClick = onOpenCriteria) { Text("Bộ tiêu chí EDAC ›") }
+                }
                 item { SectionTitle("Hôm nay") }
                 if (sessions.isEmpty()) {
                     item {

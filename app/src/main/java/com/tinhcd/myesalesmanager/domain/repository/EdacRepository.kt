@@ -2,6 +2,8 @@ package com.tinhcd.myesalesmanager.domain.repository
 
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.EdacAnswer
+import com.tinhcd.myesalesmanager.domain.model.EdacCriteriaBook
+import com.tinhcd.myesalesmanager.domain.model.EdacCriterionAdmin
 import com.tinhcd.myesalesmanager.domain.model.EdacHistoryItem
 import com.tinhcd.myesalesmanager.domain.model.EdacOutlet
 import com.tinhcd.myesalesmanager.domain.model.EdacResult
@@ -42,4 +44,10 @@ interface EdacRepository {
     suspend fun history(from: String, to: String): DataResult<List<EdacHistoryItem>>
 
     suspend fun result(id: String): DataResult<EdacResult>
+
+    /** Every criterion, retired ones included, and whether the caller may edit (AM / RM). */
+    suspend fun criteria(): DataResult<EdacCriteriaBook>
+
+    /** Creates ([EdacCriterionAdmin.id] null) or updates a criterion. */
+    suspend fun saveCriterion(c: EdacCriterionAdmin): DataResult<Unit>
 }

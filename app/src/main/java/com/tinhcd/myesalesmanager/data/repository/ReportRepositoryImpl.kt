@@ -4,6 +4,10 @@ import com.tinhcd.myesalesmanager.data.remote.dto.StaffBriefDto
 import com.tinhcd.myesalesmanager.data.remote.http.PostgrestException
 import com.tinhcd.myesalesmanager.data.remote.http.orThrow
 import com.tinhcd.myesalesmanager.data.remote.service.ReportService
+import com.tinhcd.myesalesmanager.domain.model.LastActivity
+import com.tinhcd.myesalesmanager.domain.model.TrackingMember
+import com.tinhcd.myesalesmanager.domain.model.TrackingOrder
+import com.tinhcd.myesalesmanager.domain.model.TrackingReport
 import com.tinhcd.myesalesmanager.domain.model.TrainingMember
 import com.tinhcd.myesalesmanager.domain.model.TrainingReport
 import com.tinhcd.myesalesmanager.domain.model.TrainingRow
@@ -132,8 +136,23 @@ class ReportRepositoryImpl @Inject constructor(
             )
         }
 
-        ReportKind.DAILY_TRACKING, ReportKind.MAP ->
-            throw IllegalStateException("Báo cáo này chưa có")
+        ReportKind.DAILY_TRACKING -> service.tracking(p.from, sp, sv).orThrow().let { d ->
+            TrackingReport(
+                members = d.members.map {
+                    TrackingMember(
+                        it.code, it.name, it.clockIn, it.clockOut, it.planned, it.visited,
+                        it.inVisit?.let { v -> "${v.code} – ${v.name}" }, it.inVisit?.since,
+                        it.orders, it.revenue, it.last?.let { l -> LastActivity(l.kind, l.at, l.detail) }, it.batteryPct,
+                    )
+                },
+                orders = d.orders.map {
+                    TrackingOrder(it.orderNo, it.createdAt, it.totalAmount, it.salesperson.toDomain(), it.customer, it.status)
+                },
+            )
+        }
+
+        // Its own screen (MapReportScreen); never routed here.
+        ReportKind.MAP -> throw IllegalStateException("Báo cáo bản đồ có màn riêng")
     }
 }
 
