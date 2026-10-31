@@ -106,6 +106,7 @@ data class WorkPlanActionDto(
     val id: String? = null,
     val approve: Boolean? = null,
     val reason: String? = null,
+    val status: String? = null,
     val plan: AssignPlanDto? = null,
 )
 

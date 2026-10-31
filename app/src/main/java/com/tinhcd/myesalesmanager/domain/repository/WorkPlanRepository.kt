@@ -15,6 +15,8 @@ interface WorkPlanRepository {
         salespersonId: String?,
         fromDate: String,
         toDate: String,
+        /** The caller's own plans (drafts too) rather than the team's. */
+        mine: Boolean = false,
     ): DataResult<WorkPlanPage>
 
     suspend fun detail(id: String): DataResult<WorkPlanDetail>
@@ -30,4 +32,10 @@ interface WorkPlanRepository {
 
     /** Call off a task the supervisor assigned. Needs a reason. */
     suspend fun cancel(id: String, reason: String): DataResult<Unit>
+
+    /** The manager's own plan, sent straight to their boss for approval. @return its id. */
+    suspend fun planOwn(draft: AssignDraft): DataResult<String>
+
+    /** Moves the manager's own plan: submit a draft, report it done, or call it off. */
+    suspend fun moveOwn(id: String, status: WorkPlanStatus, reason: String?): DataResult<Unit>
 }

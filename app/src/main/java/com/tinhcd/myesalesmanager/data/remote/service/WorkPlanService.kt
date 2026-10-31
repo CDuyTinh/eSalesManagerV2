@@ -21,6 +21,8 @@ interface WorkPlanService {
         @Query("toDate") toDate: String,
         @Query("statuses") statuses: String?,
         @Query("salespersonId") salespersonId: String?,
+        /** "1" for the caller's own plans rather than the team's. */
+        @Query("mine") mine: String? = null,
     ): Response<WorkPlanPageDto>
 
     @GET("mgr-work-plans")

@@ -57,6 +57,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -64,7 +65,12 @@ import javax.inject.Inject
 /** Optional nav argument: open the list already filtered to one status. */
 const val ARG_PLAN_STATUS = "status"
 
+/** Optional nav argument: "1" lists the manager's own plans instead of the team's. */
+const val ARG_PLAN_MINE = "mine"
+
 data class TeamPlansState(
+    /** The manager's own plans (Kế hoạch của tôi) rather than the team's. */
+    val mine: Boolean = false,
     val status: WorkPlanStatus? = null,
     val salespersonId: String? = null,
     val team: List<TeamMember> = emptyList(),
@@ -85,14 +91,20 @@ class TeamPlansViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(
-        TeamPlansState(status = savedState.get<String>(ARG_PLAN_STATUS)?.let { WorkPlanStatus.of(it) }),
+        TeamPlansState(
+            mine = savedState.get<String>(ARG_PLAN_MINE) == "1",
+            status = savedState.get<String>(ARG_PLAN_STATUS)?.let { WorkPlanStatus.of(it) },
+        ),
     )
     val state: StateFlow<TeamPlansState> = _state.asStateFlow()
 
     private var loadJob: Job? = null
 
     init {
-        viewModelScope.launch { auth.team.collect { team -> _state.update { it.copy(team = team) } } }
+        // An area manager's team plans include their supervisors' own.
+        viewModelScope.launch {
+            combine(auth.supervisors, auth.team) { s, r -> s + r }.collect { team -> _state.update { it.copy(team = team) } }
+        }
     }
 
     /**
@@ -105,7 +117,7 @@ class TeamPlansViewModel @Inject constructor(
         loadJob?.cancel()
         loadJob = viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
-            when (val r = repository.plans(s.status, s.salespersonId, today.minusDays(30).toString(), today.plusDays(30).toString())) {
+            when (val r = repository.plans(s.status, s.salespersonId, today.minusDays(30).toString(), today.plusDays(30).toString(), s.mine)) {
                 is DataResult.Success -> _state.update {
                     it.copy(loading = false, counts = r.data.counts, items = r.data.items)
                 }
@@ -166,7 +178,7 @@ fun TeamPlansScreen(
         state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() }
     }
 
-    SubScreen(title = "Công việc của nhóm", onBack = onBack, snackbar = snackbar) { padding ->
+    SubScreen(title = if (state.mine) "Kế hoạch của tôi" else "Công việc của nhóm", onBack = onBack, snackbar = snackbar) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -187,7 +199,7 @@ fun TeamPlansScreen(
                     )
                 }
             }
-            LazyRow(
+            if (!state.mine) LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
@@ -228,6 +240,7 @@ fun TeamPlansScreen(
                     items(state.items, key = { it.id }) { plan ->
                         PlanCard(
                             plan = plan,
+                            mine = state.mine,
                             onOpen = { onOpen(plan.id) },
                             onApprove = { viewModel.ask(PendingDecision(plan.id, true, plan.content)) },
                             onReject = { viewModel.ask(PendingDecision(plan.id, false, plan.content)) },
@@ -241,7 +254,7 @@ fun TeamPlansScreen(
             ExtendedFloatingActionButton(
                 onClick = onAssign,
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Giao việc") },
+                text = { Text(if (state.mine) "Lập kế hoạch" else "Giao việc") },
             )
         }
     }
@@ -254,13 +267,15 @@ fun TeamPlansScreen(
 @Composable
 private fun PlanCard(
     plan: TeamWorkPlan,
+    mine: Boolean,
     onOpen: () -> Unit,
     onApprove: () -> Unit,
     onReject: () -> Unit,
 ) {
-    // Reuses the approval card: only a submitted plan carries the two buttons.
+    // Reuses the approval card: only a submitted plan of someone below carries
+    // the two buttons; the manager's own waits on their boss.
     ApprovalCard(
-        status = if (plan.status == WorkPlanStatus.SUBMITTED) ApprovalStatus.PENDING else ApprovalStatus.APPROVED,
+        status = if (!mine && plan.status == WorkPlanStatus.SUBMITTED) ApprovalStatus.PENDING else ApprovalStatus.APPROVED,
         decisionNote = null,
         onApprove = onApprove,
         onReject = onReject,
@@ -275,7 +290,7 @@ private fun PlanCard(
             )
             PlanStatusBadge(plan.status)
         }
-        LabeledLine("Nhân viên", plan.salesperson?.let { "${it.name} (${it.code})" })
+        if (!mine) LabeledLine("Nhân viên", plan.salesperson?.let { "${it.name} (${it.code})" })
         LabeledLine("Loại", plan.categoryName)
         LabeledLine("Thời gian", formatWindow(plan.fromAt, plan.toAt))
         LabeledLine("Địa điểm", plan.place)
@@ -284,7 +299,11 @@ private fun PlanCard(
         }
         LabeledLine(
             "Nguồn",
-            if (plan.isAssigned) "Giao bởi ${plan.author?.name ?: "cấp trên"}" else "Nhân viên tự lập",
+            when {
+                plan.isAssigned -> "Giao bởi ${plan.author?.name ?: "cấp trên"}"
+                mine -> "Tự lập"
+                else -> "Nhân viên tự lập"
+            },
         )
         LabeledLine("Kết quả", plan.result)
         LabeledLine("Lý do", plan.reason)

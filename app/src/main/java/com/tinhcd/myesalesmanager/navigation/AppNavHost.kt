@@ -59,7 +59,9 @@ import com.tinhcd.myesalesmanager.feature.workwith.ProductQtyScreen
 import com.tinhcd.myesalesmanager.feature.workwith.QtyMode
 import com.tinhcd.myesalesmanager.feature.auth.LoginScreen
 import com.tinhcd.myesalesmanager.feature.shell.MainShell
+import com.tinhcd.myesalesmanager.feature.workplan.ARG_ASSIGN_SELF
 import com.tinhcd.myesalesmanager.feature.workplan.ARG_PLAN_ID
+import com.tinhcd.myesalesmanager.feature.workplan.ARG_PLAN_MINE
 import com.tinhcd.myesalesmanager.feature.workplan.ARG_PLAN_STATUS
 import com.tinhcd.myesalesmanager.feature.workplan.AssignWorkPlanScreen
 import com.tinhcd.myesalesmanager.feature.workplan.TaskTarget
@@ -77,7 +79,9 @@ object Routes {
 
     const val TEAM_PLANS = "plans?$ARG_PLAN_STATUS={$ARG_PLAN_STATUS}"
     const val PLAN_DETAIL = "plans/{$ARG_PLAN_ID}"
-    const val ASSIGN_PLAN = "plans/assign"
+    const val ASSIGN_PLAN = "plans/assign?$ARG_ASSIGN_SELF={$ARG_ASSIGN_SELF}"
+    const val MY_PLANS = "plans/mine?$ARG_PLAN_MINE={$ARG_PLAN_MINE}"
+    fun assignPlan(self: Boolean = false) = if (self) "plans/assign?$ARG_ASSIGN_SELF=1" else "plans/assign"
 
     fun customerDetail(id: String) = "approval/customer/$id"
     fun trade(kind: String) = "approval/trade/$kind"
@@ -130,7 +134,8 @@ object Routes {
 
     fun of(target: TaskTarget): String = when (target) {
         TaskTarget.TEAM_PLANS -> plans()
-        TaskTarget.ASSIGN -> ASSIGN_PLAN
+        TaskTarget.MY_PLANS -> "plans/mine?$ARG_PLAN_MINE=1"
+        TaskTarget.ASSIGN -> assignPlan()
         TaskTarget.WORK_WITH -> WORK_WITH
         TaskTarget.ROUTES -> ROUTES
         TaskTarget.EDAC -> EDAC
@@ -326,11 +331,25 @@ fun AppNavHost(startDestination: String) {
             TeamPlansScreen(
                 onBack = back,
                 onOpen = { nav.navigate(Routes.planDetail(it)) },
-                onAssign = { nav.navigate(Routes.ASSIGN_PLAN) },
+                onAssign = { nav.navigate(Routes.assignPlan()) },
             )
         }
-        // Declared before PLAN_DETAIL so "plans/assign" is not read as a plan id.
-        composable(Routes.ASSIGN_PLAN) {
+        // Declared before PLAN_DETAIL so "plans/assign" and "plans/mine" are not
+        // read as plan ids.
+        composable(
+            Routes.MY_PLANS,
+            arguments = listOf(navArgument(ARG_PLAN_MINE) { type = NavType.StringType; nullable = true; defaultValue = "1" }),
+        ) {
+            TeamPlansScreen(
+                onBack = back,
+                onOpen = { nav.navigate(Routes.planDetail(it)) },
+                onAssign = { nav.navigate(Routes.assignPlan(self = true)) },
+            )
+        }
+        composable(
+            Routes.ASSIGN_PLAN,
+            arguments = listOf(navArgument(ARG_ASSIGN_SELF) { type = NavType.StringType; nullable = true; defaultValue = null }),
+        ) {
             AssignWorkPlanScreen(onDone = back, onBack = back)
         }
         composable(

@@ -36,8 +36,9 @@ class WorkPlanRepositoryImpl @Inject constructor(
         salespersonId: String?,
         fromDate: String,
         toDate: String,
+        mine: Boolean,
     ) = call {
-        val page = service.plans(fromDate, toDate, status?.code, salespersonId).orThrow()
+        val page = service.plans(fromDate, toDate, status?.code, salespersonId, if (mine) "1" else null).orThrow()
         WorkPlanPage(
             counts = page.counts.mapKeys { WorkPlanStatus.of(it.key) },
             items = page.items.map { it.toDomain() },
@@ -87,22 +88,19 @@ class WorkPlanRepositoryImpl @Inject constructor(
     }
 
     override suspend fun assign(draft: AssignDraft) = call {
-        service.act(
-            WorkPlanActionDto(
-                action = "assign",
-                plan = AssignPlanDto(
-                    salespersonId = draft.salespersonId,
-                    categoryId = draft.categoryId,
-                    content = draft.content.trim(),
-                    place = draft.place?.trim()?.takeIf { it.isNotEmpty() },
-                    note = draft.note?.trim()?.takeIf { it.isNotEmpty() },
-                    fromAt = draft.fromAt,
-                    toAt = draft.toAt,
-                    objects = draft.objectIds.map { AssignObjectDto(it) },
-                ),
-            ),
-        ).orThrow().id
+        service.act(WorkPlanActionDto(action = "assign", plan = draft.toDto())).orThrow().id
     }
+
+    private fun AssignDraft.toDto() = AssignPlanDto(
+        salespersonId = salespersonId,
+        categoryId = categoryId,
+        content = content.trim(),
+        place = place?.trim()?.takeIf { it.isNotEmpty() },
+        note = note?.trim()?.takeIf { it.isNotEmpty() },
+        fromAt = fromAt,
+        toAt = toAt,
+        objects = objectIds.map { AssignObjectDto(it) },
+    )
 
     override suspend fun decide(id: String, approve: Boolean, reason: String?) = call {
         service.act(
@@ -118,6 +116,17 @@ class WorkPlanRepositoryImpl @Inject constructor(
 
     override suspend fun cancel(id: String, reason: String) = call {
         service.act(WorkPlanActionDto(action = "cancel", id = id, reason = reason.trim())).orThrow()
+        Unit
+    }
+
+    override suspend fun planOwn(draft: AssignDraft) = call {
+        service.act(WorkPlanActionDto(action = "plan", plan = draft.toDto())).orThrow().id
+    }
+
+    override suspend fun moveOwn(id: String, status: WorkPlanStatus, reason: String?) = call {
+        service.act(
+            WorkPlanActionDto(action = "status", id = id, status = status.code, reason = reason?.trim()?.takeIf { it.isNotEmpty() }),
+        ).orThrow()
         Unit
     }
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -43,8 +44,10 @@ import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.formatDateTime
 import com.tinhcd.myesalesmanager.core.ui.formatWindow
 import com.tinhcd.myesalesmanager.domain.DataResult
+import com.tinhcd.myesalesmanager.domain.model.SessionState
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanDetail
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanStatus
+import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
 import com.tinhcd.myesalesmanager.domain.repository.WorkPlanRepository
 import com.tinhcd.myesalesmanager.feature.approval.DecisionButtons
 import com.tinhcd.myesalesmanager.feature.approval.DecisionDialog
@@ -64,7 +67,13 @@ const val ARG_PLAN_ID = "planId"
 /** Which confirmation is open: a ruling on a submitted plan, or calling one off. */
 private const val CANCEL = "cancel"
 
+/** The same dialog, for the manager's own plan: calling it off, or reporting it done. */
+private const val OWN_CANCEL = "own-cancel"
+private const val OWN_COMPLETE = "own-complete"
+
 data class PlanDetailState(
+    /** The signed-in manager, to tell their own plan from one below them. */
+    val meId: String? = null,
     val loading: Boolean = true,
     val error: String? = null,
     val detail: WorkPlanDetail? = null,
@@ -78,6 +87,7 @@ data class PlanDetailState(
 class WorkPlanDetailViewModel @Inject constructor(
     savedState: SavedStateHandle,
     private val repository: WorkPlanRepository,
+    auth: AuthRepository,
 ) : ViewModel() {
 
     private val id: String = checkNotNull(savedState[ARG_PLAN_ID])
@@ -86,7 +96,39 @@ class WorkPlanDetailViewModel @Inject constructor(
     val state: StateFlow<PlanDetailState> = _state.asStateFlow()
 
     init {
+        viewModelScope.launch {
+            auth.sessionState.collect { s -> _state.update { it.copy(meId = (s as? SessionState.SignedIn)?.manager?.id) } }
+        }
         load()
+    }
+
+    /** Sends the manager's own draft to their boss. */
+    fun submitOwn() {
+        viewModelScope.launch {
+            _state.update { it.copy(busy = true) }
+            when (val r = repository.moveOwn(id, WorkPlanStatus.SUBMITTED, null)) {
+                is DataResult.Success -> {
+                    _state.update { it.copy(busy = false, message = "Đã gửi duyệt") }
+                    load()
+                }
+                is DataResult.Failure -> _state.update { it.copy(busy = false, message = r.error.toMessage()) }
+            }
+        }
+    }
+
+    /** Both need words: why it is off, or what came of it. */
+    fun askOwn(complete: Boolean) {
+        val d = _state.value.detail ?: return
+        _state.update {
+            it.copy(
+                pending = PendingDecision(
+                    if (complete) OWN_COMPLETE else OWN_CANCEL, false, d.plan.content,
+                    heading = if (complete) "Báo hoàn thành" else "Huỷ kế hoạch",
+                    reasonLabel = if (complete) "Kết quả *" else "Lý do huỷ *",
+                ),
+                cancelling = false,
+            )
+        }
     }
 
     fun load() {
@@ -125,10 +167,11 @@ class WorkPlanDetailViewModel @Inject constructor(
         val pending = s.pending ?: return
         viewModelScope.launch {
             _state.update { it.copy(busy = true) }
-            val result = if (s.cancelling) {
-                repository.cancel(id, note)
-            } else {
-                repository.decide(id, pending.approve, note)
+            val result = when {
+                pending.id == OWN_COMPLETE -> repository.moveOwn(id, WorkPlanStatus.COMPLETED, note)
+                pending.id == OWN_CANCEL -> repository.moveOwn(id, WorkPlanStatus.CANCELLED, note)
+                s.cancelling -> repository.cancel(id, note)
+                else -> repository.decide(id, pending.approve, note)
             }
             when (result) {
                 is DataResult.Success -> {
@@ -136,6 +179,8 @@ class WorkPlanDetailViewModel @Inject constructor(
                         it.copy(
                             busy = false, pending = null, cancelling = false,
                             message = when {
+                                pending.id == OWN_COMPLETE -> "Đã báo hoàn thành"
+                                pending.id == OWN_CANCEL -> "Đã huỷ kế hoạch"
                                 s.cancelling -> "Đã huỷ công việc"
                                 pending.approve -> "Đã duyệt"
                                 else -> "Đã từ chối"
@@ -164,9 +209,12 @@ fun WorkPlanDetailScreen(
     }
 
     val plan = state.detail?.plan
-    val canDecide = plan?.status == WorkPlanStatus.SUBMITTED
-    val canCancel = plan != null && plan.assignedByMe &&
+    // The manager's own plan is ruled on by their boss, not here.
+    val mine = plan != null && plan.salesperson?.id == state.meId
+    val canDecide = !mine && plan?.status == WorkPlanStatus.SUBMITTED
+    val canCancel = !mine && plan != null && plan.assignedByMe &&
         plan.status in setOf(WorkPlanStatus.APPROVED, WorkPlanStatus.SUBMITTED) && !canDecide
+    val ownMoves = mine && plan?.status in setOf(WorkPlanStatus.DRAFT, WorkPlanStatus.SUBMITTED, WorkPlanStatus.APPROVED)
 
     SubScreen(
         title = "Chi tiết công việc",
@@ -174,7 +222,30 @@ fun WorkPlanDetailScreen(
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
-            if (canDecide || canCancel) {
+            if (ownMoves) {
+                Surface(tonalElevation = 3.dp) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.navigationBarsPadding().padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        OutlinedButton(
+                            onClick = { viewModel.askOwn(complete = false) },
+                            enabled = !state.busy,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                        ) { Text("Huỷ kế hoạch") }
+                        when (plan?.status) {
+                            WorkPlanStatus.DRAFT -> Button(onClick = viewModel::submitOwn, enabled = !state.busy, modifier = Modifier.weight(1f)) {
+                                Text("Gửi duyệt")
+                            }
+                            WorkPlanStatus.APPROVED -> Button(onClick = { viewModel.askOwn(complete = true) }, enabled = !state.busy, modifier = Modifier.weight(1f)) {
+                                Text("Báo hoàn thành")
+                            }
+                            else -> Unit
+                        }
+                    }
+                }
+            } else if (canDecide || canCancel) {
                 Surface(tonalElevation = 3.dp) {
                     val mod = Modifier.navigationBarsPadding().padding(horizontal = 16.dp, vertical = 8.dp)
                     if (canDecide) {

@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
@@ -56,6 +57,7 @@ import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.AssignDraft
 import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.PlannableCustomer
+import com.tinhcd.myesalesmanager.domain.model.Position
 import com.tinhcd.myesalesmanager.domain.model.SessionState
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.domain.model.WorkCategory
@@ -69,6 +71,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -79,7 +82,12 @@ import javax.inject.Inject
 /** Something a task can name, whatever its kind. */
 data class ObjectOption(val id: String, val title: String, val subtitle: String?)
 
+/** Optional nav argument: "1" writes the manager's own plan instead of assigning one. */
+const val ARG_ASSIGN_SELF = "self"
+
 data class AssignState(
+    /** The manager's own plan, sent to their boss, rather than work handed down. */
+    val self: Boolean = false,
     val me: Manager? = null,
     val team: List<TeamMember> = emptyList(),
     val categories: List<WorkCategory> = emptyList(),
@@ -112,8 +120,8 @@ data class AssignState(
                 team.filter { it.id != salespersonId }
                     .forEach { add(ObjectOption(it.id, it.fullName, it.code)) }
             }
-            WorkObjectKind.BRANCH -> rep?.branchId?.let {
-                listOf(ObjectOption(it, "Nhà phân phối của nhân viên", me?.branchName))
+            WorkObjectKind.BRANCH -> (if (self) me?.branchId else rep?.branchId)?.let {
+                listOf(ObjectOption(it, if (self) "Nhà phân phối của tôi" else "Nhà phân phối của nhân viên", me?.branchName))
             }.orEmpty()
             null -> emptyList()
         }
@@ -125,11 +133,12 @@ data class AssignState(
 
 @HiltViewModel
 class AssignWorkPlanViewModel @Inject constructor(
+    savedState: SavedStateHandle,
     private val repository: WorkPlanRepository,
     auth: AuthRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(AssignState())
+    private val _state = MutableStateFlow(AssignState(self = savedState.get<String>(ARG_ASSIGN_SELF) == "1"))
     val state: StateFlow<AssignState> = _state.asStateFlow()
 
     private var customerJob: Job? = null
@@ -137,12 +146,17 @@ class AssignWorkPlanViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             auth.sessionState.collect { s ->
-                _state.update { it.copy(me = (s as? SessionState.SignedIn)?.manager) }
+                val me = (s as? SessionState.SignedIn)?.manager
+                // An own plan is always the manager's: there is no one to pick.
+                _state.update { it.copy(me = me, salespersonId = if (it.self) me?.id else it.salespersonId) }
             }
         }
         viewModelScope.launch {
-            auth.team.collect { team ->
-                _state.update { it.copy(team = team, salespersonId = it.salespersonId ?: team.singleOrNull()?.id) }
+            // An area manager hands work to their supervisors as well as the reps.
+            combine(auth.supervisors, auth.team) { s, r -> s + r }.collect { team ->
+                _state.update {
+                    it.copy(team = team, salespersonId = it.salespersonId ?: team.singleOrNull()?.id?.takeIf { _ -> !it.self })
+                }
             }
         }
         viewModelScope.launch {
@@ -219,7 +233,7 @@ class AssignWorkPlanViewModel @Inject constructor(
                 toAt = toIsoInstant(s.date, s.to),
                 objectIds = s.selected.toList(),
             )
-            when (val r = repository.assign(draft)) {
+            when (val r = if (s.self) repository.planOwn(draft) else repository.assign(draft)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
                 is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
             }
@@ -247,13 +261,13 @@ fun AssignWorkPlanScreen(
     }
 
     SubScreen(
-        title = "Giao việc",
+        title = if (state.self) "Lập kế hoạch" else "Giao việc",
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
             Surface(tonalElevation = 3.dp) {
                 PrimaryButton(
-                    text = "Giao việc",
+                    text = if (state.self) "Gửi duyệt" else "Giao việc",
                     onClick = viewModel::save,
                     enabled = state.canSave,
                     loading = state.saving,
@@ -267,11 +281,11 @@ fun AssignWorkPlanScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item {
+            if (!state.self) item {
                 Picker(
                     label = "Nhân viên *",
-                    value = state.rep?.let { "${it.fullName} (${it.code})" },
-                    options = state.team.map { it.id to "${it.fullName} (${it.code})" },
+                    value = state.rep?.let { it.pickerLabel() },
+                    options = state.team.map { it.id to it.pickerLabel() },
                     onSelect = viewModel::selectRep,
                 )
             }
@@ -425,3 +439,7 @@ private fun Picker(
         }
     }
 }
+
+/** A supervisor is marked as one, among the reps an area manager can pick. */
+private fun TeamMember.pickerLabel() =
+    (if (position == Position.SS) "GS " else "") + "$fullName ($code)"
