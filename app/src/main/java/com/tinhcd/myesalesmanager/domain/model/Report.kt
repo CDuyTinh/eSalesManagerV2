@@ -5,7 +5,7 @@ enum class PeriodKind { DAY, MONTH, RANGE }
 
 /**
  * The legacy manager's report menu. The first six run on the same database
- * functions as the rep's SFA reports; the last three wait on other phases.
+ * functions as the rep's SFA reports; the last three are the manager's own.
  */
 enum class ReportKind(val code: String, val title: String, val period: PeriodKind, val ready: Boolean = true) {
     ACTIVITIES("activities", "Hoạt động trong ngày", PeriodKind.DAY),

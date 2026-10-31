@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -38,7 +39,8 @@ fun RouteMap(outlets: List<RouteOutlet>) {
         map.onResume()
         onDispose { map.onPause(); map.onDetach() }
     }
-    AndroidView(factory = { map }, modifier = Modifier.fillMaxSize()) { view ->
+    // MapView paints its tiles past its own edges unless clipped.
+    AndroidView(factory = { map }, modifier = Modifier.fillMaxSize().clipToBounds()) { view ->
         view.overlays.clear()
         val placed = outlets.filter { it.lat != null && it.lng != null }
         val points = placed.map { GeoPoint(it.lat!!, it.lng!!) }

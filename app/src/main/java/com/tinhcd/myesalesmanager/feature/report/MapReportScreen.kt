@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -202,7 +203,8 @@ private fun OsmMap(days: List<RepDay>, colours: Map<String, Color>) {
         map.onResume()
         onDispose { map.onPause(); map.onDetach() }
     }
-    AndroidView(factory = { map }, modifier = Modifier.fillMaxSize()) { view ->
+    // MapView paints its tiles past its own edges unless clipped.
+    AndroidView(factory = { map }, modifier = Modifier.fillMaxSize().clipToBounds()) { view ->
         view.overlays.clear()
         val all = mutableListOf<GeoPoint>()
         days.forEach { d ->

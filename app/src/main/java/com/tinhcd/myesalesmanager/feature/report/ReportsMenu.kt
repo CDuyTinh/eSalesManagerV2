@@ -47,9 +47,9 @@ private fun ReportKind.icon(): ImageVector = when (this) {
 }
 
 private fun ReportKind.subtitle(): String = when (this) {
-    ReportKind.TRAINING -> "Sắp có — cùng EDAC"
-    ReportKind.DAILY_TRACKING -> "Sắp có"
-    ReportKind.MAP -> "Sắp có — cần GPS tracking"
+    ReportKind.TRAINING -> "Các buổi huấn luyện EDAC"
+    ReportKind.DAILY_TRACKING -> "Ai đang làm gì, ngay lúc này"
+    ReportKind.MAP -> "Đường đi trong ngày làm việc"
     else -> "Cả nhóm hoặc từng nhân viên"
 }
 
