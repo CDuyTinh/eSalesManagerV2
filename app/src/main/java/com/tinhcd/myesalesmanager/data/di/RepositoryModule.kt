@@ -11,6 +11,8 @@ import com.tinhcd.myesalesmanager.data.repository.PersonalRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.PrepareRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.InStoreRepositoryImpl
 import com.tinhcd.myesalesmanager.domain.repository.InStoreRepository
+import com.tinhcd.myesalesmanager.data.repository.LocationTraceRepositoryImpl
+import com.tinhcd.myesalesmanager.domain.repository.LocationTraceRepository
 import com.tinhcd.myesalesmanager.domain.repository.PrepareRepository
 import com.tinhcd.myesalesmanager.domain.repository.PersonalRepository
 import com.tinhcd.myesalesmanager.domain.repository.EdacRepository
@@ -75,4 +77,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindInStoreRepository(impl: InStoreRepositoryImpl): InStoreRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLocationTraceRepository(impl: LocationTraceRepositoryImpl): LocationTraceRepository
 }

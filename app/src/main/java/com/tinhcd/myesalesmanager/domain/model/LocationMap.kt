@@ -18,6 +18,8 @@ data class MapVisit(
 /** A rep's day on the map (legacy OM30400). */
 data class RepDay(
     val rep: StaffBrief,
+    /** A supervisor's own day, which an area or regional manager sees too. */
+    val isSupervisor: Boolean = false,
     val clockIn: String?,
     val clockOut: String?,
     val path: List<TracePoint>,

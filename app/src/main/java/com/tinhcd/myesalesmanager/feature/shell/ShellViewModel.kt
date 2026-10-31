@@ -2,14 +2,18 @@ package com.tinhcd.myesalesmanager.feature.shell
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tinhcd.myesalesmanager.core.ui.todayVn
+import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.SessionState
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
 import com.tinhcd.myesalesmanager.domain.repository.PersonalRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,6 +38,23 @@ class ShellViewModel @Inject constructor(
 
     fun refreshUnread() {
         viewModelScope.launch { personal.notifications() }
+    }
+
+    private val _dayOpen = MutableStateFlow<Boolean?>(null)
+
+    /**
+     * Whether the manager's own working day is open — clocked in, not yet out —
+     * which is when their position is recorded. Null until known, and left as
+     * it was when the check fails, so a dropped request neither starts nor
+     * stops tracking.
+     */
+    val dayOpen: StateFlow<Boolean?> = _dayOpen.asStateFlow()
+
+    fun refreshDay() {
+        viewModelScope.launch {
+            val r = personal.workDay(todayVn().toString())
+            if (r is DataResult.Success) _dayOpen.value = r.data.checkInAt != null && r.data.checkOutAt == null
+        }
     }
 
     val state: StateFlow<ShellUiState> =

@@ -25,6 +25,7 @@ class LocationMapRepository @Inject constructor(
             service.map(date, salespersonId).orThrow().reps.map { r ->
                 RepDay(
                     rep = StaffBrief(r.rep.id, r.rep.code, r.rep.name),
+                    isSupervisor = r.position != "sr",
                     clockIn = r.clockIn,
                     clockOut = r.clockOut,
                     path = r.path.mapNotNull { p ->

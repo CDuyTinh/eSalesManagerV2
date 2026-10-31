@@ -1,5 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.shell
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
@@ -42,11 +46,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tinhcd.myesalesmanager.core.location.TrackingService
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.LoadingBox
 import com.tinhcd.myesalesmanager.core.ui.theme.brand
@@ -86,9 +92,38 @@ fun MainShell(
     val unread by viewModel.unread.collectAsStateWithLifecycle()
     var tab by rememberSaveable { mutableIntStateOf(0) }
 
-    LaunchedEffect(state.signedOut) { if (state.signedOut) onSignedOut() }
+    // The manager's own trace runs while their day is open. Checked whenever the
+    // shell comes back into view — including straight after the Chấm công screen
+    // — and a location service may only be started from a visible app.
+    val context = LocalContext.current
+    val dayOpen by viewModel.dayOpen.collectAsStateWithLifecycle()
+    // The service posts its notification when it starts, which may be before
+    // notifications were allowed; starting it again re-posts it.
+    val notifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted && dayOpen == true) TrackingService.start(context)
+    }
+    LaunchedEffect(dayOpen) {
+        when (dayOpen) {
+            true -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                TrackingService.start(context)
+            }
+            false -> TrackingService.stop(context)
+            null -> Unit
+        }
+    }
+
+    LaunchedEffect(state.signedOut) {
+        if (state.signedOut) {
+            TrackingService.stop(context)
+            onSignedOut()
+        }
+    }
     LifecycleResumeEffect(Unit) {
         viewModel.refreshUnread()
+        viewModel.refreshDay()
         onPauseOrDispose { }
     }
 

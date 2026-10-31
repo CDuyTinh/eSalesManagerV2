@@ -126,6 +126,7 @@ class AuthRepositoryImpl @Inject constructor(
             return DataResult.Failure(AppError.Auth(refusal))
         }
 
+        session.settings.value = body.settings
         publish(SessionState.SignedIn(manager), body.team.map { it.toTeamMember() })
         return DataResult.Success(manager!!)
     }

@@ -15,4 +15,7 @@ import javax.inject.Singleton
 class SessionStore @Inject constructor() {
     val current = MutableStateFlow<Manager?>(null)
     val team = MutableStateFlow<List<TeamMember>>(emptyList())
+
+    /** app_setting as of the last profile fetch (the tracking interval, for one). */
+    val settings = MutableStateFlow<Map<String, String>>(emptyMap())
 }

@@ -24,6 +24,8 @@ data class MapVisitDto(
 data class RepDayDto(
     val rep: StaffBriefDto,
     @SerialName("clock_in") val clockIn: String? = null,
+    /** sr for a rep; ss when an area or regional manager sees a supervisor's own day. */
+    val position: String = "sr",
     @SerialName("clock_out") val clockOut: String? = null,
     /** [lat, lng, recorded_at] triples, compact on purpose: a day is hundreds of them. */
     val path: List<JsonArray> = emptyList(),

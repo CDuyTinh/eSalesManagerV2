@@ -18,6 +18,7 @@ import com.tinhcd.myesalesmanager.data.remote.service.PersonalService
 import com.tinhcd.myesalesmanager.data.remote.service.PrepareService
 import com.tinhcd.myesalesmanager.data.remote.service.InStoreService
 import com.tinhcd.myesalesmanager.data.remote.service.LocationMapService
+import com.tinhcd.myesalesmanager.data.remote.service.LocationTraceService
 import com.tinhcd.myesalesmanager.data.remote.service.WorkPlanService
 import dagger.Binds
 import dagger.Module
@@ -164,4 +165,9 @@ object NetworkModule {
     @Singleton
     fun provideLocationMapService(retrofit: Retrofit): LocationMapService =
         retrofit.create(LocationMapService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideLocationTraceService(retrofit: Retrofit): LocationTraceService =
+        retrofit.create(LocationTraceService::class.java)
 }
