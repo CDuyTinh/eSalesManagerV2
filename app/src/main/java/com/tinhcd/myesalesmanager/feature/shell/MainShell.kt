@@ -52,6 +52,7 @@ import com.tinhcd.myesalesmanager.core.ui.LoadingBox
 import com.tinhcd.myesalesmanager.core.ui.theme.brand
 import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
+import com.tinhcd.myesalesmanager.domain.model.title
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalMenu
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalTarget
 import com.tinhcd.myesalesmanager.feature.dashboard.DashboardTab
@@ -144,7 +145,7 @@ private fun Header(manager: Manager?, unread: Int, onBell: () -> Unit) {
             )
             if (manager != null) {
                 Text(
-                    "${manager.code} · Giám sát · ${manager.branchName}",
+                    "${manager.code} · ${manager.position.title} · ${manager.branchName}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.brand.onHeader,
                 )

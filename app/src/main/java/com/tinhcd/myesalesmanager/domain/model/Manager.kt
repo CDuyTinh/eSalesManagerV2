@@ -46,4 +46,15 @@ data class TeamMember(
     val phone: String?,
     /** The rep's distributor, which is what a "work with the distributor" task names. */
     val branchId: String?,
+    /** Their direct boss: for a rep, the SS whose filter they fall under. */
+    val supervisorId: String? = null,
 )
+
+/** How the header names the signed-in manager's level. */
+val Position.title: String
+    get() = when (this) {
+        Position.SR -> "Nhân viên"
+        Position.SS -> "Giám sát"
+        Position.AM -> "Quản lý khu vực"
+        Position.RM -> "Quản lý vùng"
+    }

@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -81,7 +82,11 @@ class AuthRepositoryImpl @Inject constructor(
 
     override val sessionState: Flow<SessionState> = resolved.filterNotNull()
 
-    override val team: Flow<List<TeamMember>> = session.team
+    // The session holds the whole subtree; screens that list people to pick work
+    // on reps, and only an AM / RM has supervisors to filter by.
+    override val team: Flow<List<TeamMember>> = session.team.map { all -> all.filter { it.position == Position.SR } }
+
+    override val supervisors: Flow<List<TeamMember>> = session.team.map { all -> all.filter { it.position == Position.SS } }
 
     override suspend fun signIn(username: String, password: String): DataResult<Manager> {
         try {
@@ -176,6 +181,7 @@ private fun StaffDto.toTeamMember() = TeamMember(
     position = Position.of(position),
     phone = phone,
     branchId = branchId,
+    supervisorId = supervisorId,
 )
 
 internal fun Exception.toAppError(): AppError {

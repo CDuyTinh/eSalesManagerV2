@@ -12,5 +12,6 @@ interface DashboardService {
     suspend fun overview(
         @Query("date") date: String,
         @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
     ): Response<TeamDashboardDto>
 }

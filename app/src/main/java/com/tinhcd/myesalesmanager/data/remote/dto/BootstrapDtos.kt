@@ -21,6 +21,7 @@ data class StaffDto(
     val position: String? = null,
     @SerialName("branch_id") val branchId: String? = null,
     val phone: String? = null,
+    @SerialName("supervisor_id") val supervisorId: String? = null,
     val branch: BranchDto? = null,
 )
 

@@ -10,6 +10,7 @@ interface ReportRepository {
      * @param period for a DAY report both ends are the day; for a MONTH report
      *   [ReportPeriod.from] is the first of the month.
      * @param salespersonId null reports the whole team.
+     * @param supervisorId with no rep, one SS's reps (AM / RM).
      */
-    suspend fun load(kind: ReportKind, period: ReportPeriod, salespersonId: String?): DataResult<ReportData>
+    suspend fun load(kind: ReportKind, period: ReportPeriod, salespersonId: String?, supervisorId: String? = null): DataResult<ReportData>
 }

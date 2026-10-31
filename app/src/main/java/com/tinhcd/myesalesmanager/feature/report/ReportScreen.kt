@@ -37,6 +37,7 @@ import com.tinhcd.myesalesmanager.core.ui.PercentPill
 import com.tinhcd.myesalesmanager.core.ui.StatTile
 import com.tinhcd.myesalesmanager.core.ui.StatusPill
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
+import com.tinhcd.myesalesmanager.core.ui.TeamFilter
 import com.tinhcd.myesalesmanager.core.ui.compactMoney
 import com.tinhcd.myesalesmanager.core.ui.formatDateTime
 import com.tinhcd.myesalesmanager.core.ui.formatDay
@@ -75,18 +76,14 @@ fun ReportScreen(
         ) {
             item { PeriodBar(state, viewModel) }
             item {
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 16.dp)) {
-                    item {
-                        FilterChip(selected = team, onClick = { viewModel.selectSalesperson(null) }, label = { Text("Cả nhóm") })
-                    }
-                    items(state.team, key = { it.id }) { m ->
-                        FilterChip(
-                            selected = state.salespersonId == m.id,
-                            onClick = { viewModel.selectSalesperson(m.id) },
-                            label = { Text(m.fullName) },
-                        )
-                    }
-                }
+                TeamFilter(
+                    supervisors = state.supervisors,
+                    supervisorId = state.supervisorId,
+                    onSupervisor = viewModel::selectSupervisor,
+                    reps = state.team,
+                    salespersonId = state.salespersonId,
+                    onRep = viewModel::selectSalesperson,
+                )
             }
             val data = state.data
             when {

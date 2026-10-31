@@ -44,7 +44,9 @@ enum class RangePreset(val label: String) {
 data class ReportState(
     val kind: ReportKind,
     val salespersonId: String? = null,
+    val supervisorId: String? = null,
     val team: List<TeamMember> = emptyList(),
+    val supervisors: List<TeamMember> = emptyList(),
     /** The day (DAY reports) or any day of the month (MONTH reports). */
     val anchor: LocalDate = todayVn(),
     val preset: RangePreset = RangePreset.THIS_MONTH,
@@ -74,6 +76,7 @@ class ReportViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { auth.team.collect { t -> _state.update { it.copy(team = t) } } }
+        viewModelScope.launch { auth.supervisors.collect { s -> _state.update { it.copy(supervisors = s) } } }
         refresh()
     }
 
@@ -82,7 +85,7 @@ class ReportViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
-            when (val r = repository.load(s.kind, s.period, s.salespersonId)) {
+            when (val r = repository.load(s.kind, s.period, s.salespersonId, s.supervisorId)) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, data = r.data) }
                 is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
             }
@@ -91,6 +94,11 @@ class ReportViewModel @Inject constructor(
 
     fun selectSalesperson(id: String?) {
         _state.update { it.copy(salespersonId = id) }
+        refresh()
+    }
+
+    fun selectSupervisor(id: String?) {
+        _state.update { it.copy(supervisorId = id, salespersonId = null) }
         refresh()
     }
 

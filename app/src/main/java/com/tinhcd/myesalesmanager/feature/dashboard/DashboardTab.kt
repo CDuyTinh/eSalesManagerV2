@@ -39,6 +39,7 @@ import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
 import com.tinhcd.myesalesmanager.core.ui.KpiBar
 import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.TeamFilter
 import com.tinhcd.myesalesmanager.core.ui.PercentPill
 import com.tinhcd.myesalesmanager.core.ui.StatTile
 import com.tinhcd.myesalesmanager.core.ui.compactMoney
@@ -67,7 +68,9 @@ import javax.inject.Inject
 data class DashboardState(
     val date: LocalDate = todayVn(),
     val salespersonId: String? = null,
+    val supervisorId: String? = null,
     val team: List<TeamMember> = emptyList(),
+    val supervisors: List<TeamMember> = emptyList(),
     val range: ChartRange = ChartRange.THIS_WEEK,
     val data: TeamDashboard? = null,
     val loading: Boolean = true,
@@ -87,6 +90,7 @@ class DashboardViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { auth.team.collect { t -> _state.update { it.copy(team = t) } } }
+        viewModelScope.launch { auth.supervisors.collect { s -> _state.update { it.copy(supervisors = s) } } }
     }
 
     fun refresh() {
@@ -94,7 +98,7 @@ class DashboardViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
-            when (val r = repository.overview(s.date.toString(), s.salespersonId)) {
+            when (val r = repository.overview(s.date.toString(), s.salespersonId, s.supervisorId)) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, data = r.data) }
                 is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
             }
@@ -116,6 +120,12 @@ class DashboardViewModel @Inject constructor(
 
     fun selectSalesperson(id: String?) {
         _state.update { it.copy(salespersonId = id) }
+        refresh()
+    }
+
+    /** Narrows to one SS's reps; a rep picked from another SS is let go. */
+    fun selectSupervisor(id: String?) {
+        _state.update { it.copy(supervisorId = id, salespersonId = null) }
         refresh()
     }
 
@@ -147,25 +157,14 @@ fun DashboardTab(viewModel: DashboardViewModel = hiltViewModel()) {
         ) {
             item { DayBar(state, viewModel) }
             item {
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                ) {
-                    item {
-                        FilterChip(
-                            selected = state.salespersonId == null,
-                            onClick = { viewModel.selectSalesperson(null) },
-                            label = { Text("Cả nhóm (${state.team.size})") },
-                        )
-                    }
-                    items(state.team, key = { it.id }) { m ->
-                        FilterChip(
-                            selected = state.salespersonId == m.id,
-                            onClick = { viewModel.selectSalesperson(m.id) },
-                            label = { Text(m.fullName) },
-                        )
-                    }
-                }
+                TeamFilter(
+                    supervisors = state.supervisors,
+                    supervisorId = state.supervisorId,
+                    onSupervisor = viewModel::selectSupervisor,
+                    reps = state.team,
+                    salespersonId = state.salespersonId,
+                    onRep = viewModel::selectSalesperson,
+                )
             }
             item { TodayCard(data) }
             item { MonthCard(data) }

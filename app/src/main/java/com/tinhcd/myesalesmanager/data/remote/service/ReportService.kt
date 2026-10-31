@@ -18,12 +18,14 @@ interface ReportService {
     suspend fun activities(
         @Query("date") date: String,
         @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
     ): Response<ActivitiesReportDto>
 
     @GET("mgr-reports?report=sales")
     suspend fun sales(
         @Query("month") month: String,
         @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
     ): Response<SalesReportDto>
 
     @GET("mgr-reports?report=orders")
@@ -31,6 +33,7 @@ interface ReportService {
         @Query("fromDate") from: String,
         @Query("toDate") to: String,
         @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
     ): Response<OrdersReportDto>
 
     @GET("mgr-reports?report=sku")
@@ -38,6 +41,7 @@ interface ReportService {
         @Query("fromDate") from: String,
         @Query("toDate") to: String,
         @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
     ): Response<SkuReportDto>
 
     @GET("mgr-reports?report=trade")
@@ -45,6 +49,7 @@ interface ReportService {
         @Query("fromDate") from: String,
         @Query("toDate") to: String,
         @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
     ): Response<TradeReportDto>
 
     @GET("mgr-reports?report=work")
@@ -52,6 +57,7 @@ interface ReportService {
         @Query("fromDate") from: String,
         @Query("toDate") to: String,
         @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
     ): Response<WorkReportDto>
 
     @GET("mgr-reports?report=training")
@@ -59,5 +65,6 @@ interface ReportService {
         @Query("fromDate") from: String,
         @Query("toDate") to: String,
         @Query("salespersonId") salespersonId: String?,
+        @Query("supervisorId") supervisorId: String? = null,
     ): Response<TrainingReportDto>
 }

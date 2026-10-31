@@ -13,6 +13,9 @@ interface AuthRepository {
     /** The reps under the signed-in manager, as of the last profile fetch. */
     val team: Flow<List<TeamMember>>
 
+    /** The SSs under an AM / RM, for filtering by supervisor; empty for an SS. */
+    val supervisors: Flow<List<TeamMember>>
+
     /** @param username the code the manager types, e.g. "gsbh01". */
     suspend fun signIn(username: String, password: String): DataResult<Manager>
 

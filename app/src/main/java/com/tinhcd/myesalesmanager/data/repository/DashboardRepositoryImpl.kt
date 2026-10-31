@@ -21,8 +21,8 @@ class DashboardRepositoryImpl @Inject constructor(
     private val service: DashboardService,
 ) : DashboardRepository {
 
-    override suspend fun overview(date: String, salespersonId: String?): DataResult<TeamDashboard> = try {
-        val d = service.overview(date, salespersonId).orThrow()
+    override suspend fun overview(date: String, salespersonId: String?, supervisorId: String?): DataResult<TeamDashboard> = try {
+        val d = service.overview(date, salespersonId, supervisorId).orThrow()
         DataResult.Success(
             TeamDashboard(
                 date = d.date,
