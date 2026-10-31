@@ -8,6 +8,8 @@ import com.tinhcd.myesalesmanager.data.repository.WorkWithRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.RouteRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.EdacRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.PersonalRepositoryImpl
+import com.tinhcd.myesalesmanager.data.repository.PrepareRepositoryImpl
+import com.tinhcd.myesalesmanager.domain.repository.PrepareRepository
 import com.tinhcd.myesalesmanager.domain.repository.PersonalRepository
 import com.tinhcd.myesalesmanager.domain.repository.EdacRepository
 import com.tinhcd.myesalesmanager.domain.repository.RouteRepository
@@ -63,4 +65,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindPersonalRepository(impl: PersonalRepositoryImpl): PersonalRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPrepareRepository(impl: PrepareRepositoryImpl): PrepareRepository
 }

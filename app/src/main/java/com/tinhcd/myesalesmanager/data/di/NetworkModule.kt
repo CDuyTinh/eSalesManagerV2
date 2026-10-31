@@ -15,6 +15,7 @@ import com.tinhcd.myesalesmanager.data.remote.service.WorkWithService
 import com.tinhcd.myesalesmanager.data.remote.service.RouteService
 import com.tinhcd.myesalesmanager.data.remote.service.EdacService
 import com.tinhcd.myesalesmanager.data.remote.service.PersonalService
+import com.tinhcd.myesalesmanager.data.remote.service.PrepareService
 import com.tinhcd.myesalesmanager.data.remote.service.WorkPlanService
 import dagger.Binds
 import dagger.Module
@@ -146,4 +147,9 @@ object NetworkModule {
     @Singleton
     fun providePersonalService(retrofit: Retrofit): PersonalService =
         retrofit.create(PersonalService::class.java)
+
+    @Provides
+    @Singleton
+    fun providePrepareService(retrofit: Retrofit): PrepareService =
+        retrofit.create(PrepareService::class.java)
 }

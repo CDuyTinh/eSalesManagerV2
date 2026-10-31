@@ -22,6 +22,11 @@ import com.tinhcd.myesalesmanager.domain.model.EdacStep
 import com.tinhcd.myesalesmanager.domain.model.NotificationKind
 import com.tinhcd.myesalesmanager.domain.model.TradeKind
 import com.tinhcd.myesalesmanager.feature.personal.MyLeaveScreen
+import com.tinhcd.myesalesmanager.feature.prepare.ARG_CUSTOMER_EDIT_ID
+import com.tinhcd.myesalesmanager.feature.prepare.EditCustomerScreen
+import com.tinhcd.myesalesmanager.feature.prepare.SalesFocusScreen
+import com.tinhcd.myesalesmanager.feature.prepare.StockScreen
+import com.tinhcd.myesalesmanager.feature.prepare.TeamCustomersScreen
 import com.tinhcd.myesalesmanager.feature.personal.NotificationsScreen
 import com.tinhcd.myesalesmanager.feature.personal.PersonalTarget
 import com.tinhcd.myesalesmanager.feature.personal.WorkDayScreen
@@ -103,7 +108,16 @@ object Routes {
         TaskTarget.ROUTES -> ROUTES
         TaskTarget.EDAC -> EDAC
         TaskTarget.NOTES -> of(PersonalTarget.NOTES)
+        TaskTarget.STOCK -> STOCK
+        TaskTarget.SALES_FOCUS -> SALES_FOCUS
+        TaskTarget.EDIT_CUSTOMERS -> TEAM_CUSTOMERS
     }
+
+    const val STOCK = "prepare/stock"
+    const val SALES_FOCUS = "prepare/focus"
+    const val TEAM_CUSTOMERS = "customers"
+    const val EDIT_CUSTOMER = "customers/{$ARG_CUSTOMER_EDIT_ID}"
+    fun editCustomer(id: String) = "customers/$id"
 
     fun of(target: PersonalTarget): String = when (target) {
         PersonalTarget.WORK_DAY -> "personal/workday"
@@ -153,6 +167,16 @@ fun AppNavHost(startDestination: String) {
                 onOpenPersonal = { nav.navigate(Routes.of(it)) },
             )
         }
+
+        composable(Routes.STOCK) { StockScreen(onBack = back) }
+        composable(Routes.SALES_FOCUS) { SalesFocusScreen(onBack = back) }
+        composable(Routes.TEAM_CUSTOMERS) {
+            TeamCustomersScreen(onBack = back, onOpen = { nav.navigate(Routes.editCustomer(it)) })
+        }
+        composable(
+            Routes.EDIT_CUSTOMER,
+            arguments = listOf(navArgument(ARG_CUSTOMER_EDIT_ID) { type = NavType.StringType }),
+        ) { EditCustomerScreen(onBack = back) }
 
         composable(Routes.of(PersonalTarget.WORK_DAY)) { WorkDayScreen(onBack = back) }
         composable(Routes.of(PersonalTarget.LEAVE)) { MyLeaveScreen(onBack = back) }
