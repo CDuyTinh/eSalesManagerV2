@@ -19,6 +19,8 @@ import com.tinhcd.myesalesmanager.domain.model.VisitStatus
 import com.tinhcd.myesalesmanager.domain.model.WorkWithRoute
 import com.tinhcd.myesalesmanager.domain.model.WorkWithStop
 import com.tinhcd.myesalesmanager.domain.model.WorkWithVisit
+import com.tinhcd.myesalesmanager.domain.model.VisitTasks
+import com.tinhcd.myesalesmanager.domain.model.OrderBrief
 import com.tinhcd.myesalesmanager.domain.repository.WorkWithRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -80,6 +82,16 @@ class WorkWithRepositoryImpl @Inject constructor(
                     it.programId, it.programCode, it.programName, it.levelId, it.levelName,
                     it.requiredFaces, it.registered, it.myAuditId, it.myFaces, it.myAchieved,
                     it.myPhotos, it.repAudit?.auditDate, it.repAudit?.countedFaces, it.repAudit?.achieved,
+                )
+            },
+            tasks = d.tasks?.let { t ->
+                VisitTasks(
+                    stockCountedAt = t.stockCount?.at,
+                    stockCountLines = t.stockCount?.lines ?: 0,
+                    orders = t.orders.map { OrderBrief(it.id, it.orderNo, it.totalAmount, it.discountAmount) },
+                    posmChecked = t.posmChecked,
+                    surveysDone = t.surveysDone,
+                    minMinutes = t.minMinutes,
                 )
             },
         )

@@ -45,6 +45,14 @@ import com.tinhcd.myesalesmanager.feature.route.RoutesScreen
 import com.tinhcd.myesalesmanager.feature.workwith.ARG_VISIT_ID
 import com.tinhcd.myesalesmanager.feature.workwith.WorkWithRouteScreen
 import com.tinhcd.myesalesmanager.feature.workwith.WorkWithVisitScreen
+import com.tinhcd.myesalesmanager.feature.workwith.ARG_QTY_MODE
+import com.tinhcd.myesalesmanager.feature.workwith.ARG_SURVEY_ID
+import com.tinhcd.myesalesmanager.feature.workwith.CompetitorSurveyScreen
+import com.tinhcd.myesalesmanager.feature.workwith.InStoreStep
+import com.tinhcd.myesalesmanager.feature.workwith.MarketInfoScreen
+import com.tinhcd.myesalesmanager.feature.workwith.PosmCheckScreen
+import com.tinhcd.myesalesmanager.feature.workwith.ProductQtyScreen
+import com.tinhcd.myesalesmanager.feature.workwith.QtyMode
 import com.tinhcd.myesalesmanager.feature.auth.LoginScreen
 import com.tinhcd.myesalesmanager.feature.shell.MainShell
 import com.tinhcd.myesalesmanager.feature.workplan.ARG_PLAN_ID
@@ -84,6 +92,16 @@ object Routes {
 
     const val WORK_WITH = "workwith"
     const val WORK_WITH_VISIT = "workwith/visit/{$ARG_VISIT_ID}"
+    const val WORK_WITH_QTY = "workwith/visit/{$ARG_VISIT_ID}/qty/{$ARG_QTY_MODE}"
+    const val WORK_WITH_POSM = "workwith/visit/{$ARG_VISIT_ID}/posm"
+    const val WORK_WITH_MARKET = "workwith/visit/{$ARG_VISIT_ID}/market"
+    const val WORK_WITH_SURVEY = "workwith/visit/{$ARG_VISIT_ID}/market/{$ARG_SURVEY_ID}"
+    fun inStore(step: InStoreStep, visitId: String) = when (step) {
+        InStoreStep.STOCK -> "workwith/visit/$visitId/qty/${QtyMode.COUNT.code}"
+        InStoreStep.ORDER -> "workwith/visit/$visitId/qty/${QtyMode.ORDER.code}"
+        InStoreStep.POSM -> "workwith/visit/$visitId/posm"
+        InStoreStep.MARKET -> "workwith/visit/$visitId/market"
+    }
     fun workWithVisit(id: String) = "workwith/visit/$id"
 
     const val ROUTES = "routes"
@@ -191,7 +209,36 @@ fun AppNavHost(startDestination: String) {
         composable(
             Routes.WORK_WITH_VISIT,
             arguments = listOf(navArgument(ARG_VISIT_ID) { type = NavType.StringType }),
-        ) { WorkWithVisitScreen(onBack = back) }
+        ) {
+            WorkWithVisitScreen(
+                onBack = back,
+                onOpenStep = { step, visitId -> nav.navigate(Routes.inStore(step, visitId)) },
+            )
+        }
+        composable(
+            Routes.WORK_WITH_QTY,
+            arguments = listOf(
+                navArgument(ARG_VISIT_ID) { type = NavType.StringType },
+                navArgument(ARG_QTY_MODE) { type = NavType.StringType },
+            ),
+        ) { ProductQtyScreen(onBack = back) }
+        composable(
+            Routes.WORK_WITH_POSM,
+            arguments = listOf(navArgument(ARG_VISIT_ID) { type = NavType.StringType }),
+        ) { PosmCheckScreen(onBack = back) }
+        composable(
+            Routes.WORK_WITH_MARKET,
+            arguments = listOf(navArgument(ARG_VISIT_ID) { type = NavType.StringType }),
+        ) {
+            MarketInfoScreen(onBack = back, onOpen = { v, s -> nav.navigate("workwith/visit/$v/market/$s") })
+        }
+        composable(
+            Routes.WORK_WITH_SURVEY,
+            arguments = listOf(
+                navArgument(ARG_VISIT_ID) { type = NavType.StringType },
+                navArgument(ARG_SURVEY_ID) { type = NavType.StringType },
+            ),
+        ) { CompetitorSurveyScreen(onBack = back) }
 
         composable(Routes.EDAC) {
             EdacHomeScreen(

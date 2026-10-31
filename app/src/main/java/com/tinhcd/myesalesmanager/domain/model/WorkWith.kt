@@ -81,6 +81,8 @@ data class WorkWithVisit(
     val repCheckIn: String?,
     val repOrderAmount: Long,
     val programs: List<DisplayToScore>,
+    /** What has been done on the call; null from an older server. */
+    val tasks: VisitTasks? = null,
 ) {
     val isOpen: Boolean get() = status == VisitStatus.IN_PROGRESS
 }

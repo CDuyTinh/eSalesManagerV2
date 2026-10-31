@@ -78,6 +78,7 @@ data class WorkWithVisitDto(
     val customer: WorkWithCustomerDto,
     @SerialName("rep_today") val repToday: RepTodayDto = RepTodayDto(),
     val programs: List<DisplayToScoreDto> = emptyList(),
+    val tasks: VisitTasksDto? = null,
 )
 
 @Serializable

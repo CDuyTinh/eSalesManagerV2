@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
@@ -62,6 +63,7 @@ import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.DisplayScore
 import com.tinhcd.myesalesmanager.domain.model.DisplayToScore
 import com.tinhcd.myesalesmanager.domain.model.WorkWithVisit
+import com.tinhcd.myesalesmanager.domain.model.VisitTasks
 import com.tinhcd.myesalesmanager.domain.repository.WorkWithRepository
 import com.tinhcd.myesalesmanager.feature.approval.LabeledLine
 import com.tinhcd.myesalesmanager.feature.approval.toMessage
@@ -211,10 +213,17 @@ class WorkWithVisitViewModel @Inject constructor(
 @Composable
 fun WorkWithVisitScreen(
     onBack: () -> Unit,
+    onOpenStep: (InStoreStep, String) -> Unit = { _, _ -> },
     viewModel: WorkWithVisitViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
+    // Back from a step, the summary of what the call has done must be current.
+    var resumedOnce by remember { mutableStateOf(false) }
+    LifecycleResumeEffect(Unit) {
+        if (resumedOnce) viewModel.load() else resumedOnce = true
+        onPauseOrDispose { }
+    }
 
     val takePicture = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { viewModel.onShot(it) }
     val cameraPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -251,6 +260,9 @@ fun WorkWithVisitScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item { VisitInfo(visit) }
+                visit.tasks?.let { tasks ->
+                    item { InStoreSteps(tasks, open = visit.isOpen) { step -> onOpenStep(step, visit.visitId) } }
+                }
                 item {
                     Text("Chấm điểm trưng bày (${visit.programs.size})", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                 }
@@ -410,4 +422,40 @@ private fun ScoreDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss, enabled = !saving) { Text("Huỷ") } },
     )
+}
+
+/** The legacy in-call steps a supervisor can do alongside the rep. */
+enum class InStoreStep(val title: String) {
+    STOCK("Kiểm tồn"),
+    ORDER("Đặt hàng hộ"),
+    POSM("Kiểm POSM"),
+    MARKET("Thông tin thị trường"),
+}
+
+@Composable
+private fun InStoreSteps(t: VisitTasks, open: Boolean, onOpen: (InStoreStep) -> Unit) {
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Công việc tại điểm bán", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+            InStoreStep.entries.forEach { step ->
+                val done = when (step) {
+                    InStoreStep.STOCK -> t.stockCountedAt?.let { "${t.stockCountLines} dòng · ${formatDateTime(it).takeLast(5)}" }
+                    InStoreStep.ORDER -> t.orders.takeIf { it.isNotEmpty() }?.let { o -> "${o.size} đơn · ${formatDong(o.sumOf { it.totalAmount })}" }
+                    InStoreStep.POSM -> t.posmChecked.takeIf { it > 0 }?.let { "$it vật phẩm" }
+                    InStoreStep.MARKET -> t.surveysDone.takeIf { it > 0 }?.let { "$it khảo sát" }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.weight(1f)) {
+                        Text(step.title, style = MaterialTheme.typography.bodyLarge)
+                        Text(done ?: "Chưa làm", style = MaterialTheme.typography.labelSmall, color = if (done != null) Kpi.Green.first() else MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    // A closed call can still be looked at; nothing more is recorded on it.
+                    TextButton(onClick = { onOpen(step) }, enabled = open) { Text(if (done != null) "Làm lại" else "Làm") }
+                }
+            }
+            if (open && t.minMinutes > 0) {
+                Text("Cần ở điểm bán ít nhất ${t.minMinutes} phút trước khi check-out", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
 }
