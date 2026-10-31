@@ -84,6 +84,8 @@ fun ReportScreen(
                     reps = state.team,
                     salespersonId = state.salespersonId,
                     onRep = viewModel::selectSalesperson,
+                    place = state.place,
+                    onPlace = viewModel::selectPlace,
                 )
             }
             val data = state.data

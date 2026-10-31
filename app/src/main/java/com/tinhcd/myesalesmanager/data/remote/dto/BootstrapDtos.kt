@@ -30,4 +30,14 @@ data class BranchDto(
     val id: String,
     val code: String,
     val name: String,
+    val area: PlaceDto? = null,
+)
+
+/** An area, with its region nested; or the region itself. */
+@Serializable
+data class PlaceDto(
+    val id: String,
+    val code: String = "",
+    val name: String,
+    val region: PlaceDto? = null,
 )

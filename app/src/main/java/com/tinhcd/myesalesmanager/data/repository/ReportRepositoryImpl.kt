@@ -42,16 +42,16 @@ class ReportRepositoryImpl @Inject constructor(
     private val service: ReportService,
 ) : ReportRepository {
 
-    override suspend fun load(kind: ReportKind, period: ReportPeriod, salespersonId: String?, supervisorId: String?): DataResult<ReportData> = try {
-        DataResult.Success(fetch(kind, period, salespersonId, supervisorId))
+    override suspend fun load(kind: ReportKind, period: ReportPeriod, salespersonId: String?, supervisorId: String?, branchIds: List<String>?): DataResult<ReportData> = try {
+        DataResult.Success(fetch(kind, period, salespersonId, supervisorId, branchIds?.joinToString(",")))
     } catch (e: PostgrestException) {
         DataResult.Failure(AppError.Server(e.status, e.message))
     } catch (e: Exception) {
         DataResult.Failure(e.toAppError())
     }
 
-    private suspend fun fetch(kind: ReportKind, p: ReportPeriod, sp: String?, sv: String?): ReportData = when (kind) {
-        ReportKind.ACTIVITIES -> service.activities(p.from, sp, sv).orThrow().let { d ->
+    private suspend fun fetch(kind: ReportKind, p: ReportPeriod, sp: String?, sv: String?, br: String?): ReportData = when (kind) {
+        ReportKind.ACTIVITIES -> service.activities(p.from, sp, sv, br).orThrow().let { d ->
             ActivitiesReport(
                 summary = with(d.summary) {
                     ActivitySummary(planned, visited, unplanned, strike, nonStrike, closed, orderAmount)
@@ -68,7 +68,7 @@ class ReportRepositoryImpl @Inject constructor(
             )
         }
 
-        ReportKind.SALES -> service.sales(p.from, sp, sv).orThrow().let { d ->
+        ReportKind.SALES -> service.sales(p.from, sp, sv, br).orThrow().let { d ->
             SalesReport(
                 revenue = d.revenue,
                 orderCount = d.orderCount,
@@ -79,7 +79,7 @@ class ReportRepositoryImpl @Inject constructor(
             )
         }
 
-        ReportKind.ORDERS -> service.orders(p.from, p.to, sp, sv).orThrow().let { d ->
+        ReportKind.ORDERS -> service.orders(p.from, p.to, sp, sv, br).orThrow().let { d ->
             OrdersReport(
                 total = d.total,
                 totalAmount = d.totalAmount,
@@ -92,12 +92,12 @@ class ReportRepositoryImpl @Inject constructor(
         }
 
         ReportKind.SKU -> SkuReport(
-            service.sku(p.from, p.to, sp, sv).orThrow().items.map {
+            service.sku(p.from, p.to, sp, sv, br).orThrow().items.map {
                 SkuRow(it.code, it.name, it.uom, it.qtyConfirmed, it.qtyPending, it.qtyTotal, it.amountTotal)
             },
         )
 
-        ReportKind.TRADE -> service.trade(p.from, p.to, sp, sv).orThrow().let { d ->
+        ReportKind.TRADE -> service.trade(p.from, p.to, sp, sv, br).orThrow().let { d ->
             TradeReport(
                 displayCount = d.displayCount,
                 loyaltyCount = d.loyaltyCount,
@@ -109,7 +109,7 @@ class ReportRepositoryImpl @Inject constructor(
             )
         }
 
-        ReportKind.WORK -> service.work(p.from, p.to, sp, sv).orThrow().let { d ->
+        ReportKind.WORK -> service.work(p.from, p.to, sp, sv, br).orThrow().let { d ->
             WorkReport(
                 completed = d.completed,
                 cancelled = d.cancelled,
@@ -121,7 +121,7 @@ class ReportRepositoryImpl @Inject constructor(
             )
         }
 
-        ReportKind.TRAINING -> service.training(p.from, p.to, sp, sv).orThrow().let { d ->
+        ReportKind.TRAINING -> service.training(p.from, p.to, sp, sv, br).orThrow().let { d ->
             TrainingReport(
                 plans = d.summary.plans,
                 trained = d.summary.trained,
@@ -136,7 +136,7 @@ class ReportRepositoryImpl @Inject constructor(
             )
         }
 
-        ReportKind.DAILY_TRACKING -> service.tracking(p.from, sp, sv).orThrow().let { d ->
+        ReportKind.DAILY_TRACKING -> service.tracking(p.from, sp, sv, br).orThrow().let { d ->
             TrackingReport(
                 members = d.members.map {
                     TrackingMember(

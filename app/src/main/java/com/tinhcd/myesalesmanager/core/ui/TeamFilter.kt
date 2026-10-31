@@ -10,12 +10,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.tinhcd.myesalesmanager.domain.model.PlacePick
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
+import com.tinhcd.myesalesmanager.domain.model.branchIds
 
 /**
- * Who a figure is about: the whole team, one supervisor's reps (AM / RM only,
- * the legacy Filter's SS level), or one rep. The rep row narrows to the chosen
- * supervisor's reps.
+ * Who a figure is about, the legacy Filter's levels top down: region, area and
+ * distributor (each row only when the team spans more than one), then one
+ * supervisor's reps (AM / RM only), then one rep. Each row narrows the rows
+ * below it.
  */
 @Composable
 fun TeamFilter(
@@ -26,30 +29,87 @@ fun TeamFilter(
     salespersonId: String?,
     onRep: (String?) -> Unit,
     modifier: Modifier = Modifier,
+    place: PlacePick? = null,
+    onPlace: (PlacePick?) -> Unit = {},
 ) {
-    val shownReps = if (supervisorId == null) reps else reps.filter { it.supervisorId == supervisorId }
+    val everyone = supervisors + reps
+    val branches = everyone.mapNotNull { it.branch }.distinctBy { it.id }
+    val inPlace = place.branchIds(everyone)?.toSet()
+
+    val shownSupervisors = if (inPlace == null) supervisors else supervisors.filter { it.branch?.id in inPlace }
+    val placedReps = if (inPlace == null) reps else reps.filter { it.branch?.id in inPlace }
+    val shownReps = if (supervisorId == null) placedReps else placedReps.filter { it.supervisorId == supervisorId }
+
+    // What the rows above have narrowed to, so a lower row offers only what fits.
+    val regionId = when (place) {
+        is PlacePick.Region -> place.id
+        is PlacePick.Area -> branches.firstOrNull { it.areaId == place.id }?.regionId
+        is PlacePick.Branch -> branches.firstOrNull { it.id == place.id }?.regionId
+        null -> null
+    }
+    val areaId = when (place) {
+        is PlacePick.Area -> place.id
+        is PlacePick.Branch -> branches.firstOrNull { it.id == place.id }?.areaId
+        else -> null
+    }
+
     Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        if (supervisors.isNotEmpty()) {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 16.dp)) {
-                item {
-                    FilterChip(selected = supervisorId == null, onClick = { onSupervisor(null) }, label = { Text("Mọi giám sát") })
-                }
-                items(supervisors, key = { it.id }) { s ->
-                    FilterChip(selected = supervisorId == s.id, onClick = { onSupervisor(s.id) }, label = { Text("GS ${s.fullName}") })
-                }
-            }
+        val regions = branches.filter { it.regionId != null }.distinctBy { it.regionId }
+        if (regions.size > 1) {
+            ChipRow(
+                all = "Mọi vùng", allSelected = regionId == null, onAll = { onPlace(null) },
+                options = regions.map { it.regionId!! to it.regionName.orEmpty() },
+                selected = regionId, onPick = { onPlace(PlacePick.Region(it)) },
+            )
         }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 16.dp)) {
-            item {
-                FilterChip(
-                    selected = salespersonId == null,
-                    onClick = { onRep(null) },
-                    label = { Text(if (supervisorId == null) "Cả nhóm (${shownReps.size})" else "Cả tổ (${shownReps.size})") },
-                )
-            }
-            items(shownReps, key = { it.id }) { m ->
-                FilterChip(selected = salespersonId == m.id, onClick = { onRep(m.id) }, label = { Text(m.fullName) })
-            }
+        val areas = branches.filter { it.areaId != null && (regionId == null || it.regionId == regionId) }.distinctBy { it.areaId }
+        if (areas.size > 1) {
+            ChipRow(
+                all = "Mọi khu vực", allSelected = areaId == null,
+                onAll = { onPlace(regionId?.let { PlacePick.Region(it) }) },
+                options = areas.map { it.areaId!! to it.areaName.orEmpty() },
+                selected = areaId, onPick = { onPlace(PlacePick.Area(it)) },
+            )
+        }
+        val shownBranches = branches.filter { (regionId == null || it.regionId == regionId) && (areaId == null || it.areaId == areaId) }
+        if (shownBranches.size > 1) {
+            val branchId = (place as? PlacePick.Branch)?.id
+            ChipRow(
+                all = "Mọi NPP", allSelected = branchId == null,
+                onAll = { onPlace(areaId?.let { PlacePick.Area(it) } ?: regionId?.let { PlacePick.Region(it) }) },
+                options = shownBranches.map { it.id to it.name },
+                selected = branchId, onPick = { onPlace(PlacePick.Branch(it)) },
+            )
+        }
+        if (shownSupervisors.isNotEmpty()) {
+            ChipRow(
+                all = "Mọi giám sát", allSelected = supervisorId == null, onAll = { onSupervisor(null) },
+                options = shownSupervisors.map { it.id to "GS ${it.fullName}" },
+                selected = supervisorId, onPick = onSupervisor,
+            )
+        }
+        ChipRow(
+            all = if (supervisorId == null) "Cả nhóm (${shownReps.size})" else "Cả tổ (${shownReps.size})",
+            allSelected = salespersonId == null, onAll = { onRep(null) },
+            options = shownReps.map { it.id to it.fullName },
+            selected = salespersonId, onPick = onRep,
+        )
+    }
+}
+
+@Composable
+private fun ChipRow(
+    all: String,
+    allSelected: Boolean,
+    onAll: () -> Unit,
+    options: List<Pair<String, String>>,
+    selected: String?,
+    onPick: (String) -> Unit,
+) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 16.dp)) {
+        item { FilterChip(selected = allSelected, onClick = onAll, label = { Text(all) }) }
+        items(options, key = { it.first }) { (id, label) ->
+            FilterChip(selected = selected == id, onClick = { onPick(id) }, label = { Text(label) })
         }
     }
 }

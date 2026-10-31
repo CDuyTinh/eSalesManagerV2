@@ -50,7 +50,9 @@ import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.ChartRange
 import com.tinhcd.myesalesmanager.domain.model.MemberFigures
 import com.tinhcd.myesalesmanager.domain.model.TeamDashboard
+import com.tinhcd.myesalesmanager.domain.model.PlacePick
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
+import com.tinhcd.myesalesmanager.domain.model.branchIds
 import com.tinhcd.myesalesmanager.domain.model.percent
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
 import com.tinhcd.myesalesmanager.domain.repository.DashboardRepository
@@ -69,6 +71,7 @@ data class DashboardState(
     val date: LocalDate = todayVn(),
     val salespersonId: String? = null,
     val supervisorId: String? = null,
+    val place: PlacePick? = null,
     val team: List<TeamMember> = emptyList(),
     val supervisors: List<TeamMember> = emptyList(),
     val range: ChartRange = ChartRange.THIS_WEEK,
@@ -98,7 +101,7 @@ class DashboardViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
-            when (val r = repository.overview(s.date.toString(), s.salespersonId, s.supervisorId)) {
+            when (val r = repository.overview(s.date.toString(), s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors))) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, data = r.data) }
                 is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
             }
@@ -126,6 +129,12 @@ class DashboardViewModel @Inject constructor(
     /** Narrows to one SS's reps; a rep picked from another SS is let go. */
     fun selectSupervisor(id: String?) {
         _state.update { it.copy(supervisorId = id, salespersonId = null) }
+        refresh()
+    }
+
+    /** A region, area or distributor; the supervisor and rep picked below it are let go. */
+    fun selectPlace(place: PlacePick?) {
+        _state.update { it.copy(place = place, supervisorId = null, salespersonId = null) }
         refresh()
     }
 
@@ -164,6 +173,8 @@ fun DashboardTab(viewModel: DashboardViewModel = hiltViewModel()) {
                     reps = state.team,
                     salespersonId = state.salespersonId,
                     onRep = viewModel::selectSalesperson,
+                    place = state.place,
+                    onPlace = viewModel::selectPlace,
                 )
             }
             item { TodayCard(data) }

@@ -9,7 +9,9 @@ import com.tinhcd.myesalesmanager.domain.model.PeriodKind
 import com.tinhcd.myesalesmanager.domain.model.ReportData
 import com.tinhcd.myesalesmanager.domain.model.ReportKind
 import com.tinhcd.myesalesmanager.domain.model.ReportPeriod
+import com.tinhcd.myesalesmanager.domain.model.PlacePick
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
+import com.tinhcd.myesalesmanager.domain.model.branchIds
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
 import com.tinhcd.myesalesmanager.domain.repository.ReportRepository
 import com.tinhcd.myesalesmanager.feature.approval.toMessage
@@ -45,6 +47,7 @@ data class ReportState(
     val kind: ReportKind,
     val salespersonId: String? = null,
     val supervisorId: String? = null,
+    val place: PlacePick? = null,
     val team: List<TeamMember> = emptyList(),
     val supervisors: List<TeamMember> = emptyList(),
     /** The day (DAY reports) or any day of the month (MONTH reports). */
@@ -85,7 +88,7 @@ class ReportViewModel @Inject constructor(
         job?.cancel()
         job = viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
-            when (val r = repository.load(s.kind, s.period, s.salespersonId, s.supervisorId)) {
+            when (val r = repository.load(s.kind, s.period, s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors))) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, data = r.data) }
                 is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
             }
@@ -99,6 +102,12 @@ class ReportViewModel @Inject constructor(
 
     fun selectSupervisor(id: String?) {
         _state.update { it.copy(supervisorId = id, salespersonId = null) }
+        refresh()
+    }
+
+    /** A region, area or distributor; the supervisor and rep picked below it are let go. */
+    fun selectPlace(place: PlacePick?) {
+        _state.update { it.copy(place = place, supervisorId = null, salespersonId = null) }
         refresh()
     }
 

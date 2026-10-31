@@ -13,5 +13,7 @@ interface DashboardService {
         @Query("date") date: String,
         @Query("salespersonId") salespersonId: String?,
         @Query("supervisorId") supervisorId: String? = null,
+        // Comma-separated: the branches of the region, area or distributor picked.
+        @Query("branchIds") branchIds: String? = null,
     ): Response<TeamDashboardDto>
 }

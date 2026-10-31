@@ -53,7 +53,9 @@ import com.tinhcd.myesalesmanager.core.ui.todayVn
 import com.tinhcd.myesalesmanager.data.repository.LocationMapRepository
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.RepDay
+import com.tinhcd.myesalesmanager.domain.model.PlacePick
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
+import com.tinhcd.myesalesmanager.domain.model.branchIds
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
 import com.tinhcd.myesalesmanager.feature.approval.toMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -77,6 +79,7 @@ data class MapReportState(
     val team: List<TeamMember> = emptyList(),
     val supervisors: List<TeamMember> = emptyList(),
     val supervisorId: String? = null,
+    val place: PlacePick? = null,
     val salespersonId: String? = null,
     val days: List<RepDay>? = null,
     val error: String? = null,
@@ -122,6 +125,13 @@ class MapReportViewModel @Inject constructor(
 
     /** Only narrows what is drawn: the server already returns the whole team. */
     fun selectSupervisor(id: String?) = _state.update { it.copy(supervisorId = id, salespersonId = null) }
+
+    /** A region, area or distributor: also only narrows what is drawn, unless a rep was picked. */
+    fun selectPlace(place: PlacePick?) {
+        val hadRep = _state.value.salespersonId != null
+        _state.update { it.copy(place = place, supervisorId = null, salespersonId = null) }
+        if (hadRep) refresh()
+    }
 }
 
 /** One colour per rep, stable across reloads of the same day. */
@@ -137,7 +147,9 @@ fun MapReportScreen(onBack: () -> Unit, viewModel: MapReportViewModel = hiltView
     val state by viewModel.state.collectAsStateWithLifecycle()
     // A supervisor picked shows their reps and their own day.
     val shownReps = state.supervisorId?.let { sv -> state.team.filter { it.supervisorId == sv }.map { it.id }.toSet() + sv }
-    val days = state.days?.filter { shownReps == null || it.rep.id in shownReps }
+    val everyone = state.team + state.supervisors
+    val inPlace = state.place.branchIds(everyone)?.toSet()?.let { b -> everyone.filter { it.branch?.id in b }.map { it.id }.toSet() }
+    val days = state.days?.filter { (shownReps == null || it.rep.id in shownReps) && (inPlace == null || it.rep.id in inPlace) }
 
     SubScreen(title = "Báº£n Äá» vá» trÃ­ nhÃ¢n viÃªn", onBack = onBack) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
@@ -153,6 +165,8 @@ fun MapReportScreen(onBack: () -> Unit, viewModel: MapReportViewModel = hiltView
                 reps = state.team,
                 salespersonId = state.salespersonId,
                 onRep = viewModel::selectRep,
+                place = state.place,
+                onPlace = viewModel::selectPlace,
             )
             Spacer(Modifier.height(8.dp))
             when {

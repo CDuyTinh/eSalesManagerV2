@@ -48,7 +48,37 @@ data class TeamMember(
     val branchId: String?,
     /** Their direct boss: for a rep, the SS whose filter they fall under. */
     val supervisorId: String? = null,
+    /** Where their distributor sits, for the region / area / NPP filter. */
+    val branch: BranchPlace? = null,
 )
+
+/** A distributor and the area and region it belongs to (either may be unset). */
+data class BranchPlace(
+    val id: String,
+    val name: String,
+    val areaId: String?,
+    val areaName: String?,
+    val regionId: String?,
+    val regionName: String?,
+)
+
+/** What the place rows of the team filter have picked. */
+sealed interface PlacePick {
+    data class Region(val id: String) : PlacePick
+    data class Area(val id: String) : PlacePick
+    data class Branch(val id: String) : PlacePick
+}
+
+/** The distributors a pick covers, among those [members] belong to; null for no pick. */
+fun PlacePick?.branchIds(members: List<TeamMember>): List<String>? = this?.let { pick ->
+    members.mapNotNull { it.branch }.filter { b ->
+        when (pick) {
+            is PlacePick.Region -> b.regionId == pick.id
+            is PlacePick.Area -> b.areaId == pick.id
+            is PlacePick.Branch -> b.id == pick.id
+        }
+    }.map { it.id }.distinct()
+}
 
 /** How the header names the signed-in manager's level. */
 val Position.title: String

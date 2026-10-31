@@ -9,6 +9,7 @@ import com.tinhcd.myesalesmanager.data.session.SessionStore
 import com.tinhcd.myesalesmanager.data.util.SingleFlight
 import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
+import com.tinhcd.myesalesmanager.domain.model.BranchPlace
 import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.Position
 import com.tinhcd.myesalesmanager.domain.model.SessionState
@@ -183,6 +184,9 @@ private fun StaffDto.toTeamMember() = TeamMember(
     phone = phone,
     branchId = branchId,
     supervisorId = supervisorId,
+    branch = branch?.let { b ->
+        BranchPlace(b.id, b.name, b.area?.id, b.area?.name, b.area?.region?.id, b.area?.region?.name)
+    },
 )
 
 internal fun Exception.toAppError(): AppError {

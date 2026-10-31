@@ -11,6 +11,7 @@ interface ReportRepository {
      *   [ReportPeriod.from] is the first of the month.
      * @param salespersonId null reports the whole team.
      * @param supervisorId with no rep, one SS's reps (AM / RM).
+     * @param branchIds with no rep, only these distributors' reps (a region, an area or one NPP).
      */
-    suspend fun load(kind: ReportKind, period: ReportPeriod, salespersonId: String?, supervisorId: String? = null): DataResult<ReportData>
+    suspend fun load(kind: ReportKind, period: ReportPeriod, salespersonId: String?, supervisorId: String? = null, branchIds: List<String>? = null): DataResult<ReportData>
 }
