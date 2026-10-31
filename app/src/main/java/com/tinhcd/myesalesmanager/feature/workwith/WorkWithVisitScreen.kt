@@ -129,6 +129,17 @@ class WorkWithVisitViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Kept here, not in the screen: navigation drops the screen's composition
+     * while a step is open, so a flag remembered there is false again on return
+     * and the reload never happened. The first resume follows [init]'s load.
+     */
+    private var resumedBefore = false
+
+    fun resumed() {
+        if (resumedBefore) load() else resumedBefore = true
+    }
+
     fun openScore(p: DisplayToScore) = _state.update {
         it.copy(draft = ScoreDraft(p, faces = p.myFaces?.toString().orEmpty(), achieved = p.myAchieved ?: false))
     }
@@ -219,9 +230,8 @@ fun WorkWithVisitScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     // Back from a step, the summary of what the call has done must be current.
-    var resumedOnce by remember { mutableStateOf(false) }
     LifecycleResumeEffect(Unit) {
-        if (resumedOnce) viewModel.load() else resumedOnce = true
+        viewModel.resumed()
         onPauseOrDispose { }
     }
 
