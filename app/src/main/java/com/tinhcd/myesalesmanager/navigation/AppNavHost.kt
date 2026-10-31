@@ -29,6 +29,7 @@ import com.tinhcd.myesalesmanager.feature.prepare.SalesFocusScreen
 import com.tinhcd.myesalesmanager.feature.prepare.StockScreen
 import com.tinhcd.myesalesmanager.feature.prepare.TeamCustomersScreen
 import com.tinhcd.myesalesmanager.feature.personal.NotificationsScreen
+import com.tinhcd.myesalesmanager.feature.personal.PasswordScreen
 import com.tinhcd.myesalesmanager.feature.personal.PersonalTarget
 import com.tinhcd.myesalesmanager.feature.personal.WorkDayScreen
 import com.tinhcd.myesalesmanager.feature.personal.WorkNotesScreen
@@ -147,6 +148,7 @@ object Routes {
         PersonalTarget.LEAVE -> "personal/leave"
         PersonalTarget.NOTES -> "personal/notes"
         PersonalTarget.NOTIFICATIONS -> "personal/notifications"
+        PersonalTarget.PASSWORD -> "personal/password"
     }
 
     /** Where a bell entry leads: the request to rule on, or the manager's own item. */
@@ -205,6 +207,7 @@ fun AppNavHost(startDestination: String) {
         composable(Routes.of(PersonalTarget.WORK_DAY)) { WorkDayScreen(onBack = back) }
         composable(Routes.of(PersonalTarget.LEAVE)) { MyLeaveScreen(onBack = back) }
         composable(Routes.of(PersonalTarget.NOTES)) { WorkNotesScreen(onBack = back) }
+        composable(Routes.of(PersonalTarget.PASSWORD)) { PasswordScreen(onBack = back) }
         composable(Routes.of(PersonalTarget.NOTIFICATIONS)) {
             NotificationsScreen(onBack = back, onOpen = { n -> Routes.of(n)?.let { nav.navigate(it) } })
         }

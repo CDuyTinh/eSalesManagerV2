@@ -6,4 +6,5 @@ enum class PersonalTarget(val title: String, val subtitle: String) {
     LEAVE("Nghỉ phép của tôi", "Xin nghỉ, theo dõi đơn"),
     NOTES("Ghi chú công việc", "Việc cần làm của tôi"),
     NOTIFICATIONS("Thông báo", "Yêu cầu chờ duyệt, kết quả"),
+    PASSWORD("Đổi mật khẩu", "Mật khẩu đăng nhập ứng dụng"),
 }
