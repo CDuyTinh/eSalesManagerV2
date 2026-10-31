@@ -16,7 +16,7 @@ enum class ReportKind(val code: String, val title: String, val period: PeriodKin
     WORK("work", "Kết quả công việc", PeriodKind.RANGE),
     TRAINING("training", "Kết quả huấn luyện", PeriodKind.RANGE),
     DAILY_TRACKING("tracking", "Theo dõi bán hàng trong ngày", PeriodKind.DAY, ready = false),
-    MAP("map", "Bản đồ vị trí nhân viên", PeriodKind.DAY, ready = false),
+    MAP("map", "Bản đồ vị trí nhân viên", PeriodKind.DAY),
     ;
 
     companion object {

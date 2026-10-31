@@ -91,6 +91,7 @@ dependencies {
     // Đi tuyến cùng nhân viên: a GPS fix at check-in, and shelf photos whose
     // rotation lives in EXIF.
     implementation(libs.play.services.location)
+    implementation(libs.osmdroid.android)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.androidx.exifinterface)
 

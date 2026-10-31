@@ -17,6 +17,7 @@ import com.tinhcd.myesalesmanager.domain.model.ReportKind
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanStatus
 import com.tinhcd.myesalesmanager.feature.report.ARG_REPORT
 import com.tinhcd.myesalesmanager.feature.report.ReportScreen
+import com.tinhcd.myesalesmanager.feature.report.MapReportScreen
 import com.tinhcd.myesalesmanager.domain.model.AppNotification
 import com.tinhcd.myesalesmanager.domain.model.EdacStep
 import com.tinhcd.myesalesmanager.domain.model.NotificationKind
@@ -88,6 +89,8 @@ object Routes {
     }
 
     const val REPORT = "reports/{$ARG_REPORT}"
+    // Its own screen rather than a ReportScreen kind: a map, not a list.
+    const val MAP_REPORT = "map-report"
     fun report(kind: ReportKind) = "reports/${kind.code}"
 
     const val WORK_WITH = "workwith"
@@ -181,12 +184,13 @@ fun AppNavHost(startDestination: String) {
                 },
                 onOpenApproval = { nav.navigate(Routes.of(it)) },
                 onOpenTask = { nav.navigate(Routes.of(it)) },
-                onOpenReport = { nav.navigate(Routes.report(it)) },
+                onOpenReport = { nav.navigate(if (it == ReportKind.MAP) Routes.MAP_REPORT else Routes.report(it)) },
                 onOpenPersonal = { nav.navigate(Routes.of(it)) },
             )
         }
 
         composable(Routes.STOCK) { StockScreen(onBack = back) }
+        composable(Routes.MAP_REPORT) { MapReportScreen(onBack = back) }
         composable(Routes.SALES_FOCUS) { SalesFocusScreen(onBack = back) }
         composable(Routes.TEAM_CUSTOMERS) {
             TeamCustomersScreen(onBack = back, onOpen = { nav.navigate(Routes.editCustomer(it)) })

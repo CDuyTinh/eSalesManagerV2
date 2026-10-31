@@ -51,6 +51,7 @@ playServicesLocation = "21.4.0"
 # google_maps_flutter, so the tiles, the key and the restrictions are all the
 # ones that project already had.
 playServicesMaps = "19.2.0"
+osmdroid = "6.1.20"
 mapsCompose = "6.6.0"
 javaxInject = "1"
 
@@ -119,6 +120,7 @@ coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp"
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
 
 # --- Test ---
