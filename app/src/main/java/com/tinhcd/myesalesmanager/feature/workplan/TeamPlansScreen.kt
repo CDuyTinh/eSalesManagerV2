@@ -367,6 +367,7 @@ private fun PlanCard(
                 else -> "Nhân viên tự lập"
             },
         )
+        if (plan.repeats) LabeledLine("Lặp lại", "Một lần trong chuỗi việc lặp")
         LabeledLine("Kết quả", plan.result)
         LabeledLine("Lý do", plan.reason)
     }

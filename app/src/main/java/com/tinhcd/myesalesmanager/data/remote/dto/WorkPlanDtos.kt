@@ -19,6 +19,7 @@ data class TeamWorkPlanDto(
     val result: String? = null,
     val reason: String? = null,
     @SerialName("object_count") val objectCount: Int = 0,
+    val repeats: Boolean = false,
 )
 
 @Serializable
@@ -109,10 +110,16 @@ data class WorkPlanActionDto(
     val reason: String? = null,
     val status: String? = null,
     val plan: AssignPlanDto? = null,
+    val repeat: PlanRepeatDto? = null,
 )
 
 @Serializable
 data class WorkPlanActionResultDto(
-    val id: String,
+    /** Absent when a series was assigned; [count] says how many. */
+    val id: String? = null,
     val status: String? = null,
+    val count: Int? = null,
 )
+
+@Serializable
+data class PlanRepeatDto(val every: String, val until: String)

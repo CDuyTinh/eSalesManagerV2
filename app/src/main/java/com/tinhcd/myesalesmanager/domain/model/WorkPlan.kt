@@ -60,6 +60,8 @@ data class TeamWorkPlan(
     /** Why it was rejected or cancelled. */
     val reason: String?,
     val objectCount: Int,
+    /** One of a repeating series of tasks. */
+    val repeats: Boolean = false,
 ) {
     /** Written by someone other than the rep it is for. */
     val isAssigned: Boolean get() = author?.id != salesperson?.id
@@ -113,3 +115,11 @@ data class AssignDraft(
     val toAt: String,
     val objectIds: List<String>,
 )
+
+/** How an assigned task repeats (legacy RepeatID): every working day but Sunday, or weekly. */
+enum class RepeatEvery(val code: String, val label: String) {
+    DAY("day", "Hằng ngày (trừ CN)"),
+    WEEK("week", "Hằng tuần"),
+}
+
+data class PlanRepeat(val every: RepeatEvery, val until: String)

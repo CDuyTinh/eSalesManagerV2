@@ -2,6 +2,7 @@ package com.tinhcd.myesalesmanager.data.repository
 
 import com.tinhcd.myesalesmanager.data.remote.dto.AssignObjectDto
 import com.tinhcd.myesalesmanager.data.remote.dto.AssignPlanDto
+import com.tinhcd.myesalesmanager.data.remote.dto.PlanRepeatDto
 import com.tinhcd.myesalesmanager.data.remote.dto.StaffBriefDto
 import com.tinhcd.myesalesmanager.data.remote.dto.TeamWorkPlanDto
 import com.tinhcd.myesalesmanager.data.remote.dto.WorkPlanActionDto
@@ -12,6 +13,7 @@ import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.ApprovalPhoto
 import com.tinhcd.myesalesmanager.domain.model.AssignDraft
+import com.tinhcd.myesalesmanager.domain.model.PlanRepeat
 import com.tinhcd.myesalesmanager.domain.model.PlannableCustomer
 import com.tinhcd.myesalesmanager.domain.model.StaffBrief
 import com.tinhcd.myesalesmanager.domain.model.TeamWorkPlan
@@ -88,8 +90,14 @@ class WorkPlanRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun assign(draft: AssignDraft) = call {
-        service.act(WorkPlanActionDto(action = "assign", plan = draft.toDto())).orThrow().id
+    override suspend fun assign(draft: AssignDraft, repeat: PlanRepeat?) = call {
+        val reply = service.act(
+            WorkPlanActionDto(
+                action = "assign", plan = draft.toDto(),
+                repeat = repeat?.let { PlanRepeatDto(it.every.code, it.until) },
+            ),
+        ).orThrow()
+        reply.id ?: reply.count?.toString() ?: error("no reply")
     }
 
     private fun AssignDraft.toDto() = AssignPlanDto(
@@ -126,7 +134,7 @@ class WorkPlanRepositoryImpl @Inject constructor(
     }
 
     override suspend fun planOwn(draft: AssignDraft) = call {
-        service.act(WorkPlanActionDto(action = "plan", plan = draft.toDto())).orThrow().id
+        service.act(WorkPlanActionDto(action = "plan", plan = draft.toDto())).orThrow().id ?: error("no plan id")
     }
 
     override suspend fun moveOwn(id: String, status: WorkPlanStatus, reason: String?) = call {
@@ -165,4 +173,5 @@ private fun TeamWorkPlanDto.toDomain() = TeamWorkPlan(
     result = result,
     reason = reason,
     objectCount = objectCount,
+    repeats = repeats,
 )

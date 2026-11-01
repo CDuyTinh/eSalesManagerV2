@@ -19,6 +19,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedButton
@@ -45,6 +46,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.tinhcd.myesalesmanager.core.ui.DatePickDialog
 import com.tinhcd.myesalesmanager.core.ui.PrimaryButton
 import com.tinhcd.myesalesmanager.core.ui.SearchBox
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
@@ -58,8 +60,10 @@ import com.tinhcd.myesalesmanager.core.ui.vnTime
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.AssignDraft
 import com.tinhcd.myesalesmanager.domain.model.Manager
+import com.tinhcd.myesalesmanager.domain.model.PlanRepeat
 import com.tinhcd.myesalesmanager.domain.model.PlannableCustomer
 import com.tinhcd.myesalesmanager.domain.model.Position
+import com.tinhcd.myesalesmanager.domain.model.RepeatEvery
 import com.tinhcd.myesalesmanager.domain.model.SessionState
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.domain.model.WorkCategory
@@ -113,6 +117,9 @@ data class AssignState(
     val saving: Boolean = false,
     val message: String? = null,
     val done: Boolean = false,
+    /** Handed down as a series rather than once. */
+    val repeat: RepeatEvery? = null,
+    val repeatUntil: LocalDate = todayVn().plusDays(8),
 ) {
     val category: WorkCategory? get() = categories.firstOrNull { it.id == categoryId }
     val rep: TeamMember? get() = team.firstOrNull { it.id == salespersonId }
@@ -254,6 +261,13 @@ class AssignWorkPlanViewModel @Inject constructor(
     fun setPlace(v: String) = _state.update { it.copy(place = v) }
     fun setNote(v: String) = _state.update { it.copy(note = v) }
 
+    /** A series starts a week out by default; the end stays after the first day. */
+    fun setRepeat(e: RepeatEvery?) = _state.update {
+        it.copy(repeat = e, repeatUntil = if (it.repeatUntil.isAfter(it.date)) it.repeatUntil else it.date.plusDays(7))
+    }
+
+    fun setRepeatUntil(d: LocalDate) = _state.update { it.copy(repeatUntil = if (d.isAfter(it.date)) d else it.date.plusDays(1)) }
+
     fun save() {
         val s = _state.value
         if (!s.canSave) return
@@ -272,7 +286,7 @@ class AssignWorkPlanViewModel @Inject constructor(
             val r = when {
                 s.editId != null -> repository.update(s.editId, draft)
                 s.self -> repository.planOwn(draft)
-                else -> repository.assign(draft)
+                else -> repository.assign(draft, s.repeat?.let { PlanRepeat(it, s.repeatUntil.toString()) })
             }
             when (r) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
@@ -364,6 +378,23 @@ fun AssignWorkPlanScreen(
                     }
                 }
             }
+            // A series only when handing work down; an own plan or a change is one task.
+            if (!state.self && state.editId == null) item {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Lặp lại", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(selected = state.repeat == null, onClick = { viewModel.setRepeat(null) }, label = { Text("Không") })
+                        RepeatEvery.entries.forEach { e ->
+                            FilterChip(selected = state.repeat == e, onClick = { viewModel.setRepeat(e) }, label = { Text(e.label) })
+                        }
+                    }
+                    if (state.repeat != null) {
+                        OutlinedButton(onClick = { picking = "until" }, modifier = Modifier.fillMaxWidth()) {
+                            Text("Đến ngày: ${formatDay(state.repeatUntil)}")
+                        }
+                    }
+                }
+            }
             item {
                 OutlinedTextField(
                     value = state.content, onValueChange = viewModel::setContent,
@@ -444,6 +475,11 @@ fun AssignWorkPlanScreen(
                 dismissButton = { TextButton(onClick = { picking = null }) { Text("Huỷ") } },
             ) { DatePicker(state = dateState) }
         }
+        "until" -> DatePickDialog(
+            initial = state.repeatUntil,
+            onPick = { viewModel.setRepeatUntil(it); picking = null },
+            onDismiss = { picking = null },
+        )
         "from", "to" -> {
             val initial = if (picking == "from") state.from else state.to
             val timeState = rememberTimePickerState(initial.hour, initial.minute, is24Hour = true)

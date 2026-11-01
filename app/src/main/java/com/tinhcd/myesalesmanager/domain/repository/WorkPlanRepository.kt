@@ -2,6 +2,7 @@ package com.tinhcd.myesalesmanager.domain.repository
 
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.AssignDraft
+import com.tinhcd.myesalesmanager.domain.model.PlanRepeat
 import com.tinhcd.myesalesmanager.domain.model.PlannableCustomer
 import com.tinhcd.myesalesmanager.domain.model.WorkCategory
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanDetail
@@ -25,7 +26,8 @@ interface WorkPlanRepository {
 
     suspend fun customersOf(salespersonId: String, query: String?): DataResult<List<PlannableCustomer>>
 
-    suspend fun assign(draft: AssignDraft): DataResult<String>
+    /** @return the task's id, or with [repeat] how many occurrences were written. */
+    suspend fun assign(draft: AssignDraft, repeat: PlanRepeat? = null): DataResult<String>
 
     /** Rule on a plan the rep submitted. Rejecting needs a reason. */
     suspend fun decide(id: String, approve: Boolean, reason: String?): DataResult<Unit>
