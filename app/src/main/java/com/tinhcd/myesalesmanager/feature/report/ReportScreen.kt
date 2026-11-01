@@ -1,6 +1,10 @@
 package com.tinhcd.myesalesmanager.feature.report
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -9,14 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +26,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +52,7 @@ import com.tinhcd.myesalesmanager.core.ui.formatDay
 import com.tinhcd.myesalesmanager.core.ui.formatDong
 import com.tinhcd.myesalesmanager.core.ui.formatIsoDate
 import com.tinhcd.myesalesmanager.core.ui.formatWindow
+import com.tinhcd.myesalesmanager.core.ui.theme.brand
 import com.tinhcd.myesalesmanager.domain.model.ActivitiesReport
 import com.tinhcd.myesalesmanager.domain.model.OrdersReport
 import com.tinhcd.myesalesmanager.domain.model.PeriodKind
@@ -73,98 +79,110 @@ fun ReportScreen(
     val team = state.salespersonId == null
     val context = LocalContext.current
 
-    SubScreen(title = state.kind.title, onBack = onBack) { padding ->
-        LazyColumn(
-            modifier = Modifier.padding(padding).fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            item { PeriodBar(state, viewModel) }
-            item {
-                TeamFilter(
-                    supervisors = state.supervisors,
-                    supervisorId = state.supervisorId,
-                    onSupervisor = viewModel::selectSupervisor,
-                    reps = state.team,
-                    salespersonId = state.salespersonId,
-                    onRep = viewModel::selectSalesperson,
-                    place = state.place,
-                    onPlace = viewModel::selectPlace,
-                )
-            }
-            val data = state.data
-            if (data != null && !state.loading && state.error == null) {
+    var filtering by rememberSaveable { mutableStateOf(false) }
+
+    Box(Modifier.fillMaxSize()) {
+        SubScreen(
+            title = state.kind.title,
+            onBack = onBack,
+            // The period is no longer on the page, so the header says it.
+            subtitle = periodLabel(state),
+            band = true,
+            actions = {
+                IconButton(onClick = { filtering = true }) {
+                    Icon(Icons.Default.FilterList, contentDescription = "Bộ lọc", tint = MaterialTheme.brand.onHeader)
+                }
+            },
+        ) { padding ->
+            LazyColumn(
+                modifier = Modifier.padding(padding).fillMaxSize(),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                // The team pickers, in a card so they read on the header band.
                 item {
-                    TextButton(
-                        // Orders are fetched in full first: the file has every page, not just those seen.
-                        onClick = { viewModel.forExport { all -> all?.let { shareReport(context, state.kind, state.period, it) } } },
-                        enabled = !state.loadingMore,
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                    ) {
-                        Icon(Icons.Default.Share, contentDescription = null)
-                        Text("  Xuất Excel (CSV) / chia sẻ")
+                    WhiteCard {
+                        TeamFilter(
+                            supervisors = state.supervisors,
+                            supervisorId = state.supervisorId,
+                            onSupervisor = viewModel::selectSupervisor,
+                            reps = state.team,
+                            salespersonId = state.salespersonId,
+                            onRep = viewModel::selectSalesperson,
+                            place = state.place,
+                            onPlace = viewModel::selectPlace,
+                            modifier = Modifier.padding(vertical = 10.dp),
+                        )
                     }
                 }
+                val data = state.data
+                if (data != null && !state.loading && state.error == null) {
+                    item {
+                        TextButton(
+                            // Orders are fetched in full first: the file has every page, not just those seen.
+                            onClick = { viewModel.forExport { all -> all?.let { shareReport(context, state.kind, state.period, it) } } },
+                            enabled = !state.loadingMore,
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = null)
+                            Text("  Xuất Excel (CSV) / chia sẻ")
+                        }
+                    }
+                }
+                when {
+                    state.loading && data == null -> item { SkeletonList(count = 5) }
+                    state.error != null -> item { ErrorBox(state.error!!, onRetry = viewModel::refresh) }
+                    data is ActivitiesReport -> activities(data, team)
+                    data is SalesReport -> sales(data, team)
+                    data is OrdersReport -> orders(data, team, state.loadingMore, viewModel::moreOrders)
+                    data is SkuReport -> sku(data)
+                    data is TradeReport -> trade(data, team)
+                    data is WorkReport -> work(data, team)
+                    data is TrainingReport -> training(data, team, onOpenTraining)
+                    data is TrackingReport -> tracking(data, team)
+                }
             }
-            when {
-                state.loading && data == null -> item { SkeletonList(count = 5) }
-                state.error != null -> item { ErrorBox(state.error!!, onRetry = viewModel::refresh) }
-                data is ActivitiesReport -> activities(data, team)
-                data is SalesReport -> sales(data, team)
-                data is OrdersReport -> orders(data, team, state.loadingMore, viewModel::moreOrders)
-                data is SkuReport -> sku(data)
-                data is TradeReport -> trade(data, team)
-                data is WorkReport -> work(data, team)
-                data is TrainingReport -> training(data, team, onOpenTraining)
-                data is TrackingReport -> tracking(data, team)
-            }
+        }
+
+        AnimatedVisibility(
+            visible = filtering,
+            enter = slideInVertically { it },
+            exit = slideOutVertically { it },
+        ) {
+            ReportFilterScreen(
+                kind = state.kind.period,
+                anchor = state.anchor,
+                from = state.rangeFrom,
+                to = state.rangeTo,
+                onDismiss = { filtering = false },
+                onApply = viewModel::applyPeriod,
+            )
         }
     }
 }
 
-@Composable
-private fun PeriodBar(state: ReportState, viewModel: ReportViewModel) {
-    when (state.kind.period) {
-        PeriodKind.DAY, PeriodKind.MONTH -> Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-        ) {
-            IconButton(onClick = { viewModel.step(false) }) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Trước")
-            }
-            Text(
-                if (state.kind.period == PeriodKind.DAY) formatDay(state.anchor)
-                else "Tháng %02d/%d".format(state.anchor.monthValue, state.anchor.year),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.weight(1f),
-            )
-            IconButton(onClick = { viewModel.step(true) }) {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Sau")
-            }
-        }
-        PeriodKind.RANGE -> Column {
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp)) {
-                items(RangePreset.entries) { p ->
-                    FilterChip(selected = state.preset == p, onClick = { viewModel.selectPreset(p) }, label = { Text(p.label) })
-                }
-            }
-            Text(
-                "${formatIsoDate(state.period.from)} – ${formatIsoDate(state.period.to)}",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp),
-            )
-        }
-    }
+/** The period on screen, as the header states it. */
+private fun periodLabel(state: ReportState): String = when (state.kind.period) {
+    PeriodKind.DAY -> "Ngày ${formatDay(state.anchor)}"
+    PeriodKind.MONTH -> "Tháng %02d/%d".format(state.anchor.monthValue, state.anchor.year)
+    PeriodKind.RANGE -> "${formatIsoDate(state.period.from)} – ${formatIsoDate(state.period.to)}"
 }
 
 // --- building blocks ---------------------------------------------------------
 
+/** White and lifted, as the dashboard's cards are; the first sits over the header band. */
+@Composable
+private fun WhiteCard(content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) { content() }
+}
+
 @Composable
 private fun Block(content: @Composable () -> Unit) {
-    Card(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+    WhiteCard {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) { content() }
     }
 }
@@ -435,6 +453,8 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
             onClick = { if (open != null) onOpen(open, r.status == "completed") },
             enabled = open != null,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         ) {
             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Row {

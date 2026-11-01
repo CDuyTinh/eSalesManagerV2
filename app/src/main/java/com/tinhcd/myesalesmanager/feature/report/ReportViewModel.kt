@@ -53,7 +53,9 @@ data class ReportState(
     val supervisors: List<TeamMember> = emptyList(),
     /** The day (DAY reports) or any day of the month (MONTH reports). */
     val anchor: LocalDate = todayVn(),
-    val preset: RangePreset = RangePreset.THIS_MONTH,
+    /** RANGE reports: the window picked on the filter page, this month so far until then. */
+    val rangeFrom: LocalDate = todayVn().withDayOfMonth(1),
+    val rangeTo: LocalDate = todayVn(),
     val data: ReportData? = null,
     val loading: Boolean = true,
     val error: String? = null,
@@ -64,7 +66,7 @@ data class ReportState(
         get() = when (kind.period) {
             PeriodKind.DAY -> ReportPeriod(anchor.toString(), anchor.toString())
             PeriodKind.MONTH -> anchor.withDayOfMonth(1).let { ReportPeriod(it.toString(), it.plusMonths(1).minusDays(1).toString()) }
-            PeriodKind.RANGE -> preset.resolve(todayVn()).let { ReportPeriod(it.first.toString(), it.second.toString()) }
+            PeriodKind.RANGE -> ReportPeriod(rangeFrom.toString(), rangeTo.toString())
         }
 }
 
@@ -158,23 +160,14 @@ class ReportViewModel @Inject constructor(
         refresh()
     }
 
-    /** One day or one month back or forward, never past the current one. */
-    fun step(forward: Boolean) {
-        val s = _state.value
-        val next = when (s.kind.period) {
-            PeriodKind.DAY -> s.anchor.plusDays(if (forward) 1 else -1)
-            PeriodKind.MONTH -> s.anchor.plusMonths(if (forward) 1 else -1)
-            PeriodKind.RANGE -> return
-        }
+    /**
+     * The period chosen on the filter page: a day, any day of a month, or a
+     * from–to window, by the report's kind. Never past today.
+     */
+    fun applyPeriod(anchor: LocalDate, from: LocalDate, to: LocalDate) {
         val today = todayVn()
-        if (s.kind.period == PeriodKind.DAY && next.isAfter(today)) return
-        if (s.kind.period == PeriodKind.MONTH && next.withDayOfMonth(1).isAfter(today)) return
-        _state.update { it.copy(anchor = next) }
-        refresh()
-    }
-
-    fun selectPreset(preset: RangePreset) {
-        _state.update { it.copy(preset = preset) }
+        if (anchor.isAfter(today) || to.isAfter(today) || from.isAfter(to)) return
+        _state.update { it.copy(anchor = anchor, rangeFrom = from, rangeTo = to) }
         refresh()
     }
 }

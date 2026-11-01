@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,6 +30,10 @@ import com.tinhcd.myesalesmanager.core.ui.theme.brand
 /**
  * A pushed screen: brand header with a back arrow, then content. Every screen
  * opened from a tab uses it, so the header reads the same everywhere.
+ *
+ * @param actions icons at the header's right end.
+ * @param band carries the header's colour a little way down with rounded
+ *   corners, behind the content, so a first card can sit over its edge.
  */
 @Composable
 fun SubScreen(
@@ -35,6 +42,8 @@ fun SubScreen(
     snackbar: SnackbarHostState? = null,
     subtitle: String? = null,
     bottomBar: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    band: Boolean = false,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -54,20 +63,35 @@ fun SubScreen(
                         tint = MaterialTheme.brand.onHeader,
                     )
                 }
-                Column {
+                Column(Modifier.weight(1f)) {
                     Text(title, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.brand.onHeader)
                     if (subtitle != null) {
                         Text(subtitle, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.brand.onHeader)
                     }
                 }
+                actions()
             }
         },
         snackbarHost = { if (snackbar != null) SnackbarHost(snackbar) },
         bottomBar = bottomBar,
     ) { padding ->
-        Box(Modifier.fillMaxSize()) { content(padding) }
+        Box(Modifier.fillMaxSize()) {
+            if (band) {
+                Box(
+                    Modifier
+                        .padding(top = padding.calculateTopPadding())
+                        .fillMaxWidth()
+                        .height(HeaderBandDepth)
+                        .background(MaterialTheme.brand.header, RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)),
+                )
+            }
+            content(padding)
+        }
     }
 }
+
+/** How far a [SubScreen] band runs below the header; a 16dp list padding leaves the card over the rest. */
+private val HeaderBandDepth = 44.dp
 
 /** "2026-11-05" or "2026-11-05T15:03:02+00:00" → "05/11/2026". */
 fun formatIsoDate(value: String?): String {
