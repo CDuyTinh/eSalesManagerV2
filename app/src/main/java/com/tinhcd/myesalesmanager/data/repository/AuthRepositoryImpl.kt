@@ -89,6 +89,8 @@ class AuthRepositoryImpl @Inject constructor(
 
     override val supervisors: Flow<List<TeamMember>> = session.team.map { all -> all.filter { it.position == Position.SS } }
 
+    override val rejectReasons: Flow<List<String>> = session.rejectReasons
+
     override suspend fun signIn(username: String, password: String): DataResult<Manager> {
         try {
             client.auth.signInWith(Email) {
@@ -128,6 +130,7 @@ class AuthRepositoryImpl @Inject constructor(
         }
 
         session.settings.value = body.settings
+        session.rejectReasons.value = body.rejectReasons
         publish(SessionState.SignedIn(manager), body.team.map { it.toTeamMember() })
         return DataResult.Success(manager!!)
     }

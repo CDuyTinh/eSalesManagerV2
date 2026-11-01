@@ -2,6 +2,7 @@ package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -134,6 +136,9 @@ data class PendingDecision(
     val reasonLabel: String? = null,
 )
 
+/** The ready-made refusal reasons from mgr-bootstrap, provided at the app root. */
+val LocalRejectReasons = compositionLocalOf<List<String>> { emptyList() }
+
 /**
  * Confirms a ruling. Refusing needs a reason — the rep sees it — so the confirm
  * button stays disabled until there is one; approving takes an optional note.
@@ -168,6 +173,15 @@ fun DecisionDialog(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier.fillMaxWidth(),
                     )
+                }
+                // One tap for the usual reasons; the text stays editable for the rest.
+                val reasons = LocalRejectReasons.current
+                if (!pending.approve && reasons.isNotEmpty()) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        reasons.forEach { reason ->
+                            FilterChip(selected = note == reason, onClick = { note = reason }, label = { Text(reason) })
+                        }
+                    }
                 }
                 OutlinedTextField(
                     value = note,

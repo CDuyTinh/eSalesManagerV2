@@ -16,6 +16,9 @@ interface AuthRepository {
     /** The SSs under an AM / RM, for filtering by supervisor; empty for an SS. */
     val supervisors: Flow<List<TeamMember>>
 
+    /** Common reasons for refusing an approval, offered as chips (server-managed). */
+    val rejectReasons: Flow<List<String>>
+
     /** @param username the code the manager types, e.g. "gsbh01". */
     suspend fun signIn(username: String, password: String): DataResult<Manager>
 

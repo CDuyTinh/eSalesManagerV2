@@ -18,4 +18,7 @@ class SessionStore @Inject constructor() {
 
     /** app_setting as of the last profile fetch (the tracking interval, for one). */
     val settings = MutableStateFlow<Map<String, String>>(emptyMap())
+
+    /** The ready-made refusal reasons, as of the last profile fetch. */
+    val rejectReasons = MutableStateFlow<List<String>>(emptyList())
 }

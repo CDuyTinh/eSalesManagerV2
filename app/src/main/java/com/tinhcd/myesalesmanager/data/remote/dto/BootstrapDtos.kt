@@ -11,6 +11,8 @@ data class ManagerBootstrapDto(
     /** Direct reports of [manager]; empty for a rep, who is refused anyway. */
     val team: List<StaffDto> = emptyList(),
     val settings: Map<String, String> = emptyMap(),
+    /** Offered as chips when refusing an approval. */
+    @SerialName("reject_reasons") val rejectReasons: List<String> = emptyList(),
 )
 
 @Serializable

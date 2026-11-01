@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,10 +31,13 @@ import com.tinhcd.myesalesmanager.navigation.AppNavHost
 import com.tinhcd.myesalesmanager.navigation.Routes
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
+import com.tinhcd.myesalesmanager.feature.approval.LocalRejectReasons
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -72,9 +76,12 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyeSalesTheme {
                 val start by rootViewModel.startDestination.collectAsStateWithLifecycle()
-                when (val destination = start) {
-                    null -> SplashHold()
-                    else -> AppNavHost(startDestination = destination)
+                val rejectReasons by rootViewModel.rejectReasons.collectAsStateWithLifecycle()
+                CompositionLocalProvider(LocalRejectReasons provides rejectReasons) {
+                    when (val destination = start) {
+                        null -> SplashHold()
+                        else -> AppNavHost(startDestination = destination)
+                    }
                 }
             }
         }
@@ -85,6 +92,10 @@ class MainActivity : ComponentActivity() {
 class RootViewModel @Inject constructor(
     authRepository: AuthRepository,
 ) : ViewModel() {
+
+    /** For every decision dialog in the app, so no screen has to pass them along. */
+    val rejectReasons: StateFlow<List<String>> =
+        authRepository.rejectReasons.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     private val _startDestination = MutableStateFlow<String?>(null)
     val startDestination: StateFlow<String?> = _startDestination.asStateFlow()
