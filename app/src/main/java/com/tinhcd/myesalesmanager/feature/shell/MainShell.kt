@@ -124,6 +124,9 @@ fun MainShell(
     LifecycleResumeEffect(Unit) {
         viewModel.refreshUnread()
         viewModel.refreshDay()
+        // Location may have been allowed elsewhere since; the day being already
+        // known open, try again rather than wait for it to change.
+        if (dayOpen == true) TrackingService.start(context)
         onPauseOrDispose { }
     }
 
