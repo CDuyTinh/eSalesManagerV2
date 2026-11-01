@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import com.tinhcd.myesalesmanager.core.ui.theme.brand
 
@@ -52,7 +53,7 @@ fun SubScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.brand.header)
+                    .background(MaterialTheme.brand.header, if (band) RectangleShape else HeaderShape)
                     .statusBarsPadding()
                     .padding(horizontal = 4.dp, vertical = 6.dp),
             ) {
@@ -82,13 +83,19 @@ fun SubScreen(
                         .padding(top = padding.calculateTopPadding())
                         .fillMaxWidth()
                         .height(HeaderBandDepth)
-                        .background(MaterialTheme.brand.header, RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)),
+                        .background(MaterialTheme.brand.header, HeaderShape),
                 )
             }
             content(padding)
         }
     }
 }
+
+/**
+ * The header's lower edge: both corners rounded, as SFA's are. A screen with a
+ * band keeps the header square and rounds the band instead, so the two read as one.
+ */
+val HeaderShape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp)
 
 /** How far a [SubScreen] band runs below the header; a 16dp list padding leaves the card over the rest. */
 private val HeaderBandDepth = 44.dp

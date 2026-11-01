@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
@@ -109,6 +110,8 @@ fun MarketInfoScreen(
                         onClick = { if (competitor) onOpen(viewModel.visitId, s.id) },
                         enabled = competitor,
                         modifier = Modifier.fillMaxWidth().alpha(if (competitor) 1f else 0.6f),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     ) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -225,7 +228,7 @@ fun CompetitorSurveyScreen(onBack: () -> Unit, viewModel: CompetitorSurveyViewMo
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 items(survey.pairings, key = { it.productId + it.competitorProductId }) { p ->
-                    Card(Modifier.fillMaxWidth()) {
+                    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(p.productName, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                             Text("so với ${p.competitorProduct} (${p.competitorName})", style = MaterialTheme.typography.labelSmall)

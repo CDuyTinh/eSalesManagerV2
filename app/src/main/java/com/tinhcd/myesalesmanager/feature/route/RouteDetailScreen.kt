@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -311,7 +312,7 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
     ) {
         route.pending?.let { p ->
             item {
-                Card(Modifier.fillMaxWidth()) {
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                     Text(
                         "Sẽ giao cho ${p.to?.name ?: "?"} từ ${formatIsoDate(p.effectiveDate)}" + (p.note?.let { " — $it" } ?: ""),
                         style = MaterialTheme.typography.bodyMedium,
@@ -369,7 +370,7 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
         }
         if (ordering != null) {
             itemsIndexed(ordering, key = { _, o -> o.customerId }) { i, o ->
-                Card(Modifier.fillMaxWidth()) {
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                     Row(Modifier.padding(start = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("${i + 1}. ${o.code} – ${o.name}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                         IconButton(onClick = { viewModel.move(i, -1) }, enabled = i > 0) {
@@ -446,7 +447,7 @@ private fun SalesMonthRow(m: RouteSalesMonth) {
 
 @Composable
 private fun OutletCard(o: RouteOutlet, onEdit: () -> Unit, onRemove: () -> Unit) {
-    Card(onClick = onEdit, modifier = Modifier.fillMaxWidth()) {
+    Card(onClick = onEdit, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Row(Modifier.padding(start = 14.dp, top = 10.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("${o.code} – ${o.name}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)

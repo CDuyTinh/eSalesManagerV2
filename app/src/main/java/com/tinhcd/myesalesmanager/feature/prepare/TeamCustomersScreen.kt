@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -127,7 +128,7 @@ fun TeamCustomersScreen(
                 else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (list.isEmpty()) item { Text("Không có điểm bán", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     items(list, key = { it.id }) { c ->
-                        Card(onClick = { onOpen(c.id) }, modifier = Modifier.fillMaxWidth()) {
+                        Card(onClick = { onOpen(c.id) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text("${c.code} – ${c.name}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                                 c.address?.let { Text(it, style = MaterialTheme.typography.labelSmall) }

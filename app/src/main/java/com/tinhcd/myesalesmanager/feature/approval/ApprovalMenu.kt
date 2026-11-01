@@ -1,5 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
+import com.tinhcd.myesalesmanager.core.ui.tileColor
+import com.tinhcd.myesalesmanager.core.ui.MenuIcon
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,6 +24,7 @@ import androidx.compose.material.icons.filled.Loyalty
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.automirrored.filled.ViewQuilt
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -114,13 +118,13 @@ fun ApprovalMenu(
                 style = MaterialTheme.typography.titleLarge,
             )
         }
-        items(entries) { entry ->
-            Card(onClick = { onOpen(entry.target) }, modifier = Modifier.fillMaxWidth()) {
+        itemsIndexed(entries) { index, entry ->
+            Card(onClick = { onOpen(entry.target) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(16.dp),
                 ) {
-                    Icon(entry.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    MenuIcon(entry.icon, tileColor(index))
                     Spacer(Modifier.width(14.dp))
                     Text(entry.title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                     val n = counts?.let(entry.count) ?: 0

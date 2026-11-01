@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -159,7 +160,7 @@ fun RepFigures(t: EdacTraining, modifier: Modifier = Modifier) {
 
 @Composable
 private fun StepCard(step: EdacStep, open: Boolean, done: Boolean, outlets: Int?, onClick: () -> Unit) {
-    Card(onClick = onClick, enabled = open || done, modifier = Modifier.fillMaxWidth().alpha(if (open || done) 1f else 0.5f)) {
+    Card(onClick = onClick, enabled = open || done, modifier = Modifier.fillMaxWidth().alpha(if (open || done) 1f else 0.5f), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(14.dp)) {
             Surface(
                 shape = CircleShape,

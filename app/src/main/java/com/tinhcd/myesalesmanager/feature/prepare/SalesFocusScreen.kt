@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -101,7 +102,7 @@ fun SalesFocusScreen(onBack: () -> Unit, viewModel: SalesFocusViewModel = hiltVi
                 }
                 if (f.programs.isEmpty()) item { Text("Không có chương trình", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 items(f.programs, key = { it.kind + it.code }) { p ->
-                    Card(Modifier.fillMaxWidth()) {
+                    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("${p.code} – ${p.name}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
@@ -122,7 +123,7 @@ fun SalesFocusScreen(onBack: () -> Unit, viewModel: SalesFocusViewModel = hiltVi
 
 @Composable
 private fun FocusCard(p: FocusProduct) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${p.productCode} – ${p.productName}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))

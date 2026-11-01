@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -174,6 +175,8 @@ fun EdacCriteriaScreen(onBack: () -> Unit, viewModel: EdacCriteriaViewModel = hi
                             onClick = { viewModel.open(c) },
                             enabled = book.canEdit,
                             modifier = Modifier.fillMaxWidth().alpha(if (c.active) 1f else 0.55f),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                         ) {
                             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(c.content, style = MaterialTheme.typography.bodyLarge)

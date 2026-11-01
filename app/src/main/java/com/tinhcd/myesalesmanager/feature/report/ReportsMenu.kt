@@ -1,5 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.report
 
+import com.tinhcd.myesalesmanager.core.ui.tileColor
+import com.tinhcd.myesalesmanager.core.ui.MenuIcon
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,6 +26,7 @@ import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.ViewCarousel
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -61,14 +65,16 @@ fun ReportsMenu(onOpen: (ReportKind) -> Unit) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        items(ReportKind.entries) { r ->
+        itemsIndexed(ReportKind.entries) { index, r ->
             Card(
                 onClick = { onOpen(r) },
                 enabled = r.ready,
                 modifier = Modifier.fillMaxWidth().alpha(if (r.ready) 1f else 0.5f),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
-                    Icon(r.icon(), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    MenuIcon(r.icon(), tileColor(index))
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
                         Text(r.title, style = MaterialTheme.typography.bodyLarge)

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -254,7 +255,7 @@ private fun OutletList(outlets: List<EdacOutlet>, step: EdacStep, modifier: Modi
             item { Text("Hôm nay nhân viên không có điểm bán trên tuyến", color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         items(outlets, key = { it.customerId }) { o ->
-            Card(onClick = { onOpen(o) }, modifier = Modifier.fillMaxWidth()) {
+            Card(onClick = { onOpen(o) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("${o.code} – ${o.name}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
@@ -288,7 +289,7 @@ private fun FormBody(state: EdacStepState, form: EdacStepForm, modifier: Modifie
         state.training?.let { t -> item { RepFigures(t) } }
         if (form.observed.isNotEmpty()) {
             item {
-                Card(Modifier.fillMaxWidth()) {
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("Kết quả quan sát", fontWeight = FontWeight.SemiBold)
                         form.observed.forEach { o ->
@@ -325,7 +326,7 @@ private fun FormBody(state: EdacStepState, form: EdacStepForm, modifier: Modifie
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun CriterionCard(c: EdacCriterion, answer: EdacAnswer?, onChange: ((EdacAnswer) -> EdacAnswer) -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(c.content + if (c.required) " *" else "", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             when (c.kind) {

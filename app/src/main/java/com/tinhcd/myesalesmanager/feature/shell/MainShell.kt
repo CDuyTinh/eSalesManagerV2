@@ -1,5 +1,12 @@
 package com.tinhcd.myesalesmanager.feature.shell
 
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.EventBusy
+import androidx.compose.material.icons.filled.AccessTime
+import com.tinhcd.myesalesmanager.core.ui.tileColor
+import com.tinhcd.myesalesmanager.core.ui.MenuIcon
+import androidx.compose.foundation.lazy.itemsIndexed
 import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -54,6 +61,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tinhcd.myesalesmanager.core.location.TrackingService
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
+import com.tinhcd.myesalesmanager.core.ui.HeaderShape
 import com.tinhcd.myesalesmanager.core.ui.SkeletonDashboard
 import com.tinhcd.myesalesmanager.core.ui.theme.brand
 import com.tinhcd.myesalesmanager.domain.model.Manager
@@ -171,7 +179,7 @@ private fun Header(manager: Manager?, unread: Int, onBell: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.brand.header)
+            .background(MaterialTheme.brand.header, HeaderShape)
             .statusBarsPadding()
             .padding(start = 16.dp, end = 4.dp, top = 12.dp, bottom = 12.dp),
     ) {
@@ -200,8 +208,9 @@ private fun Header(manager: Manager?, unread: Int, onBell: () -> Unit) {
 @Composable
 private fun OtherTab(team: List<TeamMember>, onOpen: (PersonalTarget) -> Unit, onSignOut: () -> Unit) {
     LazyColumn(Modifier.fillMaxSize()) {
-        items(PersonalTarget.entries) { t ->
+        itemsIndexed(PersonalTarget.entries) { index, t ->
             ListItem(
+                leadingContent = { MenuIcon(t.icon(), tileColor(index)) },
                 headlineContent = { Text(t.title) },
                 supportingContent = { Text(t.subtitle) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
@@ -234,3 +243,11 @@ private fun OtherTab(team: List<TeamMember>, onOpen: (PersonalTarget) -> Unit, o
     }
 }
 
+
+private fun PersonalTarget.icon(): ImageVector = when (this) {
+    PersonalTarget.WORK_DAY -> Icons.Default.AccessTime
+    PersonalTarget.LEAVE -> Icons.Default.EventBusy
+    PersonalTarget.NOTES -> Icons.Default.EditNote
+    PersonalTarget.NOTIFICATIONS -> Icons.Default.Notifications
+    PersonalTarget.PASSWORD -> Icons.Default.Lock
+}

@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -324,7 +325,7 @@ fun WorkWithVisitScreen(
 
 @Composable
 private fun VisitInfo(v: WorkWithVisit) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${v.customerCode} – ${v.customerName}", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
@@ -349,7 +350,7 @@ private fun VisitInfo(v: WorkWithVisit) {
 
 @Composable
 private fun ProgramCard(p: DisplayToScore, canScore: Boolean, onScore: () -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("${p.programCode} – ${p.programName}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             Text("${p.levelName} · yêu cầu ${p.requiredFaces} mặt", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -445,7 +446,7 @@ enum class InStoreStep(val title: String) {
 
 @Composable
 private fun InStoreSteps(t: VisitTasks, open: Boolean, onOpen: (InStoreStep) -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("Công việc tại điểm bán", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             InStoreStep.entries.forEach { step ->

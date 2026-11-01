@@ -1,5 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
+import com.tinhcd.myesalesmanager.core.ui.tileColor
+import com.tinhcd.myesalesmanager.core.ui.MenuIcon
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -68,15 +72,17 @@ fun TasksMenu(onOpen: (TaskTarget) -> Unit) {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        items(entries) { e ->
+        itemsIndexed(entries) { index, e ->
             val enabled = e.target != null
             Card(
                 onClick = { e.target?.let(onOpen) },
                 enabled = enabled,
                 modifier = Modifier.fillMaxWidth().alpha(if (enabled) 1f else 0.5f),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
-                    Icon(e.icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    MenuIcon(e.icon, tileColor(index))
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
                         Text(e.title, style = MaterialTheme.typography.bodyLarge)

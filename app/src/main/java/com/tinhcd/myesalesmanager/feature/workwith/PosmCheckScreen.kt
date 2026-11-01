@@ -1,5 +1,6 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
+import androidx.compose.foundation.layout.height
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -191,10 +193,17 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                         )
                     }
                 }
-                OutlinedButton(onClick = { takePicture.launch(viewModel.newShot().uri) }, enabled = !state.saving) {
-                    Text("Chụp ảnh (${draft.photos.size})")
+                // Side by side, half each, as every form's foot is in both apps.
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = { takePicture.launch(viewModel.newShot().uri) },
+                        enabled = !state.saving,
+                        modifier = Modifier.weight(1f).height(48.dp),
+                    ) {
+                        Text("Chụp ảnh (${draft.photos.size})", maxLines = 1)
+                    }
+                    PrimaryButton("Lưu", viewModel::save, Modifier.weight(1f), enabled = !state.saving, loading = state.saving, height = 48.dp)
                 }
-                PrimaryButton("Lưu", viewModel::save, Modifier.fillMaxWidth(), enabled = !state.saving, loading = state.saving)
             }
             else -> LazyColumn(
                 modifier = Modifier.padding(padding).fillMaxSize(),
@@ -203,7 +212,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
             ) {
                 if (items.isEmpty()) item { Text("Điểm bán không có POSM", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 items(items, key = { it.programId + it.itemId }) { i ->
-                    Card(onClick = { viewModel.open(i) }, modifier = Modifier.fillMaxWidth()) {
+                    Card(onClick = { viewModel.open(i) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(i.itemName, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)

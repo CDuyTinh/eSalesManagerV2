@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -129,7 +130,7 @@ fun NotificationsScreen(
                     item { Text("Chưa có thông báo", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
                 items(feed.items, key = { it.kindCode + it.sourceId }) { n ->
-                    Card(onClick = { viewModel.open(n); onOpen(n) }, modifier = Modifier.fillMaxWidth()) {
+                    Card(onClick = { viewModel.open(n); onOpen(n) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.Top) {
                             Box(
                                 Modifier

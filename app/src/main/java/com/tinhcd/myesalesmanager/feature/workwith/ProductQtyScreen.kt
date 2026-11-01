@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -253,7 +254,7 @@ fun ProductQtyScreen(onBack: () -> Unit, viewModel: ProductQtyViewModel = hiltVi
 private fun ProductRow(p: VisitProduct, order: Boolean, qty: Map<String, String>, onQty: (String, String, String) -> Unit) {
     // A unit with no price cannot be ordered in; it can still be counted in.
     val units = if (order) p.units.filter { it.price != null } else p.units
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("${p.code} – ${p.name}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             if (!order && p.previousBaseQty != null) {

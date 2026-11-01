@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -91,7 +92,7 @@ fun EdacResultScreen(onBack: () -> Unit, viewModel: EdacResultViewModel = hiltVi
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 item {
-                    Card(Modifier.fillMaxWidth()) {
+                    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text("Kết quả", fontWeight = FontWeight.SemiBold)
                             Text(r.training.result ?: "—")
@@ -140,7 +141,7 @@ fun EdacResultScreen(onBack: () -> Unit, viewModel: EdacResultViewModel = hiltVi
 
 @Composable
 private fun AnswerGroup(customer: String?, lines: List<EdacResultLine>) {
-    Card(Modifier.fillMaxWidth()) {
+    Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             customer?.let { Text(it, fontWeight = FontWeight.SemiBold) }
             lines.forEachIndexed { i, line ->

@@ -1,5 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -187,13 +189,17 @@ fun CustomerFeedbackScreen(onBack: () -> Unit, viewModel: CustomerFeedbackViewMo
                         )
                     }
                 }
-                OutlinedButton(
-                    onClick = { takePicture.launch(viewModel.newShot().uri) },
-                    enabled = !state.saving && state.photos.size < form.photoMax,
-                ) {
-                    Text("Chụp ảnh (${state.photos.size}/${form.photoMax})")
+                // Side by side, half each, as every form's foot is in both apps.
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = { takePicture.launch(viewModel.newShot().uri) },
+                        enabled = !state.saving && state.photos.size < form.photoMax,
+                        modifier = Modifier.weight(1f).height(48.dp),
+                    ) {
+                        Text("Chụp ảnh (${state.photos.size}/${form.photoMax})", maxLines = 1)
+                    }
+                    PrimaryButton("Lưu phản hồi", viewModel::save, Modifier.weight(1f), enabled = !state.saving, loading = state.saving, height = 48.dp)
                 }
-                PrimaryButton("Lưu phản hồi", viewModel::save, Modifier.fillMaxWidth(), enabled = !state.saving, loading = state.saving)
             }
         }
     }
