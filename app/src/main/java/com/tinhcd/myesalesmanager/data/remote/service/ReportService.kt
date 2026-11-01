@@ -39,6 +39,9 @@ interface ReportService {
         @Query("salespersonId") salespersonId: String?,
         @Query("supervisorId") supervisorId: String? = null,
         @Query("branchIds") branchIds: String? = null,
+        /** Orders come a page at a time, newest first. */
+        @Query("offset") offset: Int = 0,
+        @Query("limit") limit: Int = 50,
     ): Response<OrdersReportDto>
 
     @GET("mgr-reports?report=sku")

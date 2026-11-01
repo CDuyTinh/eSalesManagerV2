@@ -50,6 +50,33 @@ class ReportRepositoryImpl @Inject constructor(
         DataResult.Failure(e.toAppError())
     }
 
+    override suspend fun moreOrders(
+        period: ReportPeriod,
+        salespersonId: String?,
+        supervisorId: String?,
+        branchIds: List<String>?,
+        offset: Int,
+    ): DataResult<OrdersReport> = try {
+        DataResult.Success(orderPage(period, salespersonId, supervisorId, branchIds?.joinToString(","), offset))
+    } catch (e: PostgrestException) {
+        DataResult.Failure(AppError.Server(e.status, e.message))
+    } catch (e: Exception) {
+        DataResult.Failure(e.toAppError())
+    }
+
+    private suspend fun orderPage(p: ReportPeriod, sp: String?, sv: String?, br: String?, offset: Int): OrdersReport =
+        service.orders(p.from, p.to, sp, sv, br, offset = offset).orThrow().let { d ->
+            OrdersReport(
+                total = d.total,
+                totalAmount = d.totalAmount,
+                counts = d.counts,
+                items = d.items.map {
+                    OrderRow(it.orderNo, it.orderDate, it.salesperson?.toDomain(), it.customerCode,
+                        it.customerName, it.status, it.lineCount, it.totalAmount)
+                },
+            )
+        }
+
     private suspend fun fetch(kind: ReportKind, p: ReportPeriod, sp: String?, sv: String?, br: String?): ReportData = when (kind) {
         ReportKind.ACTIVITIES -> service.activities(p.from, sp, sv, br).orThrow().let { d ->
             ActivitiesReport(
@@ -79,17 +106,7 @@ class ReportRepositoryImpl @Inject constructor(
             )
         }
 
-        ReportKind.ORDERS -> service.orders(p.from, p.to, sp, sv, br).orThrow().let { d ->
-            OrdersReport(
-                total = d.total,
-                totalAmount = d.totalAmount,
-                counts = d.counts,
-                items = d.items.map {
-                    OrderRow(it.orderNo, it.orderDate, it.salesperson?.toDomain(), it.customerCode,
-                        it.customerName, it.status, it.lineCount, it.totalAmount)
-                },
-            )
-        }
+        ReportKind.ORDERS -> orderPage(p, sp, sv, br, offset = 0)
 
         ReportKind.SKU -> SkuReport(
             service.sku(p.from, p.to, sp, sv, br).orThrow().items.map {

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.todayVn
 import com.tinhcd.myesalesmanager.domain.DataResult
+import com.tinhcd.myesalesmanager.domain.model.OrdersReport
 import com.tinhcd.myesalesmanager.domain.model.PeriodKind
 import com.tinhcd.myesalesmanager.domain.model.ReportData
 import com.tinhcd.myesalesmanager.domain.model.ReportKind
@@ -56,6 +57,8 @@ data class ReportState(
     val data: ReportData? = null,
     val loading: Boolean = true,
     val error: String? = null,
+    /** The next page of orders, or every page before an export. */
+    val loadingMore: Boolean = false,
 ) {
     val period: ReportPeriod
         get() = when (kind.period) {
@@ -94,6 +97,50 @@ class ReportViewModel @Inject constructor(
             }
         }
     }
+
+    /** Appends the next page of orders to the ones shown. */
+    fun moreOrders() {
+        val s = _state.value
+        val shown = s.data as? OrdersReport ?: return
+        if (s.loadingMore || shown.items.size >= shown.total) return
+        viewModelScope.launch {
+            _state.update { it.copy(loadingMore = true) }
+            when (val r = nextPage(s, shown.items.size)) {
+                is DataResult.Success -> _state.update { cur ->
+                    val now = cur.data as? OrdersReport
+                    cur.copy(loadingMore = false, data = now?.copy(items = now.items + r.data.items) ?: cur.data)
+                }
+                is DataResult.Failure -> _state.update { it.copy(loadingMore = false, error = r.error.toMessage()) }
+            }
+        }
+    }
+
+    /**
+     * The report as it should go out: for orders, every page, not just the ones
+     * scrolled to. Hands null to [onReady] if a page could not be fetched.
+     */
+    fun forExport(onReady: (ReportData?) -> Unit) {
+        val s = _state.value
+        val data = s.data ?: return onReady(null)
+        if (data !is OrdersReport || data.items.size >= data.total) return onReady(data)
+        viewModelScope.launch {
+            _state.update { it.copy(loadingMore = true) }
+            var all: OrdersReport = data
+            while (all.items.size < all.total) {
+                val r = nextPage(s, all.items.size)
+                if (r !is DataResult.Success || r.data.items.isEmpty()) {
+                    _state.update { it.copy(loadingMore = false) }
+                    return@launch onReady(null)
+                }
+                all = all.copy(items = all.items + r.data.items)
+            }
+            _state.update { it.copy(loadingMore = false, data = all) }
+            onReady(all)
+        }
+    }
+
+    private suspend fun nextPage(s: ReportState, offset: Int) =
+        repository.moreOrders(s.period, s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors), offset)
 
     fun selectSalesperson(id: String?) {
         _state.update { it.copy(salespersonId = id) }

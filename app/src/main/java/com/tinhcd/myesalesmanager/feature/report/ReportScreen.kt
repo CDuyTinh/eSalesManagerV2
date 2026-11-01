@@ -96,7 +96,9 @@ fun ReportScreen(
             if (data != null && !state.loading && state.error == null) {
                 item {
                     TextButton(
-                        onClick = { shareReport(context, state.kind, state.period, data) },
+                        // Orders are fetched in full first: the file has every page, not just those seen.
+                        onClick = { viewModel.forExport { all -> all?.let { shareReport(context, state.kind, state.period, it) } } },
+                        enabled = !state.loadingMore,
                         modifier = Modifier.padding(horizontal = 8.dp),
                     ) {
                         Icon(Icons.Default.Share, contentDescription = null)
@@ -109,7 +111,7 @@ fun ReportScreen(
                 state.error != null -> item { ErrorBox(state.error!!, onRetry = viewModel::refresh) }
                 data is ActivitiesReport -> activities(data, team)
                 data is SalesReport -> sales(data, team)
-                data is OrdersReport -> orders(data, team)
+                data is OrdersReport -> orders(data, team, state.loadingMore, viewModel::moreOrders)
                 data is SkuReport -> sku(data)
                 data is TradeReport -> trade(data, team)
                 data is WorkReport -> work(data, team)
@@ -299,7 +301,7 @@ private fun LazyListScope.sales(d: SalesReport, team: Boolean) {
 
 // --- Đơn hàng -----------------------------------------------------------------------
 
-private fun LazyListScope.orders(d: OrdersReport, team: Boolean) {
+private fun LazyListScope.orders(d: OrdersReport, team: Boolean, loadingMore: Boolean, onMore: () -> Unit) {
     item {
         Block {
             Line("Số đơn", "${d.total}")
@@ -319,7 +321,16 @@ private fun LazyListScope.orders(d: OrdersReport, team: Boolean) {
             )
         }
     }
-    if (d.items.size < d.total) item { Faint("  Hiển thị ${d.items.size}/${d.total} đơn mới nhất") }
+    if (d.items.size < d.total) {
+        item {
+            TextButton(onClick = onMore, enabled = !loadingMore, modifier = Modifier.padding(horizontal = 8.dp)) {
+                Text(
+                    if (loadingMore) "Đang tải…"
+                    else "Xem thêm (đang hiện ${d.items.size}/${d.total} đơn)",
+                )
+            }
+        }
+    }
 }
 
 // --- SKU ----------------------------------------------------------------------------
