@@ -25,8 +25,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
 import com.tinhcd.myesalesmanager.core.ui.SearchBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.formatDateTime
 import com.tinhcd.myesalesmanager.domain.DataResult
@@ -86,7 +86,7 @@ fun StockScreen(onBack: () -> Unit, viewModel: StockViewModel = hiltViewModel())
         val stock = state.stock
         when {
             stock == null && state.error != null -> ErrorBox(state.error!!, onRetry = { viewModel.load(null) }, modifier = Modifier.padding(padding))
-            stock == null -> LoadingBox(Modifier.padding(padding))
+            stock == null -> SkeletonList(Modifier.padding(padding), count = 7, lines = 1)
             else -> Column(Modifier.padding(padding).fillMaxSize()) {
                 if (stock.sites.size > 1) {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(16.dp, 8.dp)) {

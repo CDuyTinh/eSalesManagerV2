@@ -24,8 +24,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
 import com.tinhcd.myesalesmanager.core.ui.SearchBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.formatDateTime
 import com.tinhcd.myesalesmanager.domain.DataResult
@@ -123,7 +123,7 @@ fun TeamCustomersScreen(
             val list = state.customers
             when {
                 list == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh)
-                list == null -> LoadingBox()
+                list == null -> SkeletonList(count = 7)
                 else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (list.isEmpty()) item { Text("Không có điểm bán", color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     items(list, key = { it.id }) { c ->

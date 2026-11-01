@@ -42,7 +42,7 @@ import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.DatePickDialog
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.StatusPill
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.formatIsoDate
@@ -148,7 +148,7 @@ fun MyLeaveScreen(onBack: () -> Unit, viewModel: MyLeaveViewModel = hiltViewMode
         val board = state.board
         when {
             board == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
-            board == null -> LoadingBox(Modifier.padding(padding))
+            board == null -> SkeletonList(Modifier.padding(padding), count = 4, lines = 3)
             else -> Box(Modifier.padding(padding).fillMaxSize()) {
                 LazyColumn(
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),

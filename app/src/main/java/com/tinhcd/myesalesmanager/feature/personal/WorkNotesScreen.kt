@@ -44,7 +44,7 @@ import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.DatePickDialog
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.StatusPill
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.formatDateTime
@@ -152,7 +152,7 @@ fun WorkNotesScreen(onBack: () -> Unit, viewModel: WorkNotesViewModel = hiltView
         val notes = state.notes
         when {
             notes == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
-            notes == null -> LoadingBox(Modifier.padding(padding))
+            notes == null -> SkeletonList(Modifier.padding(padding), count = 5)
             else -> Box(Modifier.padding(padding).fillMaxSize()) {
                 val shown = notes.filter { it.done == state.showDone }
                 LazyColumn(

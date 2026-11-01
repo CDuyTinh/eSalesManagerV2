@@ -38,7 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.StatusPill
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.domain.DataResult
@@ -134,7 +134,7 @@ fun RoutesScreen(
         val routes = state.routes
         when {
             routes == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
-            routes == null -> LoadingBox(Modifier.padding(padding))
+            routes == null -> SkeletonList(Modifier.padding(padding), count = 4)
             else -> LazyColumn(
                 modifier = Modifier.padding(padding).fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),

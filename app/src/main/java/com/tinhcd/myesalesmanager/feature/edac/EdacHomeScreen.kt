@@ -36,7 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.StatusPill
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.formatIsoDate
@@ -141,7 +141,7 @@ fun EdacHomeScreen(
         val sessions = state.sessions
         when {
             sessions == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
-            sessions == null -> LoadingBox(Modifier.padding(padding))
+            sessions == null -> SkeletonList(Modifier.padding(padding), count = 4)
             else -> LazyColumn(
                 modifier = Modifier.padding(padding).fillMaxSize(),
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 96.dp),

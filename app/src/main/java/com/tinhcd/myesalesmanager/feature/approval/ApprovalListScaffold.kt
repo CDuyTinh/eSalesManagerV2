@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 
 /**
@@ -53,7 +53,7 @@ fun <T> ApprovalListScaffold(
         Column(Modifier.padding(padding).fillMaxSize()) {
             StatusChips(selected = state.status, counts = state.counts, onSelect = viewModel::selectStatus)
             when {
-                state.loading && state.items.isEmpty() -> LoadingBox()
+                state.loading && state.items.isEmpty() -> SkeletonList(lines = 3)
                 state.error != null && state.items.isEmpty() ->
                     ErrorBox(message = state.error, onRetry = viewModel::refresh)
                 else -> LazyColumn(

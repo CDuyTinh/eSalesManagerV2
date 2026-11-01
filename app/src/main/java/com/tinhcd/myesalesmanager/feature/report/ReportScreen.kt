@@ -35,8 +35,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
 import com.tinhcd.myesalesmanager.core.ui.KpiBar
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
 import com.tinhcd.myesalesmanager.core.ui.PercentPill
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.StatTile
 import com.tinhcd.myesalesmanager.core.ui.StatusPill
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
@@ -107,7 +107,7 @@ fun ReportScreen(
                 }
             }
             when {
-                state.loading && data == null -> item { LoadingBox(Modifier.padding(top = 48.dp)) }
+                state.loading && data == null -> item { SkeletonList(count = 5) }
                 state.error != null -> item { ErrorBox(state.error!!, onRetry = viewModel::refresh) }
                 data is ActivitiesReport -> activities(data, team)
                 data is SalesReport -> sales(data, team)

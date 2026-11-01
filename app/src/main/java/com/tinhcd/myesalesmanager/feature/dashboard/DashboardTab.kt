@@ -38,7 +38,7 @@ import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
 import com.tinhcd.myesalesmanager.core.ui.KpiBar
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonDashboard
 import com.tinhcd.myesalesmanager.core.ui.TeamFilter
 import com.tinhcd.myesalesmanager.core.ui.PercentPill
 import com.tinhcd.myesalesmanager.core.ui.StatTile
@@ -157,7 +157,7 @@ fun DashboardTab(viewModel: DashboardViewModel = hiltViewModel()) {
 
     val data = state.data
     when {
-        state.loading && data == null -> LoadingBox()
+        state.loading && data == null -> SkeletonDashboard()
         data == null -> ErrorBox(state.error ?: "Không tải được số liệu", onRetry = viewModel::refresh)
         else -> LazyColumn(
             modifier = Modifier.fillMaxSize(),

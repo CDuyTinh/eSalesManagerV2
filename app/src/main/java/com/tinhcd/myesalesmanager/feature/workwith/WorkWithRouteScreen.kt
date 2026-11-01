@@ -36,7 +36,7 @@ import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.location.LocationProvider
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.StatusPill
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.compactMoney
@@ -189,7 +189,7 @@ fun WorkWithRouteScreen(
             }
             val route = state.route
             when {
-                state.loading && route == null -> LoadingBox()
+                state.loading && route == null -> SkeletonList(count = 5)
                 state.error != null && route == null -> ErrorBox(state.error!!, onRetry = viewModel::refresh)
                 route != null -> {
                     val done = route.stops.count { it.repStatus != null }

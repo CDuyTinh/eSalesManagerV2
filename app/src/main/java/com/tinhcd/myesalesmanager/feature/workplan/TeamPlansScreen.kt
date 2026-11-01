@@ -37,8 +37,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
 import com.tinhcd.myesalesmanager.core.ui.MonthCalendar
+import com.tinhcd.myesalesmanager.core.ui.SkeletonList
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.daysIn
 import com.tinhcd.myesalesmanager.core.ui.formatDay
@@ -268,7 +268,7 @@ fun TeamPlansScreen(
             }
 
             when {
-                state.loading && state.items.isEmpty() && !state.calendar -> LoadingBox()
+                state.loading && state.items.isEmpty() && !state.calendar -> SkeletonList(lines = 3)
                 state.error != null && state.items.isEmpty() -> ErrorBox(state.error!!, onRetry = viewModel::refresh)
                 else -> LazyColumn(
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 96.dp),
