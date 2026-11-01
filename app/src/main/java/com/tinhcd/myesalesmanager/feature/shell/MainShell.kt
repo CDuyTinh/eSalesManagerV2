@@ -54,7 +54,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tinhcd.myesalesmanager.core.location.TrackingService
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
-import com.tinhcd.myesalesmanager.core.ui.LoadingBox
+import com.tinhcd.myesalesmanager.core.ui.SkeletonDashboard
 import com.tinhcd.myesalesmanager.core.ui.theme.brand
 import com.tinhcd.myesalesmanager.domain.model.Manager
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
@@ -147,7 +147,7 @@ fun MainShell(
     ) { padding ->
         Box(Modifier.padding(padding).fillMaxSize()) {
             when {
-                state.loading -> LoadingBox()
+                state.loading -> SkeletonDashboard()
                 state.manager == null -> ErrorBox(
                     message = "Đã đăng nhập nhưng chưa tải được thông tin quản lý.",
                     onRetry = viewModel::retryProfile,
