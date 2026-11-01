@@ -35,6 +35,9 @@ fun formatWindow(fromIso: String, toIso: String): String {
 
 fun formatDay(date: LocalDate): String = date.format(day)
 
+/** The Vietnamese calendar day an ISO instant falls on, for placing it on a calendar. */
+fun vnDate(iso: String): LocalDate? = parse(iso)?.toLocalDate()
+
 fun formatTime(value: LocalTime): String = value.format(time)
 
 /** A Vietnamese wall-clock moment as the ISO-8601 instant the server stores. */

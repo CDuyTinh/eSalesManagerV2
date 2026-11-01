@@ -12,6 +12,7 @@ import com.tinhcd.myesalesmanager.feature.approval.ApprovalTarget
 import com.tinhcd.myesalesmanager.feature.approval.CustomerApprovalDetailScreen
 import com.tinhcd.myesalesmanager.feature.approval.CustomerApprovalScreen
 import com.tinhcd.myesalesmanager.feature.approval.LeaveApprovalScreen
+import com.tinhcd.myesalesmanager.feature.approval.LeaveCalendarScreen
 import com.tinhcd.myesalesmanager.feature.approval.TradeApprovalScreen
 import com.tinhcd.myesalesmanager.domain.model.ReportKind
 import com.tinhcd.myesalesmanager.domain.model.WorkPlanStatus
@@ -73,6 +74,7 @@ object Routes {
     const val SHELL = "shell"
 
     const val APPROVAL_LEAVE = "approval/leave"
+    const val LEAVE_CALENDAR = "approval/leave/calendar"
     const val APPROVAL_CUSTOMER = "approval/customer"
     const val APPROVAL_CUSTOMER_DETAIL = "approval/customer/{$ARG_CUSTOMER_ID}"
     const val APPROVAL_TRADE = "approval/trade/{$ARG_TRADE_KIND}"
@@ -357,7 +359,10 @@ fun AppNavHost(startDestination: String) {
             arguments = listOf(navArgument(ARG_PLAN_ID) { type = NavType.StringType }),
         ) { WorkPlanDetailScreen(onBack = back) }
 
-        composable(Routes.APPROVAL_LEAVE) { LeaveApprovalScreen(onBack = back) }
+        composable(Routes.APPROVAL_LEAVE) {
+            LeaveApprovalScreen(onBack = back, onOpenCalendar = { nav.navigate(Routes.LEAVE_CALENDAR) })
+        }
+        composable(Routes.LEAVE_CALENDAR) { LeaveCalendarScreen(onBack = back) }
         composable(Routes.APPROVAL_CUSTOMER) {
             CustomerApprovalScreen(
                 onBack = back,

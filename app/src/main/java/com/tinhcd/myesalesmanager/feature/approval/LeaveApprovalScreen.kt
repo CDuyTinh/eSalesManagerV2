@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,6 +39,7 @@ class LeaveApprovalViewModel @Inject constructor(
 @Composable
 fun LeaveApprovalScreen(
     onBack: () -> Unit,
+    onOpenCalendar: () -> Unit = {},
     viewModel: LeaveApprovalViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -47,6 +49,7 @@ fun LeaveApprovalScreen(
         state = state,
         viewModel = viewModel,
         onBack = onBack,
+        header = { item { TextButton(onClick = onOpenCalendar) { Text("Lịch nghỉ phép ›") } } },
     ) { list ->
         items(list, key = { it.id }) { leave ->
             val who = leave.salesperson?.let { "${it.name} (${it.code})" }.orEmpty()
