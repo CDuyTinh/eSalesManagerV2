@@ -14,16 +14,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -68,6 +71,7 @@ fun ReportScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val team = state.salespersonId == null
+    val context = LocalContext.current
 
     SubScreen(title = state.kind.title, onBack = onBack) { padding ->
         LazyColumn(
@@ -89,6 +93,17 @@ fun ReportScreen(
                 )
             }
             val data = state.data
+            if (data != null && !state.loading && state.error == null) {
+                item {
+                    TextButton(
+                        onClick = { shareReport(context, state.kind, state.period, data) },
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                    ) {
+                        Icon(Icons.Default.Share, contentDescription = null)
+                        Text("  Xuất Excel (CSV) / chia sẻ")
+                    }
+                }
+            }
             when {
                 state.loading && data == null -> item { LoadingBox(Modifier.padding(top = 48.dp)) }
                 state.error != null -> item { ErrorBox(state.error!!, onRetry = viewModel::refresh) }
