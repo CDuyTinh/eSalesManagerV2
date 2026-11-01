@@ -53,16 +53,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.tinhcd.myesalesmanager.core.ui.DatePickDialog
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
+import com.tinhcd.myesalesmanager.core.ui.Kpi
 import com.tinhcd.myesalesmanager.core.ui.LoadingBox
 import com.tinhcd.myesalesmanager.core.ui.SearchBox
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.core.ui.formatDateTime
+import com.tinhcd.myesalesmanager.core.ui.formatDay
+import com.tinhcd.myesalesmanager.core.ui.formatDong
 import com.tinhcd.myesalesmanager.core.ui.formatIsoDate
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.RouteCandidate
 import com.tinhcd.myesalesmanager.domain.model.RouteDetail
 import com.tinhcd.myesalesmanager.domain.model.RouteOutlet
+import com.tinhcd.myesalesmanager.domain.model.RouteSalesMonth
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.domain.model.WEEKDAY_LABELS
 import com.tinhcd.myesalesmanager.domain.model.formatSchedule
@@ -81,6 +86,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 const val ARG_ROUTE_ID = "routeId"
@@ -199,8 +205,12 @@ class RouteDetailViewModel @Inject constructor(
 
     fun askAssign() = _state.update { it.copy(assigning = true) }
 
-    fun assign(salespersonId: String, note: String) {
-        run("Đã giao tuyến") { repository.assign(routeId, salespersonId, note) }
+    /** From today it changes hands now; from a later day it waits for that morning. */
+    fun assign(salespersonId: String, note: String, from: LocalDate) {
+        val later = from.isAfter(todayVn())
+        run(if (later) "Sẽ giao tuyến từ ${formatDay(from)}" else "Đã giao tuyến") {
+            repository.assign(routeId, salespersonId, note, if (later) from.toString() else null)
+        }
     }
 
     fun openCandidates() {
@@ -299,6 +309,18 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
+        route.pending?.let { p ->
+            item {
+                Card(Modifier.fillMaxWidth()) {
+                    Text(
+                        "Sẽ giao cho ${p.to?.name ?: "?"} từ ${formatIsoDate(p.effectiveDate)}" + (p.note?.let { " — $it" } ?: ""),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Kpi.Orange.first(),
+                        modifier = Modifier.padding(12.dp),
+                    )
+                }
+            }
+        }
         item {
             if (ordering == null) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -364,6 +386,17 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
                 OutletCard(o, onEdit = { viewModel.editOutlet(o) }, onRemove = { viewModel.askRemove(o) })
             }
         }
+        if (route.sales.isNotEmpty() && ordering == null) {
+            item {
+                Text(
+                    "Doanh số theo tháng",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
+            items(route.sales, key = { it.month }) { m -> SalesMonthRow(m) }
+        }
         if (route.history.isNotEmpty()) {
             item {
                 Text(
@@ -385,6 +418,29 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
                 }
             }
         }
+    }
+}
+
+/** One month's sales on the route, with who sold it when it changed hands. */
+@Composable
+private fun SalesMonthRow(m: RouteSalesMonth) {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                LocalDate.parse(m.month).let { "Tháng ${it.monthValue}/${it.year}" },
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f),
+            )
+            Text("${formatDong(m.revenue)} · ${m.orders} đơn", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+        }
+        if (m.bySalesperson.size > 1) {
+            Text(
+                m.bySalesperson.joinToString(" · ") { (who, revenue) -> "${who?.name ?: "?"}: ${formatDong(revenue)}" },
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        HorizontalDivider(Modifier.padding(top = 8.dp))
     }
 }
 
@@ -451,6 +507,11 @@ private fun ScheduleDialog(edit: ScheduleEdit, busy: Boolean, viewModel: RouteDe
 private fun AssignDialog(route: RouteDetail, team: List<TeamMember>, busy: Boolean, viewModel: RouteDetailViewModel) {
     var picked by remember { mutableStateOf(route.rep?.id) }
     var note by remember { mutableStateOf("") }
+    var from by remember { mutableStateOf(todayVn()) }
+    var pickingDate by remember { mutableStateOf(false) }
+    if (pickingDate) {
+        DatePickDialog(initial = from, onPick = { d -> from = maxOf(d, todayVn()); pickingDate = false }, onDismiss = { pickingDate = false })
+    }
     AlertDialog(
         onDismissRequest = viewModel::dismiss,
         title = { Text("Giao tuyến ${route.code}") },
@@ -471,12 +532,16 @@ private fun AssignDialog(route: RouteDetail, team: List<TeamMember>, busy: Boole
                     label = { Text("Ghi chú (không bắt buộc)") },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
+                // The legacy hand-over's effective date: the rep keeps the route until then.
+                OutlinedButton(onClick = { pickingDate = true }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Text(if (from == todayVn()) "Áp dụng: ngay hôm nay" else "Áp dụng từ ${formatDay(from)}")
+                }
             }
         },
         confirmButton = {
             TextButton(
-                onClick = { picked?.let { viewModel.assign(it, note) } },
-                enabled = !busy && picked != null && picked != route.rep?.id,
+                onClick = { picked?.let { viewModel.assign(it, note, from) } },
+                enabled = !busy && picked != null && (picked != route.rep?.id || from != todayVn()),
             ) { Text(if (busy) "Đang lưu…" else "Giao") }
         },
         dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !busy) { Text("Huỷ") } },

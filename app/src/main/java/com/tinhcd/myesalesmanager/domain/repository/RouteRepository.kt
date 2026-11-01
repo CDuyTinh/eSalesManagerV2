@@ -22,5 +22,8 @@ interface RouteRepository {
     suspend fun reorder(routeId: String, customerIds: List<String>): DataResult<Unit>
 
     /** Hands the route to another rep of the team. */
-    suspend fun assign(routeId: String, salespersonId: String, note: String?): DataResult<Unit>
+    suspend fun assign(routeId: String, salespersonId: String, note: String?, effectiveDate: String? = null): DataResult<Unit>
+
+    /** Opens an empty route for a rep; with no code, the next free R-number. @return its id. */
+    suspend fun create(salespersonId: String, name: String, code: String?): DataResult<String>
 }

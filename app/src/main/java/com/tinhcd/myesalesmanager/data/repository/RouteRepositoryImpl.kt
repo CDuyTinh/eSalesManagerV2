@@ -6,13 +6,18 @@ import com.tinhcd.myesalesmanager.data.remote.http.orThrow
 import com.tinhcd.myesalesmanager.data.remote.service.RouteService
 import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
+import com.tinhcd.myesalesmanager.domain.model.PendingHandover
 import com.tinhcd.myesalesmanager.domain.model.RouteCandidate
 import com.tinhcd.myesalesmanager.domain.model.RouteDetail
 import com.tinhcd.myesalesmanager.domain.model.RouteHistoryEntry
 import com.tinhcd.myesalesmanager.domain.model.RouteOutlet
+import com.tinhcd.myesalesmanager.domain.model.RouteSalesMonth
 import com.tinhcd.myesalesmanager.domain.model.SalesRoute
 import com.tinhcd.myesalesmanager.domain.model.StaffBrief
 import com.tinhcd.myesalesmanager.domain.repository.RouteRepository
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,6 +51,15 @@ class RouteRepositoryImpl @Inject constructor(
                 )
             },
             history = d.history.map { RouteHistoryEntry(it.at, it.text, it.actor) },
+            pending = d.pendingAssignment?.let { p ->
+                PendingHandover(p.to?.let { StaffBrief(it.id, it.code, it.name) }, p.effectiveDate, p.note)
+            },
+            sales = d.sales.map { m ->
+                RouteSalesMonth(
+                    m.month, m.revenue, m.orders,
+                    m.bySalesperson.map { r -> r.salesperson?.let { StaffBrief(it.id, it.code, it.name) } to r.revenue },
+                )
+            },
         )
     }
 
@@ -72,14 +86,25 @@ class RouteRepositoryImpl @Inject constructor(
         Unit
     }
 
-    override suspend fun assign(routeId: String, salespersonId: String, note: String?) = call {
+    override suspend fun assign(routeId: String, salespersonId: String, note: String?, effectiveDate: String?) = call {
         service.act(
             RouteActionDto(
                 "assign", routeId, salespersonId = salespersonId,
                 note = note?.trim()?.takeIf { it.isNotEmpty() },
+                effectiveDate = effectiveDate,
             ),
         ).orThrow()
         Unit
+    }
+
+    override suspend fun create(salespersonId: String, name: String, code: String?) = call {
+        val reply = service.act(
+            RouteActionDto(
+                "create", salespersonId = salespersonId, name = name.trim(),
+                code = code?.trim()?.takeIf { it.isNotEmpty() },
+            ),
+        ).orThrow()
+        reply.jsonObject["id"]?.jsonPrimitive?.contentOrNull ?: error("no route id in reply")
     }
 
     private inline fun <T> call(block: () -> T): DataResult<T> = try {

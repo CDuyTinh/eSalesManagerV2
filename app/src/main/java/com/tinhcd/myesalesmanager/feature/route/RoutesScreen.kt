@@ -1,6 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.route
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -9,10 +12,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,7 +43,9 @@ import com.tinhcd.myesalesmanager.core.ui.StatusPill
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.SalesRoute
+import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.domain.model.WEEKDAY_LABELS
+import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
 import com.tinhcd.myesalesmanager.domain.repository.RouteRepository
 import com.tinhcd.myesalesmanager.feature.approval.toMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -46,15 +60,48 @@ data class RoutesState(
     val routes: List<SalesRoute>? = null,
     val loading: Boolean = false,
     val error: String? = null,
+    val reps: List<TeamMember> = emptyList(),
+    /** The new-route form, while open. */
+    val draft: NewRouteDraft? = null,
+    val saving: Boolean = false,
+    /** A route just made, to open. */
+    val created: String? = null,
 )
+
+data class NewRouteDraft(val repId: String? = null, val name: String = "", val code: String = "") {
+    val canSave: Boolean get() = repId != null && name.isNotBlank()
+}
 
 @HiltViewModel
 class RoutesViewModel @Inject constructor(
     private val repository: RouteRepository,
+    auth: AuthRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RoutesState())
     val state: StateFlow<RoutesState> = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch { auth.team.collect { t -> _state.update { it.copy(reps = t) } } }
+    }
+
+    fun newRoute() = _state.update { it.copy(draft = NewRouteDraft(repId = it.reps.singleOrNull()?.id)) }
+    fun edit(change: (NewRouteDraft) -> NewRouteDraft) = _state.update { s -> s.copy(draft = s.draft?.let(change)) }
+    fun dismiss() = _state.update { if (it.saving) it else it.copy(draft = null) }
+
+    fun create() {
+        val d = _state.value.draft ?: return
+        if (!d.canSave) return
+        viewModelScope.launch {
+            _state.update { it.copy(saving = true) }
+            when (val r = repository.create(d.repId!!, d.name, d.code)) {
+                is DataResult.Success -> _state.update { it.copy(saving = false, draft = null, created = r.data) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, error = r.error.toMessage()) }
+            }
+        }
+    }
+
+    fun opened() = _state.update { it.copy(created = null) }
 
     fun refresh() {
         viewModelScope.launch {
@@ -68,6 +115,7 @@ class RoutesViewModel @Inject constructor(
 }
 
 /** Lập tuyến (MCP) & phân tuyến: the routes the team runs. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun RoutesScreen(
     onBack: () -> Unit,
@@ -80,6 +128,7 @@ fun RoutesScreen(
         viewModel.refresh()
         onPauseOrDispose { }
     }
+    LaunchedEffect(state.created) { state.created?.let { onOpen(it); viewModel.opened() } }
 
     SubScreen(title = "Lập tuyến & phân tuyến", subtitle = "Tuyến của nhóm", onBack = onBack) { padding ->
         val routes = state.routes
@@ -97,6 +146,51 @@ fun RoutesScreen(
                 items(routes, key = { it.id }) { r -> RouteCard(r) { onOpen(r.id) } }
             }
         }
+        if (state.routes != null) {
+            Box(Modifier.fillMaxSize().padding(padding).padding(16.dp), contentAlignment = Alignment.BottomEnd) {
+                ExtendedFloatingActionButton(
+                    onClick = viewModel::newRoute,
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text("Tạo tuyến") },
+                )
+            }
+        }
+    }
+
+    state.draft?.let { d ->
+        AlertDialog(
+            onDismissRequest = viewModel::dismiss,
+            title = { Text("Tạo tuyến mới") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("Nhân viên phụ trách", style = MaterialTheme.typography.labelMedium)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        state.reps.forEach { m ->
+                            FilterChip(
+                                selected = d.repId == m.id,
+                                onClick = { viewModel.edit { it.copy(repId = m.id) } },
+                                label = { Text(m.fullName) },
+                            )
+                        }
+                    }
+                    OutlinedTextField(
+                        d.name, { v -> viewModel.edit { it.copy(name = v) } },
+                        label = { Text("Tên tuyến *") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                    )
+                    OutlinedTextField(
+                        d.code, { v -> viewModel.edit { it.copy(code = v.uppercase()) } },
+                        label = { Text("Mã tuyến (để trống: tự cấp)") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                    )
+                    state.error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall) }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = viewModel::create, enabled = d.canSave && !state.saving) {
+                    Text(if (state.saving) "Đang tạo…" else "Tạo")
+                }
+            },
+            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text("Huỷ") } },
+        )
     }
 }
 

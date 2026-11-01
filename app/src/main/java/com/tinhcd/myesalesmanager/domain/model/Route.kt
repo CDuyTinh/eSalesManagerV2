@@ -60,6 +60,21 @@ data class RouteDetail(
     val rep: StaffBrief?,
     val outlets: List<RouteOutlet>,
     val history: List<RouteHistoryEntry>,
+    /** A hand-over written for a later day, not yet in effect. */
+    val pending: PendingHandover? = null,
+    /** Newest month first. */
+    val sales: List<RouteSalesMonth> = emptyList(),
+)
+
+data class PendingHandover(val to: StaffBrief?, val effectiveDate: String, val note: String?)
+
+/** What the route's outlets bought in one month, and from which rep. */
+data class RouteSalesMonth(
+    /** ISO date of the month's first day. */
+    val month: String,
+    val revenue: Long,
+    val orders: Int,
+    val bySalesperson: List<Pair<StaffBrief?, Long>>,
 )
 
 /** An approved outlet of the route's distributor not yet on it. */
