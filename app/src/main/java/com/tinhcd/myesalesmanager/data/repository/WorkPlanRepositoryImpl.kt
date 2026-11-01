@@ -48,6 +48,7 @@ class WorkPlanRepositoryImpl @Inject constructor(
     override suspend fun detail(id: String) = call {
         val d = service.detail(id).orThrow()
         WorkPlanDetail(
+            categoryId = d.categoryId,
             plan = TeamWorkPlan(
                 id = d.id,
                 salesperson = d.salesperson?.toDomain(),
@@ -116,6 +117,11 @@ class WorkPlanRepositoryImpl @Inject constructor(
 
     override suspend fun cancel(id: String, reason: String) = call {
         service.act(WorkPlanActionDto(action = "cancel", id = id, reason = reason.trim())).orThrow()
+        Unit
+    }
+
+    override suspend fun update(id: String, draft: AssignDraft) = call {
+        service.act(WorkPlanActionDto(action = "update", id = id, plan = draft.toDto())).orThrow()
         Unit
     }
 

@@ -53,6 +53,7 @@ data class WorkPlanDetailDto(
     val salesperson: StaffBriefDto? = null,
     val author: StaffBriefDto? = null,
     @SerialName("assigned_by_me") val assignedByMe: Boolean = false,
+    @SerialName("category_id") val categoryId: String? = null,
     @SerialName("category_name") val categoryName: String = "",
     @SerialName("object_kind") val objectKind: String? = null,
     val content: String = "",

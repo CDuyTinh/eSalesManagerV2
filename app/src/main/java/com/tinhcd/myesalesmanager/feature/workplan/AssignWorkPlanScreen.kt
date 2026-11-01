@@ -53,6 +53,8 @@ import com.tinhcd.myesalesmanager.core.ui.formatDay
 import com.tinhcd.myesalesmanager.core.ui.formatTime
 import com.tinhcd.myesalesmanager.core.ui.toIsoInstant
 import com.tinhcd.myesalesmanager.core.ui.todayVn
+import com.tinhcd.myesalesmanager.core.ui.vnDate
+import com.tinhcd.myesalesmanager.core.ui.vnTime
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.AssignDraft
 import com.tinhcd.myesalesmanager.domain.model.Manager
@@ -85,9 +87,14 @@ data class ObjectOption(val id: String, val title: String, val subtitle: String?
 /** Optional nav argument: "1" writes the manager's own plan instead of assigning one. */
 const val ARG_ASSIGN_SELF = "self"
 
+/** Optional nav argument: the id of a task already assigned, to change it. */
+const val ARG_EDIT_PLAN = "edit"
+
 data class AssignState(
     /** The manager's own plan, sent to their boss, rather than work handed down. */
     val self: Boolean = false,
+    /** A task already handed down, being changed; who it is for stays put. */
+    val editId: String? = null,
     val me: Manager? = null,
     val team: List<TeamMember> = emptyList(),
     val categories: List<WorkCategory> = emptyList(),
@@ -138,12 +145,41 @@ class AssignWorkPlanViewModel @Inject constructor(
     auth: AuthRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(AssignState(self = savedState.get<String>(ARG_ASSIGN_SELF) == "1"))
+    private val _state = MutableStateFlow(
+        AssignState(
+            self = savedState.get<String>(ARG_ASSIGN_SELF) == "1",
+            editId = savedState.get<String>(ARG_EDIT_PLAN),
+        ),
+    )
     val state: StateFlow<AssignState> = _state.asStateFlow()
 
     private var customerJob: Job? = null
 
     init {
+        _state.value.editId?.let { id ->
+            viewModelScope.launch {
+                when (val r = repository.detail(id)) {
+                    is DataResult.Success -> {
+                        val d = r.data
+                        _state.update {
+                            it.copy(
+                                salespersonId = d.plan.salesperson?.id,
+                                categoryId = d.categoryId,
+                                date = vnDate(d.plan.fromAt) ?: it.date,
+                                from = vnTime(d.plan.fromAt) ?: it.from,
+                                to = vnTime(d.plan.toAt) ?: it.to,
+                                content = d.plan.content,
+                                place = d.plan.place.orEmpty(),
+                                note = d.note.orEmpty(),
+                                selected = d.objects.map { o -> o.targetId }.toSet(),
+                            )
+                        }
+                        loadCustomers()
+                    }
+                    is DataResult.Failure -> _state.update { it.copy(message = r.error.toMessage()) }
+                }
+            }
+        }
         viewModelScope.launch {
             auth.sessionState.collect { s ->
                 val me = (s as? SessionState.SignedIn)?.manager
@@ -233,7 +269,12 @@ class AssignWorkPlanViewModel @Inject constructor(
                 toAt = toIsoInstant(s.date, s.to),
                 objectIds = s.selected.toList(),
             )
-            when (val r = if (s.self) repository.planOwn(draft) else repository.assign(draft)) {
+            val r = when {
+                s.editId != null -> repository.update(s.editId, draft)
+                s.self -> repository.planOwn(draft)
+                else -> repository.assign(draft)
+            }
+            when (r) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
                 is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
             }
@@ -261,13 +302,21 @@ fun AssignWorkPlanScreen(
     }
 
     SubScreen(
-        title = if (state.self) "Lập kế hoạch" else "Giao việc",
+        title = when {
+            state.editId != null -> "Sửa công việc"
+            state.self -> "Lập kế hoạch"
+            else -> "Giao việc"
+        },
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
             Surface(tonalElevation = 3.dp) {
                 PrimaryButton(
-                    text = if (state.self) "Gửi duyệt" else "Giao việc",
+                    text = when {
+                        state.editId != null -> "Lưu thay đổi"
+                        state.self -> "Gửi duyệt"
+                        else -> "Giao việc"
+                    },
                     onClick = viewModel::save,
                     enabled = state.canSave,
                     loading = state.saving,
@@ -281,7 +330,7 @@ fun AssignWorkPlanScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (!state.self) item {
+            if (!state.self && state.editId == null) item {
                 Picker(
                     label = "Nhân viên *",
                     value = state.rep?.let { it.pickerLabel() },

@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import coil3.compose.AsyncImage
@@ -100,6 +101,13 @@ class WorkPlanDetailViewModel @Inject constructor(
             auth.sessionState.collect { s -> _state.update { it.copy(meId = (s as? SessionState.SignedIn)?.manager?.id) } }
         }
         load()
+    }
+
+    /** Kept here: the screen's composition is dropped while the form is open. */
+    private var resumedBefore = false
+
+    fun resumed() {
+        if (resumedBefore) load() else resumedBefore = true
     }
 
     /** Sends the manager's own draft to their boss. */
@@ -200,9 +208,15 @@ class WorkPlanDetailViewModel @Inject constructor(
 @Composable
 fun WorkPlanDetailScreen(
     onBack: () -> Unit,
+    onEdit: (String) -> Unit = {},
     viewModel: WorkPlanDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    // Back from the form, show what was changed.
+    LifecycleResumeEffect(Unit) {
+        viewModel.resumed()
+        onPauseOrDispose { }
+    }
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(state.message) {
         state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() }
@@ -251,11 +265,17 @@ fun WorkPlanDetailScreen(
                     if (canDecide) {
                         DecisionButtons(onApprove = { viewModel.ask(true) }, onReject = { viewModel.ask(false) }, modifier = mod)
                     } else {
-                        OutlinedButton(
-                            onClick = viewModel::askCancel,
-                            modifier = mod.fillMaxWidth(),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                        ) { Text("Huỷ công việc đã giao") }
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = mod) {
+                            OutlinedButton(
+                                onClick = viewModel::askCancel,
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                            ) { Text("Huỷ việc") }
+                            // Still to be done: change it rather than cancel and hand it down again.
+                            if (plan?.status == WorkPlanStatus.APPROVED) {
+                                Button(onClick = { onEdit(plan.id) }, modifier = Modifier.weight(1f)) { Text("Sửa") }
+                            }
+                        }
                     }
                 }
             }

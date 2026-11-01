@@ -33,6 +33,9 @@ interface WorkPlanRepository {
     /** Call off a task the supervisor assigned. Needs a reason. */
     suspend fun cancel(id: String, reason: String): DataResult<Unit>
 
+    /** Changes a task the manager assigned, while it is still to be done. */
+    suspend fun update(id: String, draft: AssignDraft): DataResult<Unit>
+
     /** The manager's own plan, sent straight to their boss for approval. @return its id. */
     suspend fun planOwn(draft: AssignDraft): DataResult<String>
 

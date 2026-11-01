@@ -82,6 +82,8 @@ data class WorkPlanHistoryEntry(
 
 data class WorkPlanDetail(
     val plan: TeamWorkPlan,
+    /** For reopening the plan in the form. */
+    val categoryId: String?,
     val note: String?,
     val objects: List<WorkPlanObject>,
     val history: List<WorkPlanHistoryEntry>,

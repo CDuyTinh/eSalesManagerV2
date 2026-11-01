@@ -61,6 +61,7 @@ import com.tinhcd.myesalesmanager.feature.workwith.QtyMode
 import com.tinhcd.myesalesmanager.feature.auth.LoginScreen
 import com.tinhcd.myesalesmanager.feature.shell.MainShell
 import com.tinhcd.myesalesmanager.feature.workplan.ARG_ASSIGN_SELF
+import com.tinhcd.myesalesmanager.feature.workplan.ARG_EDIT_PLAN
 import com.tinhcd.myesalesmanager.feature.workplan.ARG_PLAN_ID
 import com.tinhcd.myesalesmanager.feature.workplan.ARG_PLAN_MINE
 import com.tinhcd.myesalesmanager.feature.workplan.ARG_PLAN_STATUS
@@ -83,7 +84,9 @@ object Routes {
     const val PLAN_DETAIL = "plans/{$ARG_PLAN_ID}"
     const val ASSIGN_PLAN = "plans/assign?$ARG_ASSIGN_SELF={$ARG_ASSIGN_SELF}"
     const val MY_PLANS = "plans/mine?$ARG_PLAN_MINE={$ARG_PLAN_MINE}"
+    const val EDIT_PLAN = "plans/edit/{$ARG_EDIT_PLAN}"
     fun assignPlan(self: Boolean = false) = if (self) "plans/assign?$ARG_ASSIGN_SELF=1" else "plans/assign"
+    fun editPlan(id: String) = "plans/edit/$id"
 
     fun customerDetail(id: String) = "approval/customer/$id"
     fun trade(kind: String) = "approval/trade/$kind"
@@ -349,6 +352,12 @@ fun AppNavHost(startDestination: String) {
             )
         }
         composable(
+            Routes.EDIT_PLAN,
+            arguments = listOf(navArgument(ARG_EDIT_PLAN) { type = NavType.StringType }),
+        ) {
+            AssignWorkPlanScreen(onDone = back, onBack = back)
+        }
+        composable(
             Routes.ASSIGN_PLAN,
             arguments = listOf(navArgument(ARG_ASSIGN_SELF) { type = NavType.StringType; nullable = true; defaultValue = null }),
         ) {
@@ -357,7 +366,7 @@ fun AppNavHost(startDestination: String) {
         composable(
             Routes.PLAN_DETAIL,
             arguments = listOf(navArgument(ARG_PLAN_ID) { type = NavType.StringType }),
-        ) { WorkPlanDetailScreen(onBack = back) }
+        ) { WorkPlanDetailScreen(onBack = back, onEdit = { nav.navigate(Routes.editPlan(it)) }) }
 
         composable(Routes.APPROVAL_LEAVE) {
             LeaveApprovalScreen(onBack = back, onOpenCalendar = { nav.navigate(Routes.LEAVE_CALENDAR) })
