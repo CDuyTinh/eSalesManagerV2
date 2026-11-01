@@ -53,6 +53,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
@@ -86,6 +87,9 @@ private enum class Tab(val label: String, val icon: ImageVector) {
     APPROVALS("Phê duyệt", Icons.AutoMirrored.Filled.FactCheck),
     OTHER("Khác", Icons.Default.MoreHoriz),
 }
+
+/** The tabs laid out as a grid of tiles over a band, as SFA's report menu. */
+private val GridTabs = setOf(Tab.TASKS, Tab.REPORTS, Tab.APPROVALS)
 
 @Composable
 fun MainShell(
@@ -139,7 +143,12 @@ fun MainShell(
     }
 
     Scaffold(
-        topBar = { Header(state.manager, unread) { onOpenPersonal(PersonalTarget.NOTIFICATIONS) } },
+        topBar = {
+            // The grid tabs carry the header's colour on into a rounded band of
+            // their own, so the header itself stays square above them.
+            val gridTab = Tab.entries[tab] in GridTabs
+            Header(state.manager, unread, rounded = !gridTab) { onOpenPersonal(PersonalTarget.NOTIFICATIONS) }
+        },
         bottomBar = {
             NavigationBar {
                 Tab.entries.forEachIndexed { index, t ->
@@ -174,14 +183,14 @@ fun MainShell(
 }
 
 @Composable
-private fun Header(manager: Manager?, unread: Int, onBell: () -> Unit) {
+private fun Header(manager: Manager?, unread: Int, rounded: Boolean, onBell: () -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.brand.header, HeaderShape)
+            .background(MaterialTheme.brand.header, if (rounded) HeaderShape else RectangleShape)
             .statusBarsPadding()
-            .padding(start = 16.dp, end = 4.dp, top = 12.dp, bottom = 12.dp),
+            .padding(start = 16.dp, end = 4.dp, top = 16.dp, bottom = 22.dp),
     ) {
         Column(Modifier.weight(1f)) {
             Text(

@@ -1,5 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
+import com.tinhcd.myesalesmanager.core.ui.GridEntry
+import com.tinhcd.myesalesmanager.core.ui.MenuGrid
 import com.tinhcd.myesalesmanager.core.ui.tileColor
 import com.tinhcd.myesalesmanager.core.ui.MenuIcon
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -107,44 +109,9 @@ fun ApprovalMenu(
         onPauseOrDispose { }
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        item {
-            Text(
-                counts?.let { "Đang chờ duyệt: ${it.total}" } ?: "Đang tải…",
-                style = MaterialTheme.typography.titleLarge,
-            )
-        }
-        itemsIndexed(entries) { index, entry ->
-            Card(onClick = { onOpen(entry.target) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(16.dp),
-                ) {
-                    MenuIcon(entry.icon, tileColor(index))
-                    Spacer(Modifier.width(14.dp))
-                    Text(entry.title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                    val n = counts?.let(entry.count) ?: 0
-                    if (n > 0) {
-                        Surface(color = MaterialTheme.colorScheme.secondary, shape = CircleShape) {
-                            Text(
-                                n.toString(),
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            )
-                        }
-                    }
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                    )
-                }
-            }
-        }
-    }
+    MenuGrid(
+        entries = entries.map { GridEntry(it.title, it.icon, badge = counts?.let(it.count) ?: 0) },
+        onClick = { onOpen(entries[it].target) },
+        caption = counts?.let { "Đang chờ duyệt: ${it.total}" } ?: "Đang tải…",
+    )
 }

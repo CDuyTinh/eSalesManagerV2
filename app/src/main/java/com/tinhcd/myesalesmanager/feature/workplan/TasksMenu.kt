@@ -1,5 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
+import com.tinhcd.myesalesmanager.core.ui.GridEntry
+import com.tinhcd.myesalesmanager.core.ui.MenuGrid
 import com.tinhcd.myesalesmanager.core.ui.tileColor
 import com.tinhcd.myesalesmanager.core.ui.MenuIcon
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -67,30 +69,8 @@ private val entries = listOf(
 
 @Composable
 fun TasksMenu(onOpen: (TaskTarget) -> Unit) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        itemsIndexed(entries) { index, e ->
-            val enabled = e.target != null
-            Card(
-                onClick = { e.target?.let(onOpen) },
-                enabled = enabled,
-                modifier = Modifier.fillMaxWidth().alpha(if (enabled) 1f else 0.5f),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
-                    MenuIcon(e.icon, tileColor(index))
-                    Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(e.title, style = MaterialTheme.typography.bodyLarge)
-                        Text(e.subtitle, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    if (enabled) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
-                }
-            }
-        }
-    }
+    MenuGrid(
+        entries = entries.map { GridEntry(it.title, it.icon, enabled = it.target != null) },
+        onClick = { entries[it].target?.let(onOpen) },
+    )
 }

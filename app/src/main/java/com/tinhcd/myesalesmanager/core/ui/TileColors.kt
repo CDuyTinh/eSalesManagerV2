@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -32,13 +33,13 @@ fun tileColor(index: Int): Color = TileColors[index.mod(TileColors.size)]
 
 /** A menu entry's icon: drawn in [colour], on a rounded square in a pale wash of it. */
 @Composable
-fun MenuIcon(icon: ImageVector, colour: Color, modifier: Modifier = Modifier) {
+fun MenuIcon(icon: ImageVector, colour: Color, modifier: Modifier = Modifier, size: Dp = 40.dp) {
     Box(
         modifier
-            .size(40.dp)
-            .background(colour.copy(alpha = 0.14f), RoundedCornerShape(12.dp)),
+            .size(size)
+            .background(colour.copy(alpha = 0.14f), RoundedCornerShape(size * 0.3f)),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription = null, tint = colour, modifier = Modifier.size(22.dp))
+        Icon(icon, contentDescription = null, tint = colour, modifier = Modifier.size(size * 0.55f))
     }
 }

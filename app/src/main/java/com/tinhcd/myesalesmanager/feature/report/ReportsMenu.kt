@@ -1,5 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.report
 
+import com.tinhcd.myesalesmanager.core.ui.GridEntry
+import com.tinhcd.myesalesmanager.core.ui.MenuGrid
 import com.tinhcd.myesalesmanager.core.ui.tileColor
 import com.tinhcd.myesalesmanager.core.ui.MenuIcon
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -50,39 +52,12 @@ private fun ReportKind.icon(): ImageVector = when (this) {
     ReportKind.MAP -> Icons.Default.Map
 }
 
-private fun ReportKind.subtitle(): String = when (this) {
-    ReportKind.TRAINING -> "Các buổi huấn luyện EDAC"
-    ReportKind.DAILY_TRACKING -> "Ai đang làm gì, ngay lúc này"
-    ReportKind.MAP -> "Đường đi trong ngày làm việc"
-    else -> "Cả nhóm hoặc từng nhân viên"
-}
-
-/** Tab "Báo cáo". Legacy ReportMenuScreen, in its order. */
+/** Tab "Báo cáo". Legacy ReportMenuScreen, in its order, as SFA's report grid. */
 @Composable
 fun ReportsMenu(onOpen: (ReportKind) -> Unit) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        itemsIndexed(ReportKind.entries) { index, r ->
-            Card(
-                onClick = { onOpen(r) },
-                enabled = r.ready,
-                modifier = Modifier.fillMaxWidth().alpha(if (r.ready) 1f else 0.5f),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(16.dp)) {
-                    MenuIcon(r.icon(), tileColor(index))
-                    Spacer(Modifier.width(14.dp))
-                    Column(Modifier.weight(1f)) {
-                        Text(r.title, style = MaterialTheme.typography.bodyLarge)
-                        Text(r.subtitle(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    if (r.ready) Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
-                }
-            }
-        }
-    }
+    val kinds = ReportKind.entries
+    MenuGrid(
+        entries = kinds.map { GridEntry(it.title, it.icon(), enabled = it.ready) },
+        onClick = { onOpen(kinds[it]) },
+    )
 }
