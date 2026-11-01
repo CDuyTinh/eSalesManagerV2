@@ -3,11 +3,13 @@ package com.tinhcd.myesalesmanager.core.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.tinhcd.myesalesmanager.domain.model.PlacePick
@@ -106,8 +108,12 @@ private fun ChipRow(
     selected: String?,
     onPick: (String) -> Unit,
 ) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 16.dp)) {
-        item { FilterChip(selected = allSelected, onClick = onAll, label = { Text(all) }) }
+    // A new scroll position whenever the choices change: the row is first drawn
+    // before the team has loaded, and the old position left it part-scrolled,
+    // its first chip cut off at the edge.
+    val scroll = remember(options.map { it.first }) { LazyListState() }
+    LazyRow(state = scroll, horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 16.dp)) {
+        item(key = "all") { FilterChip(selected = allSelected, onClick = onAll, label = { Text(all) }) }
         items(options, key = { it.first }) { (id, label) ->
             FilterChip(selected = selected == id, onClick = { onPick(id) }, label = { Text(label) })
         }
