@@ -14,6 +14,7 @@ import com.tinhcd.myesalesmanager.data.remote.service.ReportService
 import com.tinhcd.myesalesmanager.data.remote.service.WorkWithService
 import com.tinhcd.myesalesmanager.data.remote.service.RouteService
 import com.tinhcd.myesalesmanager.data.remote.service.EdacService
+import com.tinhcd.myesalesmanager.data.remote.service.TargetService
 import com.tinhcd.myesalesmanager.data.remote.service.PersonalService
 import com.tinhcd.myesalesmanager.data.remote.service.PrepareService
 import com.tinhcd.myesalesmanager.data.remote.service.InStoreService
@@ -125,6 +126,11 @@ object NetworkModule {
     @Singleton
     fun provideDashboardService(retrofit: Retrofit): DashboardService =
         retrofit.create(DashboardService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideTargetService(retrofit: Retrofit): TargetService =
+        retrofit.create(TargetService::class.java)
 
     @Provides
     @Singleton

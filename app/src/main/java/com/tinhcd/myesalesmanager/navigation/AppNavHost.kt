@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tinhcd.myesalesmanager.feature.targets.TargetsScreen
 import com.tinhcd.myesalesmanager.feature.approval.ARG_CUSTOMER_ID
 import com.tinhcd.myesalesmanager.feature.approval.ARG_TRADE_KIND
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalTarget
@@ -148,9 +149,11 @@ object Routes {
         TaskTarget.STOCK -> STOCK
         TaskTarget.SALES_FOCUS -> SALES_FOCUS
         TaskTarget.EDIT_CUSTOMERS -> TEAM_CUSTOMERS
+        TaskTarget.TARGETS -> TARGETS
     }
 
     const val STOCK = "prepare/stock"
+    const val TARGETS = "targets"
     const val SALES_FOCUS = "prepare/focus"
     const val TEAM_CUSTOMERS = "customers"
     const val EDIT_CUSTOMER = "customers/{$ARG_CUSTOMER_EDIT_ID}"
@@ -207,6 +210,7 @@ fun AppNavHost(startDestination: String) {
         }
 
         composable(Routes.STOCK) { StockScreen(onBack = back) }
+        composable(Routes.TARGETS) { TargetsScreen(onBack = back) }
         composable(Routes.MAP_REPORT) { MapReportScreen(onBack = back) }
         composable(Routes.SALES_FOCUS) { SalesFocusScreen(onBack = back) }
         composable(Routes.TEAM_CUSTOMERS) {

@@ -7,6 +7,7 @@ import com.tinhcd.myesalesmanager.data.repository.ReportRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.WorkWithRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.RouteRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.EdacRepositoryImpl
+import com.tinhcd.myesalesmanager.data.repository.TargetRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.PersonalRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.PrepareRepositoryImpl
 import com.tinhcd.myesalesmanager.data.repository.InStoreRepositoryImpl
@@ -16,6 +17,7 @@ import com.tinhcd.myesalesmanager.domain.repository.LocationTraceRepository
 import com.tinhcd.myesalesmanager.domain.repository.PrepareRepository
 import com.tinhcd.myesalesmanager.domain.repository.PersonalRepository
 import com.tinhcd.myesalesmanager.domain.repository.EdacRepository
+import com.tinhcd.myesalesmanager.domain.repository.TargetRepository
 import com.tinhcd.myesalesmanager.domain.repository.RouteRepository
 import com.tinhcd.myesalesmanager.domain.repository.WorkWithRepository
 import com.tinhcd.myesalesmanager.domain.repository.ReportRepository
@@ -65,6 +67,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindEdacRepository(impl: EdacRepositoryImpl): EdacRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindTargetRepository(impl: TargetRepositoryImpl): TargetRepository
 
     @Binds
     @Singleton

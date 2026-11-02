@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.StickyNote2
 import androidx.compose.material.icons.automirrored.filled.EventNote
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.AddTask
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
@@ -41,7 +42,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
 /** Where an entry on the tasks tab leads; null for one not built yet. */
-enum class TaskTarget { TEAM_PLANS, MY_PLANS, ASSIGN, WORK_WITH, ROUTES, EDAC, NOTES, STOCK, SALES_FOCUS, EDIT_CUSTOMERS }
+enum class TaskTarget { TEAM_PLANS, MY_PLANS, ASSIGN, WORK_WITH, ROUTES, EDAC, NOTES, STOCK, SALES_FOCUS, EDIT_CUSTOMERS, TARGETS }
 
 private data class TaskEntry(
     val title: String,
@@ -65,6 +66,7 @@ private val entries = listOf(
     TaskEntry("Trọng tâm bán hàng", "Sản phẩm trọng tâm, chương trình đang chạy", Icons.Default.Star, TaskTarget.SALES_FOCUS),
     TaskEntry("Tồn kho", "Tồn kho tại kho nhà phân phối", Icons.Default.Warehouse, TaskTarget.STOCK),
     TaskEntry("Sửa khách hàng", "Sửa thông tin điểm bán theo nhân viên", Icons.Default.Storefront, TaskTarget.EDIT_CUSTOMERS),
+    TaskEntry("Chỉ tiêu nhân viên", "Doanh số, đơn hàng, theo nhóm hàng và sản phẩm", Icons.Default.Flag, TaskTarget.TARGETS),
 )
 
 @Composable
