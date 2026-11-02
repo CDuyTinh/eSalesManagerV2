@@ -1,5 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.shell
 
+import com.tinhcd.myesalesmanager.core.ui.UpdateDialog
+import com.tinhcd.myesalesmanager.BuildConfig
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.EventBusy
@@ -102,6 +104,7 @@ fun MainShell(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val unread by viewModel.unread.collectAsStateWithLifecycle()
+    val update by viewModel.update.collectAsStateWithLifecycle()
     var tab by rememberSaveable { mutableIntStateOf(0) }
 
     // The manager's own trace runs while their day is open. Checked whenever the
@@ -140,6 +143,16 @@ fun MainShell(
         // known open, try again rather than wait for it to change.
         if (dayOpen == true) TrackingService.start(context)
         onPauseOrDispose { }
+    }
+
+    update?.let { notice ->
+        UpdateDialog(
+            required = notice.required,
+            versionName = BuildConfig.VERSION_NAME,
+            note = notice.note,
+            url = notice.url,
+            onLater = viewModel::postponeUpdate,
+        )
     }
 
     Scaffold(
