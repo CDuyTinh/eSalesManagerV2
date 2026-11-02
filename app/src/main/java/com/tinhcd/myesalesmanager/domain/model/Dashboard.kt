@@ -65,7 +65,19 @@ data class TeamDashboard(
     val month: TeamMonth,
     val members: List<MemberFigures>,
     val charts: Map<ChartRange, List<SalesPoint>>,
+    /** The month's targets by product group, then by product; empty when none are set. */
+    val productTargets: List<ProductTarget> = emptyList(),
 )
+
+/** What head office set the reps in view to sell of one group or product this month. */
+data class ProductTarget(
+    val isGroup: Boolean,
+    val name: String,
+    val target: Long,
+    val actual: Long,
+) {
+    val achievement: Int? get() = percent(actual, target)
+}
 
 /** Whole-number percentage, or null when there is nothing to divide by. */
 fun percent(value: Long, of: Long?): Int? =

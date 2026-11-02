@@ -36,6 +36,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
+import com.tinhcd.myesalesmanager.core.ui.KpiThresholds
 import com.tinhcd.myesalesmanager.core.ui.ErrorBox
 import com.tinhcd.myesalesmanager.core.ui.Kpi
 import com.tinhcd.myesalesmanager.core.ui.KpiBar
@@ -76,6 +77,8 @@ data class DashboardState(
     val team: List<TeamMember> = emptyList(),
     val supervisors: List<TeamMember> = emptyList(),
     val range: ChartRange = ChartRange.THIS_WEEK,
+    /** Head office's colour bands for achievement percentages. */
+    val kpi: KpiThresholds = KpiThresholds(),
     val data: TeamDashboard? = null,
     val loading: Boolean = true,
     val error: String? = null,
@@ -95,6 +98,7 @@ class DashboardViewModel @Inject constructor(
     init {
         viewModelScope.launch { auth.team.collect { t -> _state.update { it.copy(team = t) } } }
         viewModelScope.launch { auth.supervisors.collect { s -> _state.update { it.copy(supervisors = s) } } }
+        viewModelScope.launch { auth.settings.collect { s -> _state.update { it.copy(kpi = KpiThresholds.from(s)) } } }
     }
 
     fun refresh() {
@@ -179,7 +183,8 @@ fun DashboardTab(viewModel: DashboardViewModel = hiltViewModel()) {
                 )
             }
             item { TodayCard(data) }
-            item { MonthCard(data) }
+            item { MonthCard(data, state.kpi) }
+            if (data.productTargets.isNotEmpty()) item { ProductTargetsCard(data, state.kpi) }
             item { ChartCard(data, state.range, viewModel::selectRange) }
             if (state.salespersonId == null && data.members.isNotEmpty()) {
                 item {
@@ -190,7 +195,7 @@ fun DashboardTab(viewModel: DashboardViewModel = hiltViewModel()) {
                     )
                 }
                 items(data.members.withIndex().toList(), key = { it.value.id }) { (i, m) ->
-                    MemberRow(i + 1, m, onClick = { viewModel.selectSalesperson(m.id) })
+                    MemberRow(i + 1, m, state.kpi, onClick = { viewModel.selectSalesperson(m.id) })
                 }
             }
         }
@@ -251,12 +256,12 @@ private fun TodayCard(d: TeamDashboard) {
 }
 
 @Composable
-private fun MonthCard(d: TeamDashboard) {
+private fun MonthCard(d: TeamDashboard, kpi: KpiThresholds) {
     val m = d.month
     SectionCard("Tháng này") {
-        KpiLine("Doanh số", compactMoney(m.revenue), m.revenueTarget?.let(::compactMoney), percent(m.revenue, m.revenueTarget), Kpi.Violet)
-        KpiLine("Đơn hàng", "${m.orderCount}", m.orderTarget?.toString(), percent(m.orderCount.toLong(), m.orderTarget?.toLong()), Kpi.Green)
-        KpiLine("Độ phủ tuyến", "${m.visitDone}", "${m.visitPlanned}", percent(m.visitDone.toLong(), m.visitPlanned.toLong()), Kpi.Blue)
+        KpiLine("Doanh số", compactMoney(m.revenue), m.revenueTarget?.let(::compactMoney), percent(m.revenue, m.revenueTarget), kpi)
+        KpiLine("Đơn hàng", "${m.orderCount}", m.orderTarget?.toString(), percent(m.orderCount.toLong(), m.orderTarget?.toLong()), kpi)
+        KpiLine("Độ phủ tuyến", "${m.visitDone}", "${m.visitPlanned}", percent(m.visitDone.toLong(), m.visitPlanned.toLong()), kpi)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             StatTile("VPO", compactMoney(m.vpo), Kpi.Slate, Modifier.weight(1f))
             StatTile("SKU/đơn", oneDecimal(m.skuPerOrder), Kpi.Orange, Modifier.weight(1f))
@@ -265,9 +270,37 @@ private fun MonthCard(d: TeamDashboard) {
     }
 }
 
-/** A month figure against its target, with the bar only when there is a target. */
+/**
+ * The month's finer targets, by product group then by product (the legacy
+ * DASHBOARD_SKU block), each against what the reps in view sold of it.
+ */
 @Composable
-private fun KpiLine(label: String, value: String, target: String?, pct: Int?, ramp: List<Color>) {
+private fun ProductTargetsCard(d: TeamDashboard, kpi: KpiThresholds) {
+    val (groups, products) = d.productTargets.partition { it.isGroup }
+    SectionCard("Chỉ tiêu theo nhóm hàng / sản phẩm") {
+        if (groups.isNotEmpty()) TargetHeading("Nhóm hàng")
+        groups.forEach { t ->
+            KpiLine(t.name, compactMoney(t.actual), compactMoney(t.target), t.achievement, kpi)
+        }
+        if (products.isNotEmpty()) TargetHeading("Sản phẩm")
+        products.forEach { t ->
+            KpiLine(t.name, compactMoney(t.actual), compactMoney(t.target), t.achievement, kpi)
+        }
+    }
+}
+
+@Composable
+private fun TargetHeading(text: String) {
+    Text(text, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+/**
+ * A month figure against its target, with the bar only when there is a target,
+ * coloured by how far along it is in head office's bands.
+ */
+@Composable
+private fun KpiLine(label: String, value: String, target: String?, pct: Int?, kpi: KpiThresholds) {
+    val ramp = kpi.ramp(pct)
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
@@ -312,14 +345,9 @@ private fun ChartCard(d: TeamDashboard, range: ChartRange, onRange: (ChartRange)
 }
 
 @Composable
-private fun MemberRow(rank: Int, m: MemberFigures, onClick: () -> Unit) {
+private fun MemberRow(rank: Int, m: MemberFigures, kpi: KpiThresholds, onClick: () -> Unit) {
     val pct = m.achievement
-    val ramp = when {
-        pct == null -> Kpi.Slate
-        pct >= 100 -> Kpi.Green
-        pct >= 70 -> Kpi.Blue
-        else -> Kpi.Orange
-    }
+    val ramp = kpi.ramp(pct)
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {

@@ -16,6 +16,9 @@ interface AuthRepository {
     /** The SSs under an AM / RM, for filtering by supervisor; empty for an SS. */
     val supervisors: Flow<List<TeamMember>>
 
+    /** app_setting as of the last profile fetch, for screens that read head office's knobs. */
+    val settings: Flow<Map<String, String>>
+
     /** Common reasons for refusing an approval, offered as chips (server-managed). */
     val rejectReasons: Flow<List<String>>
 

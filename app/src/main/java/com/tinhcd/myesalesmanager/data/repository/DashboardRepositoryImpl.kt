@@ -6,6 +6,7 @@ import com.tinhcd.myesalesmanager.data.remote.http.orThrow
 import com.tinhcd.myesalesmanager.data.remote.service.DashboardService
 import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
+import com.tinhcd.myesalesmanager.domain.model.ProductTarget
 import com.tinhcd.myesalesmanager.domain.model.ChartRange
 import com.tinhcd.myesalesmanager.domain.model.MemberFigures
 import com.tinhcd.myesalesmanager.domain.model.SalesPoint
@@ -47,6 +48,9 @@ class DashboardRepositoryImpl @Inject constructor(
                     ChartRange.LAST_WEEK to d.charts.lastWeek.points(),
                     ChartRange.THIS_MONTH to d.charts.thisMonth.points(),
                 ),
+                productTargets = d.productTargets.map {
+                    ProductTarget(isGroup = it.kind == "category", name = it.name, target = it.target, actual = it.actual)
+                },
             ),
         )
     } catch (e: PostgrestException) {

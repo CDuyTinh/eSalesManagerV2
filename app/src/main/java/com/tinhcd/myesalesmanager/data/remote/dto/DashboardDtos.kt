@@ -11,6 +11,17 @@ data class TeamDashboardDto(
     val month: TeamMonthDto,
     val members: List<MemberFiguresDto> = emptyList(),
     val charts: ChartsDto = ChartsDto(),
+    @SerialName("product_targets") val productTargets: List<ProductTargetDto> = emptyList(),
+)
+
+/** A month target by product group (kind "category") or by product. */
+@Serializable
+data class ProductTargetDto(
+    val kind: String,
+    val id: String,
+    val name: String,
+    val target: Long = 0,
+    val actual: Long = 0,
 )
 
 @Serializable

@@ -91,6 +91,8 @@ class AuthRepositoryImpl @Inject constructor(
 
     override val rejectReasons: Flow<List<String>> = session.rejectReasons
 
+    override val settings: Flow<Map<String, String>> = session.settings
+
     override suspend fun signIn(username: String, password: String): DataResult<Manager> {
         try {
             client.auth.signInWith(Email) {

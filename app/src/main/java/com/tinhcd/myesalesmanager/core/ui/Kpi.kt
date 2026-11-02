@@ -171,3 +171,28 @@ private fun trimZero(value: Double): String {
     return if (rounded == Math.floor(rounded)) rounded.toLong().toString()
     else rounded.toString().replace('.', ',')
 }
+
+/**
+ * Where an achievement percentage turns from orange to blue to green. Head
+ * office sets both in app_setting (`dashboard_kpi_green`, `dashboard_kpi_yellow`,
+ * the legacy DASHBOARD_KPI_GREEN / _YELLOW); until it does, 100 and 70.
+ */
+data class KpiThresholds(val green: Int = 100, val blue: Int = 70) {
+    /** The ramp for [pct], or slate when there is no target to measure against. */
+    fun ramp(pct: Int?): List<Color> = when {
+        pct == null -> Kpi.Slate
+        pct >= green -> Kpi.Green
+        pct >= blue -> Kpi.Blue
+        else -> Kpi.Orange
+    }
+
+    companion object {
+        fun from(settings: Map<String, String>): KpiThresholds {
+            val green = settings["dashboard_kpi_green"]?.trim()?.toIntOrNull() ?: 100
+            val blue = settings["dashboard_kpi_yellow"]?.trim()?.toIntOrNull() ?: 70
+            // A misconfigured pair (blue above green) would never show blue;
+            // keep the order rather than trust it.
+            return KpiThresholds(green = green, blue = blue.coerceAtMost(green))
+        }
+    }
+}
