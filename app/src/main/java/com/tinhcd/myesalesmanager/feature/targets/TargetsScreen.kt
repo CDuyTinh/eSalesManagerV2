@@ -121,12 +121,13 @@ class TargetsViewModel @Inject constructor(
         load()
     }
 
-    fun load() {
+    /**  message kept through the reload, for "saved" to outlive the save's own refresh. */
+    fun load(message: String? = null) {
         val s = _state.value
         val rep = s.repId ?: return
         job?.cancel()
         job = viewModelScope.launch {
-            _state.update { it.copy(loading = true, error = null, message = null) }
+            _state.update { it.copy(loading = true, error = null, message = message) }
             when (val r = repository.sheet(s.month, rep)) {
                 is DataResult.Success -> {
                     val sheet = r.data
@@ -171,8 +172,8 @@ class TargetsViewModel @Inject constructor(
             )
             when (r) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(saving = false, message = "Đã lưu chỉ tiêu") }
-                    load()
+                    _state.update { it.copy(saving = false) }
+                    load(message = "Đã lưu chỉ tiêu")
                 }
                 is DataResult.Failure -> _state.update { it.copy(saving = false, error = r.error.toMessage()) }
             }
@@ -402,7 +403,7 @@ private fun Notice(text: String, isError: Boolean) {
 }
 
 /** Digits shown as "1.250.000" while the field holds "1250000". */
-private object ThousandsTransformation : VisualTransformation {
+internal object ThousandsTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val raw = text.text
         if (raw.isEmpty()) return TransformedText(text, OffsetMapping.Identity)
