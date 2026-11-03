@@ -5,6 +5,7 @@ import com.tinhcd.myesalesmanager.data.di.ApplicationScope
 import com.tinhcd.myesalesmanager.data.remote.dto.StaffDto
 import com.tinhcd.myesalesmanager.data.remote.http.orThrow
 import com.tinhcd.myesalesmanager.data.remote.service.BootstrapService
+import com.tinhcd.myesalesmanager.data.push.PushTokens
 import com.tinhcd.myesalesmanager.data.session.SessionStore
 import com.tinhcd.myesalesmanager.data.util.SingleFlight
 import com.tinhcd.myesalesmanager.domain.AppError
@@ -60,6 +61,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val client: SupabaseClient,
     private val service: BootstrapService,
     private val session: SessionStore,
+    private val pushTokens: PushTokens,
     @param:ApplicationScope private val scope: CoroutineScope,
 ) : AuthRepository {
 
@@ -157,6 +159,9 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun signOut(): DataResult<Unit> = try {
+        // While the session still exists: the server files the removal by its JWT.
+        runCatching { pushTokens.unregister() }
+        registeredFor = null
         client.auth.signOut()
         publish(SessionState.SignedOut, emptyList())
         DataResult.Success(Unit)
@@ -166,9 +171,20 @@ class AuthRepositoryImpl @Inject constructor(
 
     private fun publish(next: SessionState, team: List<TeamMember>) {
         resolved.value = next
-        session.current.value = (next as? SessionState.SignedIn)?.manager
+        val manager = (next as? SessionState.SignedIn)?.manager
+        session.current.value = manager
         session.team.value = team
+
+        // This phone receives the manager's notifications from here on. Once per
+        // person: a profile refresh publishes again and needs no second call.
+        if (manager != null && registeredFor != manager.id) {
+            registeredFor = manager.id
+            scope.launch { runCatching { pushTokens.register() } }
+        }
     }
+
+    @Volatile
+    private var registeredFor: String? = null
 }
 
 private fun StaffDto.toManager() = Manager(

@@ -64,6 +64,23 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
+
+        <!-- FCM: a rotated token, and pushes that arrive while the app is open. -->
+        <service
+            android:name=".push.ManagerMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <!-- Background pushes: shown by FCM itself, with this icon and channel. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_notification" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="general" />
     </application>
 
 </manifest>

@@ -11,6 +11,7 @@ import com.tinhcd.myesalesmanager.data.remote.service.ApprovalService
 import com.tinhcd.myesalesmanager.data.remote.service.BootstrapService
 import com.tinhcd.myesalesmanager.data.remote.service.DashboardService
 import com.tinhcd.myesalesmanager.data.remote.service.ReportService
+import com.tinhcd.myesalesmanager.data.remote.service.DeviceTokenService
 import com.tinhcd.myesalesmanager.data.remote.service.WorkWithService
 import com.tinhcd.myesalesmanager.data.remote.service.RouteService
 import com.tinhcd.myesalesmanager.data.remote.service.EdacService
@@ -131,6 +132,11 @@ object NetworkModule {
     @Singleton
     fun provideTargetService(retrofit: Retrofit): TargetService =
         retrofit.create(TargetService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideDeviceTokenService(retrofit: Retrofit): DeviceTokenService =
+        retrofit.create(DeviceTokenService::class.java)
 
     @Provides
     @Singleton
