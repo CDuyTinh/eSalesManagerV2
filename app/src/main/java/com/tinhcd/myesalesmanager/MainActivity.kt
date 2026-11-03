@@ -1,5 +1,7 @@
 package com.tinhcd.myesalesmanager
 
+import android.content.Intent
+import com.tinhcd.myesalesmanager.push.PushRoute
 import android.os.Bundle
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
@@ -57,11 +59,20 @@ private const val SPLASH_MAX_MS = 8_000L
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    // singleTop: a notification tapped while the app is open arrives here
+    // instead of starting a second copy of the activity.
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        PushRoute.from(intent)
+    }
+
     private val rootViewModel: RootViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+        PushRoute.from(intent)
 
         val launchedAt = SystemClock.elapsedRealtime()
         splash.setKeepOnScreenCondition {

@@ -1,5 +1,6 @@
 package com.tinhcd.myesalesmanager.navigation
 
+import com.tinhcd.myesalesmanager.push.FollowPushRoute
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -188,6 +189,7 @@ object Routes {
 fun AppNavHost(startDestination: String) {
     val nav = rememberNavController()
     val back: () -> Unit = { nav.popBackStack() }
+    FollowPushRoute(nav, Routes.SHELL, ::pushDestination)
 
     NavHost(navController = nav, startDestination = startDestination) {
         composable(Routes.LOGIN) {
@@ -391,4 +393,12 @@ fun AppNavHost(startDestination: String) {
             arguments = listOf(navArgument(ARG_TRADE_KIND) { type = NavType.StringType }),
         ) { TradeApprovalScreen(onBack = back) }
     }
+}
+
+/** Where a tapped push opens; the screen names are the ones the edge functions send. */
+private fun pushDestination(screen: String): String? = when {
+    screen == "approval_leave" -> Routes.APPROVAL_LEAVE
+    screen == "approval_customer" -> Routes.APPROVAL_CUSTOMER
+    screen.startsWith("approval_trade_") -> Routes.trade(screen.removePrefix("approval_trade_"))
+    else -> null
 }
