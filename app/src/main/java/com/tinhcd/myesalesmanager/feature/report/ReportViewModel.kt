@@ -10,6 +10,7 @@ import com.tinhcd.myesalesmanager.domain.model.PeriodKind
 import com.tinhcd.myesalesmanager.domain.model.ReportData
 import com.tinhcd.myesalesmanager.domain.model.ReportKind
 import com.tinhcd.myesalesmanager.domain.model.ReportPeriod
+import com.tinhcd.myesalesmanager.domain.model.StaffDayPhotos
 import com.tinhcd.myesalesmanager.domain.model.PlacePick
 import com.tinhcd.myesalesmanager.domain.model.TeamMember
 import com.tinhcd.myesalesmanager.domain.model.branchIds
@@ -61,6 +62,8 @@ data class ReportState(
     val error: String? = null,
     /** The next page of orders, or every page before an export. */
     val loadingMore: Boolean = false,
+    /** The photo sheet, while it is open. */
+    val photos: PhotoSheet? = null,
 ) {
     val period: ReportPeriod
         get() = when (kind.period) {
@@ -69,6 +72,15 @@ data class ReportState(
             PeriodKind.RANGE -> ReportPeriod(rangeFrom.toString(), rangeTo.toString())
         }
 }
+
+/** One rep's photos for the report's day, optionally narrowed to one outlet. */
+data class PhotoSheet(
+    val name: String,
+    val customerCode: String? = null,
+    val loading: Boolean = true,
+    val data: StaffDayPhotos? = null,
+    val error: String? = null,
+)
 
 @HiltViewModel
 class ReportViewModel @Inject constructor(
@@ -81,6 +93,7 @@ class ReportViewModel @Inject constructor(
     val state: StateFlow<ReportState> = _state.asStateFlow()
 
     private var job: Job? = null
+    private var photoJob: Job? = null
 
     init {
         viewModelScope.launch { auth.team.collect { t -> _state.update { it.copy(team = t) } } }
@@ -143,6 +156,24 @@ class ReportViewModel @Inject constructor(
 
     private suspend fun nextPage(s: ReportState, offset: Int) =
         repository.moreOrders(s.period, s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors), offset)
+
+    /** Opens the photo sheet for [salespersonId] on the day on screen. */
+    fun openPhotos(salespersonId: String, name: String, customerCode: String? = null) {
+        photoJob?.cancel()
+        _state.update { it.copy(photos = PhotoSheet(name, customerCode)) }
+        val date = _state.value.anchor.toString()
+        photoJob = viewModelScope.launch {
+            when (val r = repository.photos(salespersonId, date)) {
+                is DataResult.Success -> _state.update { it.copy(photos = it.photos?.copy(loading = false, data = r.data)) }
+                is DataResult.Failure -> _state.update { it.copy(photos = it.photos?.copy(loading = false, error = r.error.toMessage())) }
+            }
+        }
+    }
+
+    fun closePhotos() {
+        photoJob?.cancel()
+        _state.update { it.copy(photos = null) }
+    }
 
     fun selectSalesperson(id: String?) {
         _state.update { it.copy(salespersonId = id) }

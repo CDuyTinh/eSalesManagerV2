@@ -29,6 +29,9 @@ import com.tinhcd.myesalesmanager.domain.model.SalesReport
 import com.tinhcd.myesalesmanager.domain.model.SkuReport
 import com.tinhcd.myesalesmanager.domain.model.SkuRow
 import com.tinhcd.myesalesmanager.domain.model.StaffBrief
+import com.tinhcd.myesalesmanager.domain.model.PunchPhoto
+import com.tinhcd.myesalesmanager.domain.model.StaffDayPhotos
+import com.tinhcd.myesalesmanager.domain.model.VisitPhotos
 import com.tinhcd.myesalesmanager.domain.model.TradeReport
 import com.tinhcd.myesalesmanager.domain.model.TradeRow
 import com.tinhcd.myesalesmanager.domain.model.WorkReport
@@ -58,6 +61,22 @@ class ReportRepositoryImpl @Inject constructor(
         offset: Int,
     ): DataResult<OrdersReport> = try {
         DataResult.Success(orderPage(period, salespersonId, supervisorId, branchIds?.joinToString(","), offset))
+    } catch (e: PostgrestException) {
+        DataResult.Failure(AppError.Server(e.status, e.message))
+    } catch (e: Exception) {
+        DataResult.Failure(e.toAppError())
+    }
+
+    override suspend fun photos(salespersonId: String, date: String): DataResult<StaffDayPhotos> = try {
+        val d = service.photos(date, salespersonId).orThrow()
+        DataResult.Success(
+            StaffDayPhotos(
+                punches = d.punches.map { PunchPhoto(it.type, it.at, it.photoUrl) },
+                visits = d.visits.map {
+                    VisitPhotos(it.customerCode, it.customerName, it.checkInAt, it.checkOutAt, it.checkInPhotoUrl, it.checkOutPhotoUrl)
+                },
+            ),
+        )
     } catch (e: PostgrestException) {
         DataResult.Failure(AppError.Server(e.status, e.message))
     } catch (e: Exception) {

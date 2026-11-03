@@ -1,5 +1,6 @@
 package com.tinhcd.myesalesmanager.domain.repository
 
+import com.tinhcd.myesalesmanager.domain.model.StaffDayPhotos
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.OrdersReport
 import com.tinhcd.myesalesmanager.domain.model.ReportData
@@ -24,4 +25,7 @@ interface ReportRepository {
         branchIds: List<String>?,
         offset: Int,
     ): DataResult<OrdersReport>
+
+    /** What [salespersonId] photographed on [date] (ISO): punches and visits. */
+    suspend fun photos(salespersonId: String, date: String): DataResult<StaffDayPhotos>
 }

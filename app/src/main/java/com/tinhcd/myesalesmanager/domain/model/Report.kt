@@ -240,3 +240,21 @@ data class TrackingOrder(
 )
 
 data class TrackingReport(val members: List<TrackingMember>, val orders: List<TrackingOrder>) : ReportData
+
+// --- Ảnh trong ngày của một nhân viên ----------------------------------------------
+
+/** A punch at the depot; [url] is signed for an hour, null when no photo was taken. */
+data class PunchPhoto(val type: String, val at: String, val url: String?) {
+    val label: String get() = if (type == "check_in") "Chấm công vào" else "Chấm công ra"
+}
+
+data class VisitPhotos(
+    val customerCode: String,
+    val customerName: String,
+    val checkInAt: String?,
+    val checkOutAt: String?,
+    val checkInUrl: String?,
+    val checkOutUrl: String?,
+)
+
+data class StaffDayPhotos(val punches: List<PunchPhoto>, val visits: List<VisitPhotos>)

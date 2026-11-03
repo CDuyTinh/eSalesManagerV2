@@ -3,6 +3,7 @@ package com.tinhcd.myesalesmanager.feature.report
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -80,6 +82,11 @@ fun ReportScreen(
     val context = LocalContext.current
 
     var filtering by rememberSaveable { mutableStateOf(false) }
+    // A rep, and optionally one outlet of theirs, on the report's day.
+    val openPhotos: (String?, String?) -> Unit = { id, customer ->
+        val name = state.team.firstOrNull { it.id == id }?.fullName
+        if (id != null) viewModel.openPhotos(id, name ?: "", customer)
+    }
 
     Box(Modifier.fillMaxSize()) {
         SubScreen(
@@ -132,17 +139,19 @@ fun ReportScreen(
                 when {
                     state.loading && data == null -> item { SkeletonList(count = 5) }
                     state.error != null -> item { ErrorBox(state.error!!, onRetry = viewModel::refresh) }
-                    data is ActivitiesReport -> activities(data, team)
+                    data is ActivitiesReport -> activities(data, team) { sp, customer -> openPhotos(sp?.id ?: state.salespersonId, customer) }
                     data is SalesReport -> sales(data, team)
                     data is OrdersReport -> orders(data, team, state.loadingMore, viewModel::moreOrders)
                     data is SkuReport -> sku(data)
                     data is TradeReport -> trade(data, team)
                     data is WorkReport -> work(data, team)
                     data is TrainingReport -> training(data, team, onOpenTraining)
-                    data is TrackingReport -> tracking(data, team)
+                    data is TrackingReport -> tracking(data, team) { code -> openPhotos(state.team.firstOrNull { it.code == code }?.id, null) }
                 }
             }
         }
+
+        state.photos?.let { StaffPhotosSheet(it, day = formatDay(state.anchor), onClose = viewModel::closePhotos) }
 
         AnimatedVisibility(
             visible = filtering,
@@ -181,9 +190,12 @@ private fun WhiteCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun Block(content: @Composable () -> Unit) {
+private fun Block(onClick: (() -> Unit)? = null, content: @Composable () -> Unit) {
     WhiteCard {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) { content() }
+        Column(
+            (if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier).padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) { content() }
     }
 }
 
@@ -234,7 +246,7 @@ private fun approvalLabel(s: String) = when (s) {
 
 // --- Hoạt động trong ngày ------------------------------------------------------------
 
-private fun LazyListScope.activities(d: ActivitiesReport, team: Boolean) {
+private fun LazyListScope.activities(d: ActivitiesReport, team: Boolean, onPhotos: (StaffBrief?, String) -> Unit) {
     val s = d.summary
     item {
         Block {
@@ -261,7 +273,7 @@ private fun LazyListScope.activities(d: ActivitiesReport, team: Boolean) {
         } }
     }
     if (d.rows.isEmpty()) empty("Không có lượt viếng thăm nào") else items(d.rows) { r ->
-        Block {
+        Block(onClick = { onPhotos(r.salesperson, r.customerCode) }) {
             Row {
                 Text("${r.customerCode} – ${r.customerName}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                 if (!r.planned) StatusPill("Ngoài tuyến", Kpi.Orange.first())
@@ -480,7 +492,7 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
 
 // --- Theo dõi bán hàng trong ngày ---------------------------------------------------
 
-private fun LazyListScope.tracking(d: TrackingReport, team: Boolean) {
+private fun LazyListScope.tracking(d: TrackingReport, team: Boolean, onPhotos: (code: String) -> Unit) {
     item {
         Block {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -513,6 +525,12 @@ private fun LazyListScope.tracking(d: TrackingReport, team: Boolean) {
             )
             m.last?.let { l ->
                 Faint("Gần nhất: ${l.label} ${formatDateTime(l.at).takeLast(5)}" + (l.detail?.let { " · $it" } ?: ""))
+            }
+            if (m.clockIn != null || m.visited > 0) {
+                TextButton(onClick = { onPhotos(m.code) }, contentPadding = PaddingValues(0.dp)) {
+                    Icon(Icons.Default.PhotoLibrary, contentDescription = null)
+                    Text("  Xem ảnh chấm công & viếng thăm")
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.data.remote.service
 
 import com.tinhcd.myesalesmanager.data.remote.dto.ActivitiesReportDto
+import com.tinhcd.myesalesmanager.data.remote.dto.StaffPhotosDto
 import com.tinhcd.myesalesmanager.data.remote.dto.OrdersReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.SalesReportDto
 import com.tinhcd.myesalesmanager.data.remote.dto.SkuReportDto
@@ -87,4 +88,11 @@ interface ReportService {
         @Query("supervisorId") supervisorId: String? = null,
         @Query("branchIds") branchIds: String? = null,
     ): Response<TrainingReportDto>
+
+    /** One rep's punch and visit photos for a day, signed for an hour. */
+    @GET("mgr-reports?report=photos")
+    suspend fun photos(
+        @Query("date") date: String,
+        @Query("salespersonId") salespersonId: String,
+    ): Response<StaffPhotosDto>
 }

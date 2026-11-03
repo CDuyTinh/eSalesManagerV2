@@ -229,3 +229,26 @@ data class TrackingReportDto(
     val members: List<TrackingMemberDto> = emptyList(),
     val orders: List<TrackingOrderDto> = emptyList(),
 )
+
+@Serializable
+data class PunchPhotoDto(
+    val type: String = "",
+    val at: String = "",
+    @SerialName("photo_url") val photoUrl: String? = null,
+)
+
+@Serializable
+data class VisitPhotosDto(
+    @SerialName("customer_code") val customerCode: String = "",
+    @SerialName("customer_name") val customerName: String = "",
+    @SerialName("check_in_at") val checkInAt: String? = null,
+    @SerialName("check_out_at") val checkOutAt: String? = null,
+    @SerialName("check_in_photo_url") val checkInPhotoUrl: String? = null,
+    @SerialName("check_out_photo_url") val checkOutPhotoUrl: String? = null,
+)
+
+@Serializable
+data class StaffPhotosDto(
+    val punches: List<PunchPhotoDto> = emptyList(),
+    val visits: List<VisitPhotosDto> = emptyList(),
+)
