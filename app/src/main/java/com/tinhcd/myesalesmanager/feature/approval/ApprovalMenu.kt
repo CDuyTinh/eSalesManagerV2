@@ -98,8 +98,7 @@ private val entries = listOf(
     MenuEntry(ApprovalTarget.Trade(TradeKind.DISPLAY), "Đăng ký trưng bày", Icons.AutoMirrored.Filled.ViewQuilt) { it.display },
     MenuEntry(ApprovalTarget.Trade(TradeKind.LOYALTY), "Đăng ký tích lũy", Icons.Default.Loyalty) { it.loyalty },
     MenuEntry(ApprovalTarget.Trade(TradeKind.POSM), "Đăng ký POSM", Icons.Default.Inventory2) { it.posm },
-    // No badge: results are decided as programmes end, not as requests arrive.
-    MenuEntry(ApprovalTarget.DisplayResult, "Kết quả trưng bày", Icons.Default.EmojiEvents) { 0 },
+    MenuEntry(ApprovalTarget.DisplayResult, "Kết quả trưng bày", Icons.Default.EmojiEvents) { it.displayResult },
 )
 
 /** Tab "Phê duyệt". Legacy ApprovalMenuScreen. */

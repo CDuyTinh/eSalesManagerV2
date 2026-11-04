@@ -33,8 +33,10 @@ data class ApprovalCounts(
     val posm: Int = 0,
     /** Plans reps have sent up for approval. */
     val workPlan: Int = 0,
+    /** Kết quả trưng bày: approved display registrations whose reward is undecided. */
+    val displayResult: Int = 0,
 ) {
-    val total: Int get() = leave + customer + display + loyalty + posm + workPlan
+    val total: Int get() = leave + customer + display + loyalty + posm + workPlan + displayResult
 
     fun of(kind: TradeKind): Int = when (kind) {
         TradeKind.DISPLAY -> display
