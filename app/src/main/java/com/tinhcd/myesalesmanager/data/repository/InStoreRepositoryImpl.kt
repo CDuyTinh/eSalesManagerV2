@@ -84,7 +84,8 @@ class InStoreRepositoryImpl @Inject constructor(
         ).orThrow()
         PromotionPreview(
             totalDiscount = d.totalDiscount,
-            earned = d.earned.map { e ->
+            // An order placed here takes each group's default, so only those are listed.
+            earned = d.earned.filter { it.isDefault }.map { e ->
                 listOfNotNull(e.sequenceName?.takeIf { it.isNotBlank() }, e.breakName?.takeIf { it.isNotBlank() })
                     .joinToString(" – ")
             },

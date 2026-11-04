@@ -93,6 +93,8 @@ data class EarnedDto(
     @SerialName("sequence_name") val sequenceName: String? = null,
     @SerialName("break_name") val breakName: String? = null,
     @SerialName("discount_amount") val discountAmount: Long? = null,
+    /** False for a "CTKM lựa chọn" alternative the order does not take. */
+    @SerialName("is_default") val isDefault: Boolean = true,
 )
 
 @Serializable
