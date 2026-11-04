@@ -10,6 +10,7 @@ import androidx.navigation.navArgument
 import com.tinhcd.myesalesmanager.feature.targets.TargetsScreen
 import com.tinhcd.myesalesmanager.feature.approval.ARG_CUSTOMER_ID
 import com.tinhcd.myesalesmanager.feature.approval.ARG_TRADE_KIND
+import com.tinhcd.myesalesmanager.feature.approval.DisplayResultApprovalScreen
 import com.tinhcd.myesalesmanager.feature.approval.ApprovalTarget
 import com.tinhcd.myesalesmanager.feature.approval.CustomerApprovalDetailScreen
 import com.tinhcd.myesalesmanager.feature.approval.CustomerApprovalScreen
@@ -81,6 +82,7 @@ object Routes {
     const val APPROVAL_CUSTOMER = "approval/customer"
     const val APPROVAL_CUSTOMER_DETAIL = "approval/customer/{$ARG_CUSTOMER_ID}"
     const val APPROVAL_TRADE = "approval/trade/{$ARG_TRADE_KIND}"
+    const val APPROVAL_DISPLAY_RESULT = "approval/display-result"
 
     const val TEAM_PLANS = "plans?$ARG_PLAN_STATUS={$ARG_PLAN_STATUS}"
     const val PLAN_DETAIL = "plans/{$ARG_PLAN_ID}"
@@ -100,6 +102,7 @@ object Routes {
         ApprovalTarget.Customer -> APPROVAL_CUSTOMER
         is ApprovalTarget.Trade -> trade(target.kind.code)
         ApprovalTarget.WorkPlan -> plans(WorkPlanStatus.SUBMITTED.code)
+        ApprovalTarget.DisplayResult -> APPROVAL_DISPLAY_RESULT
     }
 
     const val REPORT = "reports/{$ARG_REPORT}"
@@ -378,6 +381,8 @@ fun AppNavHost(startDestination: String) {
             LeaveApprovalScreen(onBack = back, onOpenCalendar = { nav.navigate(Routes.LEAVE_CALENDAR) })
         }
         composable(Routes.LEAVE_CALENDAR) { LeaveCalendarScreen(onBack = back) }
+        composable(Routes.APPROVAL_DISPLAY_RESULT) { DisplayResultApprovalScreen(onBack = back) }
+
         composable(Routes.APPROVAL_CUSTOMER) {
             CustomerApprovalScreen(
                 onBack = back,

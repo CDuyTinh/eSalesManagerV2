@@ -131,3 +131,26 @@ data class DecisionResultDto(
     val id: String,
     val status: String,
 )
+
+@Serializable
+data class DisplayResultDto(
+    @SerialName("registration_id") val registrationId: String,
+    @SerialName("program_code") val programCode: String = "",
+    @SerialName("program_name") val programName: String = "",
+    @SerialName("program_to") val programTo: String? = null,
+    @SerialName("level_name") val levelName: String = "",
+    @SerialName("reward_type") val rewardType: String = "amount",
+    @SerialName("reward_amount") val rewardAmount: Long = 0,
+    @SerialName("reward_percent") val rewardPercent: Double = 0.0,
+    @SerialName("reward_qty") val rewardQty: Int = 0,
+    @SerialName("reward_product") val rewardProduct: String? = null,
+    @SerialName("customer_code") val customerCode: String = "",
+    @SerialName("customer_name") val customerName: String = "",
+    val salesperson: StaffBriefDto? = null,
+    val audits: Int = 0,
+    val achieved: Int = 0,
+    @SerialName("last_audit") val lastAudit: String? = null,
+    /** Null while undecided; confirmed or rejected after. */
+    val decision: String? = null,
+    @SerialName("decision_note") val decisionNote: String? = null,
+)

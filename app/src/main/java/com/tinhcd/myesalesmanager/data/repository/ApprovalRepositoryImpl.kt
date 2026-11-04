@@ -5,6 +5,7 @@ import com.tinhcd.myesalesmanager.data.remote.dto.CustomerApprovalDto
 import com.tinhcd.myesalesmanager.data.remote.dto.DecisionRequestDto
 import com.tinhcd.myesalesmanager.data.remote.dto.LeaveApprovalDto
 import com.tinhcd.myesalesmanager.data.remote.dto.StaffBriefDto
+import com.tinhcd.myesalesmanager.data.remote.dto.DisplayResultDto
 import com.tinhcd.myesalesmanager.data.remote.dto.TradeApprovalDto
 import com.tinhcd.myesalesmanager.data.remote.http.PostgrestException
 import com.tinhcd.myesalesmanager.data.remote.http.orThrow
@@ -21,6 +22,8 @@ import com.tinhcd.myesalesmanager.domain.model.Decision
 import com.tinhcd.myesalesmanager.domain.model.LeaveApproval
 import com.tinhcd.myesalesmanager.domain.model.RouteOption
 import com.tinhcd.myesalesmanager.domain.model.StaffBrief
+import com.tinhcd.myesalesmanager.domain.model.DisplayResult
+import com.tinhcd.myesalesmanager.core.ui.formatDong
 import com.tinhcd.myesalesmanager.domain.model.TradeApproval
 import com.tinhcd.myesalesmanager.domain.model.TradeKind
 import com.tinhcd.myesalesmanager.domain.repository.ApprovalRepository
@@ -81,6 +84,20 @@ class ApprovalRepositoryImpl @Inject constructor(
 
     override suspend fun decideTrade(kind: TradeKind, id: String, decision: Decision) =
         decide(kind.code, id, decision)
+
+    // Two short lists rather than a status filter on the server: the counts on
+    // the tabs need both anyway.
+    override suspend fun displayResults(status: ApprovalStatus) = call {
+        val all = (service.displayResults(false).orThrow() + service.displayResults(true).orThrow())
+            .map { it.toDomain() }
+        ApprovalPage(
+            counts = ApprovalStatus.entries.associateWith { s -> all.count { it.status == s } },
+            items = all.filter { it.status == status },
+        )
+    }
+
+    override suspend fun decideDisplayResult(id: String, decision: Decision) =
+        decide("display_result", id, decision)
 
     private suspend fun decide(kind: String, id: String, decision: Decision): DataResult<Unit> {
         if (!decision.isValid) return DataResult.Failure(AppError.Rule("reject_needs_note"))
@@ -165,4 +182,29 @@ private fun TradeApprovalDto.toDomain() = TradeApproval(
     customerName = customer.name,
     customerAddress = customer.address,
     salesperson = salesperson?.toDomain(),
+)
+
+private fun DisplayResultDto.toDomain() = DisplayResult(
+    id = registrationId,
+    programCode = programCode,
+    programName = programName,
+    programTo = programTo,
+    levelName = levelName,
+    reward = when (rewardType) {
+        "percent" -> "giảm ${rewardPercent.toBigDecimal().stripTrailingZeros().toPlainString()}% trên đơn"
+        "goods" -> "tặng $rewardQty ${rewardProduct.orEmpty()}"
+        else -> formatDong(rewardAmount)
+    },
+    customerCode = customerCode,
+    customerName = customerName,
+    salesperson = salesperson?.toDomain(),
+    audits = audits,
+    achieved = achieved,
+    lastAudit = lastAudit,
+    status = when (decision) {
+        null -> ApprovalStatus.PENDING
+        "confirmed" -> ApprovalStatus.APPROVED
+        else -> ApprovalStatus.REJECTED
+    },
+    decisionNote = decisionNote,
 )

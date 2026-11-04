@@ -1,5 +1,6 @@
 package com.tinhcd.myesalesmanager.data.remote.service
 
+import com.tinhcd.myesalesmanager.data.remote.dto.DisplayResultDto
 import com.tinhcd.myesalesmanager.data.remote.dto.ApprovalCountsDto
 import com.tinhcd.myesalesmanager.data.remote.dto.ApprovalPageDto
 import com.tinhcd.myesalesmanager.data.remote.dto.CustomerApprovalDetailDto
@@ -39,6 +40,10 @@ interface ApprovalService {
         @Query("types") types: String,
         @Query("statuses") statuses: String?,
     ): Response<ApprovalPageDto<TradeApprovalDto>>
+
+    /** Kết quả trưng bày: undecided ([decided] false) or decided. */
+    @GET("mgr-approvals?kind=display_result")
+    suspend fun displayResults(@Query("decided") decided: Boolean): Response<List<DisplayResultDto>>
 
     @POST("mgr-approvals")
     suspend fun decide(@Body body: DecisionRequestDto): Response<DecisionResultDto>

@@ -134,3 +134,25 @@ data class Decision(
 ) {
     val isValid: Boolean get() = approve || !note.isNullOrBlank()
 }
+
+/**
+ * Kết quả trưng bày: an approved display registration, what its audits showed,
+ * and the reward confirming it would pay the outlet on its next orders.
+ */
+data class DisplayResult(
+    val id: String,
+    val programCode: String,
+    val programName: String,
+    val programTo: String?,
+    val levelName: String,
+    /** "700.000 đ", "2 %", "2 Thung Nước ngọt …": what the reward is. */
+    val reward: String,
+    val customerCode: String,
+    val customerName: String,
+    val salesperson: StaffBrief?,
+    val audits: Int,
+    val achieved: Int,
+    val lastAudit: String?,
+    val status: ApprovalStatus,
+    val decisionNote: String?,
+)

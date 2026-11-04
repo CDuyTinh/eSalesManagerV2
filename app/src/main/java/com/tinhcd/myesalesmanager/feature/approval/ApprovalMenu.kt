@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.EventBusy
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Loyalty
 import androidx.compose.material.icons.filled.Storefront
@@ -61,6 +62,9 @@ sealed interface ApprovalTarget {
 
     /** Plans reps sent up — the team plan list, opened on "Chờ duyệt". Legacy TaskApprove. */
     data object WorkPlan : ApprovalTarget
+
+    /** Kết quả trưng bày: confirm the reward an approved display registration earned. */
+    data object DisplayResult : ApprovalTarget
 }
 
 @HiltViewModel
@@ -94,6 +98,8 @@ private val entries = listOf(
     MenuEntry(ApprovalTarget.Trade(TradeKind.DISPLAY), "Đăng ký trưng bày", Icons.AutoMirrored.Filled.ViewQuilt) { it.display },
     MenuEntry(ApprovalTarget.Trade(TradeKind.LOYALTY), "Đăng ký tích lũy", Icons.Default.Loyalty) { it.loyalty },
     MenuEntry(ApprovalTarget.Trade(TradeKind.POSM), "Đăng ký POSM", Icons.Default.Inventory2) { it.posm },
+    // No badge: results are decided as programmes end, not as requests arrive.
+    MenuEntry(ApprovalTarget.DisplayResult, "Kết quả trưng bày", Icons.Default.EmojiEvents) { 0 },
 )
 
 /** Tab "Phê duyệt". Legacy ApprovalMenuScreen. */

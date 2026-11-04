@@ -6,6 +6,7 @@ import com.tinhcd.myesalesmanager.domain.model.ApprovalPage
 import com.tinhcd.myesalesmanager.domain.model.ApprovalStatus
 import com.tinhcd.myesalesmanager.domain.model.CustomerApproval
 import com.tinhcd.myesalesmanager.domain.model.CustomerApprovalDetail
+import com.tinhcd.myesalesmanager.domain.model.DisplayResult
 import com.tinhcd.myesalesmanager.domain.model.Decision
 import com.tinhcd.myesalesmanager.domain.model.LeaveApproval
 import com.tinhcd.myesalesmanager.domain.model.TradeApproval
@@ -31,4 +32,9 @@ interface ApprovalRepository {
     suspend fun decideCustomer(id: String, decision: Decision): DataResult<Unit>
 
     suspend fun decideTrade(kind: TradeKind, id: String, decision: Decision): DataResult<Unit>
+
+    /** Kết quả trưng bày in [status]: waiting, rewarded or refused. */
+    suspend fun displayResults(status: ApprovalStatus): DataResult<ApprovalPage<DisplayResult>>
+
+    suspend fun decideDisplayResult(id: String, decision: Decision): DataResult<Unit>
 }
