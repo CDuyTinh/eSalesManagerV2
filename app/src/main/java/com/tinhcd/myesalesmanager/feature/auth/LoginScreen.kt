@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.auth
 
 import androidx.compose.foundation.background
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -75,7 +77,7 @@ fun LoginScreen(
                 color = MaterialTheme.brand.onHeader,
             )
             Text(
-                "Quản lý đội ngũ bán hàng",
+                stringResource(R.string.login_tagline),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.brand.onHeader,
             )
@@ -88,7 +90,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = state.username,
                 onValueChange = viewModel::onUsernameChange,
-                label = { Text("Tên đăng nhập") },
+                label = { Text(stringResource(R.string.login_username)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth(),
@@ -96,7 +98,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = state.password,
                 onValueChange = viewModel::onPasswordChange,
-                label = { Text("Mật khẩu") },
+                label = { Text(stringResource(R.string.login_password)) },
                 singleLine = true,
                 visualTransformation = if (showPassword) {
                     VisualTransformation.None
@@ -107,7 +109,7 @@ fun LoginScreen(
                     IconButton(onClick = { showPassword = !showPassword }) {
                         Icon(
                             if (showPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                            contentDescription = if (showPassword) "Ẩn mật khẩu" else "Hiện mật khẩu",
+                            contentDescription = if (showPassword) stringResource(R.string.login_hide_password) else stringResource(R.string.login_show_password),
                         )
                     }
                 },
@@ -124,7 +126,7 @@ fun LoginScreen(
             }
 
             PrimaryButton(
-                text = "Đăng nhập",
+                text = stringResource(R.string.login_submit),
                 onClick = viewModel::submit,
                 enabled = state.canSubmit,
                 loading = state.loading,
@@ -132,7 +134,7 @@ fun LoginScreen(
 
             Spacer(Modifier.height(8.dp))
             Text(
-                "Phiên bản ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                stringResource(R.string.login_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -1,6 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.shell
 
 import com.tinhcd.myesalesmanager.core.ui.UpdateDialog
+import androidx.annotation.StringRes
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.BuildConfig
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
@@ -83,12 +86,12 @@ import com.tinhcd.myesalesmanager.feature.workplan.TasksMenu
  * The legacy manager app's five bottom tabs, in its order. Công việc and Khác
  * opened sheets there; here they are tabs until their entries exist.
  */
-private enum class Tab(val label: String, val icon: ImageVector) {
-    OVERVIEW("Tổng quan", Icons.Default.Dashboard),
-    TASKS("Công việc", Icons.AutoMirrored.Filled.Assignment),
-    REPORTS("Báo cáo", Icons.Default.BarChart),
-    APPROVALS("Phê duyệt", Icons.AutoMirrored.Filled.FactCheck),
-    OTHER("Khác", Icons.Default.MoreHoriz),
+private enum class Tab(@StringRes val label: Int, val icon: ImageVector) {
+    OVERVIEW(R.string.tab_overview, Icons.Default.Dashboard),
+    TASKS(R.string.tab_tasks, Icons.AutoMirrored.Filled.Assignment),
+    REPORTS(R.string.tab_reports, Icons.Default.BarChart),
+    APPROVALS(R.string.tab_approvals, Icons.AutoMirrored.Filled.FactCheck),
+    OTHER(R.string.tab_other, Icons.Default.MoreHoriz),
 }
 
 /** The tabs laid out as a grid of tiles over a band, as SFA's report menu. */
@@ -174,7 +177,7 @@ fun MainShell(
                         selected = tab == index,
                         onClick = { tab = index },
                         icon = { Icon(t.icon, contentDescription = null) },
-                        label = { Text(t.label) },
+                        label = { Text(stringResource(t.label)) },
                     )
                 }
             }
@@ -184,7 +187,7 @@ fun MainShell(
             when {
                 state.loading -> SkeletonDashboard()
                 state.manager == null -> ErrorBox(
-                    message = "Đã đăng nhập nhưng chưa tải được thông tin quản lý.",
+                    message = stringResource(R.string.shell_profile_missing),
                     onRetry = viewModel::retryProfile,
                 )
 
@@ -226,7 +229,7 @@ private fun Header(manager: Manager?, unread: Int, rounded: Boolean, onBell: () 
         }
         IconButton(onClick = onBell) {
             BadgedBox(badge = { if (unread > 0) Badge { Text(if (unread > 99) "99+" else "$unread") } }) {
-                Icon(Icons.Default.Notifications, contentDescription = "Thông báo", tint = MaterialTheme.brand.onHeader)
+                Icon(Icons.Default.Notifications, contentDescription = stringResource(R.string.action_notifications), tint = MaterialTheme.brand.onHeader)
             }
         }
     }
@@ -238,8 +241,8 @@ private fun OtherTab(team: List<TeamMember>, onOpen: (PersonalTarget) -> Unit, o
         itemsIndexed(PersonalTarget.entries) { index, t ->
             ListItem(
                 leadingContent = { MenuIcon(t.icon(), tileColor(index)) },
-                headlineContent = { Text(t.title) },
-                supportingContent = { Text(t.subtitle) },
+                headlineContent = { Text(stringResource(t.title)) },
+                supportingContent = { Text(stringResource(t.subtitle)) },
                 trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                 modifier = Modifier.clickable { onOpen(t) },
             )
@@ -247,7 +250,7 @@ private fun OtherTab(team: List<TeamMember>, onOpen: (PersonalTarget) -> Unit, o
         }
         item {
             Text(
-                "Nhân viên trong nhóm (${team.size})",
+                stringResource(R.string.shell_team, team.size),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(16.dp),
             )
@@ -265,7 +268,7 @@ private fun OtherTab(team: List<TeamMember>, onOpen: (PersonalTarget) -> Unit, o
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-            ) { Text("Đăng xuất") }
+            ) { Text(stringResource(R.string.shell_sign_out)) }
         }
     }
 }

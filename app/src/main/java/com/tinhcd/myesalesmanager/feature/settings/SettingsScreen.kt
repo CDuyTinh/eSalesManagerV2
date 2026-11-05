@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,16 +16,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tinhcd.myesalesmanager.core.ui.SubScreen
 
-/** Cài đặt: how the app looks on this phone. Kept on the phone, not the account. */
+/** Cài đặt: how the app looks and which language it speaks on this phone. Kept on the phone, not the account. */
 @Composable
 fun SettingsScreen(onBack: () -> Unit) {
-    SubScreen(title = "Cài đặt", onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.personal_settings), onBack = onBack) { padding ->
         Column(
             modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Giao diện", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.settings_appearance), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             AppearanceCard()
+            Text(stringResource(R.string.settings_language), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            LanguageCard()
         }
     }
 }

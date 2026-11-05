@@ -1,0 +1,44 @@
+<resources>
+    <!-- Shared -->
+    <string name="action_notifications">Notifications</string>
+
+    <!-- Login -->
+    <string name="login_tagline">Manage your sales team</string>
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_hide_password">Hide password</string>
+    <string name="login_show_password">Show password</string>
+    <string name="login_submit">Sign in</string>
+    <string name="login_version">Version %1$s (%2$d)</string>
+
+    <!-- Shell -->
+    <string name="tab_overview">Overview</string>
+    <string name="tab_tasks">Tasks</string>
+    <string name="tab_reports">Reports</string>
+    <string name="tab_approvals">Approvals</string>
+    <string name="tab_other">More</string>
+    <string name="shell_profile_missing">Signed in, but the manager profile could not be loaded.</string>
+    <string name="shell_team">Team members (%1$d)</string>
+    <string name="shell_sign_out">Sign out</string>
+
+    <!-- Khác -->
+    <string name="personal_work_day">Timekeeping</string>
+    <string name="personal_work_day_sub">Clock in / out of the working day</string>
+    <string name="personal_leave">My leave</string>
+    <string name="personal_leave_sub">Request leave, follow requests</string>
+    <string name="personal_notes">Work notes</string>
+    <string name="personal_notes_sub">My to-dos</string>
+    <string name="personal_notifications">Notifications</string>
+    <string name="personal_notifications_sub">Pending requests, outcomes</string>
+    <string name="personal_password">Change password</string>
+    <string name="personal_password_sub">The password you sign in with</string>
+    <string name="personal_settings">Settings</string>
+    <string name="personal_settings_sub">Appearance and language</string>
+
+    <!-- Cài đặt -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_language">Language</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+</resources>

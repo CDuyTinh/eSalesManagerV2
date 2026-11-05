@@ -1,3 +1,47 @@
 <resources>
-    <string name="app_name">eSales Manager</string>
+    <string name="app_name" translatable="false">eSales Manager</string>
+
+    <!-- Shared -->
+    <string name="action_notifications">Thông báo</string>
+
+    <!-- Login -->
+    <string name="login_brand" translatable="false">eSales Manager</string>
+    <string name="login_tagline">Quản lý đội ngũ bán hàng</string>
+    <string name="login_username">Tên đăng nhập</string>
+    <string name="login_password">Mật khẩu</string>
+    <string name="login_hide_password">Ẩn mật khẩu</string>
+    <string name="login_show_password">Hiện mật khẩu</string>
+    <string name="login_submit">Đăng nhập</string>
+    <string name="login_version">Phiên bản %1$s (%2$d)</string>
+
+    <!-- Shell -->
+    <string name="tab_overview">Tổng quan</string>
+    <string name="tab_tasks">Công việc</string>
+    <string name="tab_reports">Báo cáo</string>
+    <string name="tab_approvals">Phê duyệt</string>
+    <string name="tab_other">Khác</string>
+    <string name="shell_profile_missing">Đã đăng nhập nhưng chưa tải được thông tin quản lý.</string>
+    <string name="shell_team">Nhân viên trong nhóm (%1$d)</string>
+    <string name="shell_sign_out">Đăng xuất</string>
+
+    <!-- Khác -->
+    <string name="personal_work_day">Chấm công</string>
+    <string name="personal_work_day_sub">Vào / ra ngày làm việc</string>
+    <string name="personal_leave">Nghỉ phép của tôi</string>
+    <string name="personal_leave_sub">Xin nghỉ, theo dõi đơn</string>
+    <string name="personal_notes">Ghi chú công việc</string>
+    <string name="personal_notes_sub">Việc cần làm của tôi</string>
+    <string name="personal_notifications">Thông báo</string>
+    <string name="personal_notifications_sub">Yêu cầu chờ duyệt, kết quả</string>
+    <string name="personal_password">Đổi mật khẩu</string>
+    <string name="personal_password_sub">Mật khẩu đăng nhập ứng dụng</string>
+    <string name="personal_settings">Cài đặt</string>
+    <string name="personal_settings_sub">Giao diện và ngôn ngữ</string>
+
+    <!-- Cài đặt -->
+    <string name="settings_appearance">Giao diện</string>
+    <string name="settings_language">Ngôn ngữ</string>
+    <string name="theme_system">Hệ thống</string>
+    <string name="theme_light">Sáng</string>
+    <string name="theme_dark">Tối</string>
 </resources>

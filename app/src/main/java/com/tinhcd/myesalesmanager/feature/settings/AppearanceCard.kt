@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.settings
 
 import androidx.compose.foundation.layout.Column
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -77,11 +79,14 @@ fun AppearanceCard(mode: ThemeMode, onSelect: (ThemeMode) -> Unit) {
     }
 }
 
-private fun ThemeMode.label(): String = when (this) {
-    ThemeMode.SYSTEM -> "Hệ thống"
-    ThemeMode.LIGHT -> "Sáng"
-    ThemeMode.DARK -> "Tối"
-}
+@Composable
+private fun ThemeMode.label(): String = stringResource(
+    when (this) {
+        ThemeMode.SYSTEM -> R.string.theme_system
+        ThemeMode.LIGHT -> R.string.theme_light
+        ThemeMode.DARK -> R.string.theme_dark
+    },
+)
 
 private fun ThemeMode.icon(): ImageVector = when (this) {
     ThemeMode.SYSTEM -> Icons.Default.PhoneAndroid

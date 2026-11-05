@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager
 
 import android.content.Intent
+import android.content.Context
+import com.tinhcd.myesalesmanager.core.ui.theme.LanguageSettings
 import com.tinhcd.myesalesmanager.push.PushRoute
 import android.os.Bundle
 import android.os.SystemClock
@@ -73,6 +75,12 @@ class MainActivity : ComponentActivity() {
     private val rootViewModel: RootViewModel by viewModels()
 
     @Inject lateinit var themeSettings: ThemeSettings
+
+    // Ngôn ngữ: every resource this activity reads comes from a context set to
+    // the app's language, not the phone's.
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LanguageSettings.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
