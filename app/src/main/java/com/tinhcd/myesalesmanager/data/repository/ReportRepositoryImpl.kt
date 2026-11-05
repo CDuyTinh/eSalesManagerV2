@@ -59,8 +59,9 @@ class ReportRepositoryImpl @Inject constructor(
         supervisorId: String?,
         branchIds: List<String>?,
         offset: Int,
+        limit: Int,
     ): DataResult<OrdersReport> = try {
-        DataResult.Success(orderPage(period, salespersonId, supervisorId, branchIds?.joinToString(","), offset))
+        DataResult.Success(orderPage(period, salespersonId, supervisorId, branchIds?.joinToString(","), offset, limit))
     } catch (e: PostgrestException) {
         DataResult.Failure(AppError.Server(e.status, e.message))
     } catch (e: Exception) {
@@ -83,8 +84,8 @@ class ReportRepositoryImpl @Inject constructor(
         DataResult.Failure(e.toAppError())
     }
 
-    private suspend fun orderPage(p: ReportPeriod, sp: String?, sv: String?, br: String?, offset: Int): OrdersReport =
-        service.orders(p.from, p.to, sp, sv, br, offset = offset).orThrow().let { d ->
+    private suspend fun orderPage(p: ReportPeriod, sp: String?, sv: String?, br: String?, offset: Int, limit: Int = 50): OrdersReport =
+        service.orders(p.from, p.to, sp, sv, br, offset = offset, limit = limit).orThrow().let { d ->
             OrdersReport(
                 total = d.total,
                 totalAmount = d.totalAmount,

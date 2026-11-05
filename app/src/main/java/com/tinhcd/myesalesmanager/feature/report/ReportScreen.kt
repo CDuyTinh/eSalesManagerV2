@@ -1,5 +1,12 @@
 package com.tinhcd.myesalesmanager.feature.report
 
+import com.tinhcd.myesalesmanager.domain.model.OrderRow
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.size
+import androidx.paging.compose.itemKey
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.LoadState
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -78,6 +85,7 @@ fun ReportScreen(
     viewModel: ReportViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val orderRows = viewModel.orderRows.collectAsLazyPagingItems()
     val team = state.salespersonId == null
     val context = LocalContext.current
 
@@ -141,7 +149,7 @@ fun ReportScreen(
                     state.error != null -> item { ErrorBox(state.error!!, onRetry = viewModel::refresh) }
                     data is ActivitiesReport -> activities(data, team) { sp, customer -> openPhotos(sp?.id ?: state.salespersonId, customer) }
                     data is SalesReport -> sales(data, team)
-                    data is OrdersReport -> orders(data, team, state.loadingMore, viewModel::moreOrders)
+                    data is OrdersReport -> orders(data, team, orderRows)
                     data is SkuReport -> sku(data)
                     data is TradeReport -> trade(data, team)
                     data is WorkReport -> work(data, team)
@@ -331,7 +339,7 @@ private fun LazyListScope.sales(d: SalesReport, team: Boolean) {
 
 // --- Đơn hàng -----------------------------------------------------------------------
 
-private fun LazyListScope.orders(d: OrdersReport, team: Boolean, loadingMore: Boolean, onMore: () -> Unit) {
+private fun LazyListScope.orders(d: OrdersReport, team: Boolean, rows: LazyPagingItems<OrderRow>) {
     item {
         Block {
             Line("Số đơn", "${d.total}")
@@ -339,7 +347,13 @@ private fun LazyListScope.orders(d: OrdersReport, team: Boolean, loadingMore: Bo
             Faint(d.counts.entries.joinToString(" · ") { "${orderStatusLabel(it.key)}: ${it.value}" })
         }
     }
-    if (d.items.isEmpty()) empty() else items(d.items, key = { it.orderNo }) { o ->
+    when (rows.loadState.refresh) {
+        is LoadState.Loading -> if (rows.itemCount == 0) return item { SkeletonList(count = 3) }
+        is LoadState.Error -> return item { PageError("Không tải được danh sách đơn hàng", rows::retry) }
+        is LoadState.NotLoading -> if (rows.itemCount == 0) return empty()
+    }
+    items(count = rows.itemCount, key = rows.itemKey { it.orderNo }) { index ->
+        val o = rows[index] ?: return@items
         Block {
             Row {
                 Text(o.customerName, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
@@ -351,15 +365,22 @@ private fun LazyListScope.orders(d: OrdersReport, team: Boolean, loadingMore: Bo
             )
         }
     }
-    if (d.items.size < d.total) {
-        item {
-            TextButton(onClick = onMore, enabled = !loadingMore, modifier = Modifier.padding(horizontal = 8.dp)) {
-                Text(
-                    if (loadingMore) "Đang tải…"
-                    else "Xem thêm (đang hiện ${d.items.size}/${d.total} đơn)",
-                )
+    when (rows.loadState.append) {
+        is LoadState.Loading -> item {
+            Box(Modifier.fillMaxWidth().padding(12.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(24.dp))
             }
         }
+        is LoadState.Error -> item { PageError("Không tải được trang tiếp theo", rows::retry) }
+        is LoadState.NotLoading -> Unit
+    }
+}
+
+@Composable
+private fun PageError(message: String, onRetry: () -> Unit) {
+    Column(Modifier.fillMaxWidth().padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
+        TextButton(onClick = onRetry) { Text("Thử lại") }
     }
 }
 

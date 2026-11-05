@@ -3,8 +3,18 @@ package com.tinhcd.myesalesmanager.feature.report
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.tinhcd.myesalesmanager.core.paging.OffsetPagingSource
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import com.tinhcd.myesalesmanager.core.ui.todayVn
 import com.tinhcd.myesalesmanager.domain.DataResult
+import com.tinhcd.myesalesmanager.domain.model.OrderRow
 import com.tinhcd.myesalesmanager.domain.model.OrdersReport
 import com.tinhcd.myesalesmanager.domain.model.PeriodKind
 import com.tinhcd.myesalesmanager.domain.model.ReportData
@@ -93,6 +103,28 @@ class ReportViewModel @Inject constructor(
     val state: StateFlow<ReportState> = _state.asStateFlow()
 
     private var job: Job? = null
+
+    /** The filters the order list was last asked for, numbered so a refresh with the same ones still starts over. */
+    private val orderQuery = MutableStateFlow<Pair<ReportState, Int>?>(null)
+
+    /**
+     * Báo cáo đơn hàng's rows, a page at a time as the list is scrolled. Used to
+     * be a "Xem thêm" button under each fifty; the header still comes from
+     * [refresh], which is where the totals and counts are.
+     */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val orderRows: Flow<PagingData<OrderRow>> = orderQuery.filterNotNull()
+        .flatMapLatest { (s, _) ->
+            Pager(PagingConfig(pageSize = ORDER_PAGE, initialLoadSize = ORDER_PAGE, enablePlaceholders = false)) {
+                OffsetPagingSource { offset, limit ->
+                    when (val r = nextPage(s, offset, limit)) {
+                        is DataResult.Success -> r.data.items
+                        is DataResult.Failure -> throw IllegalStateException(r.error.toMessage())
+                    }
+                }
+            }.flow
+        }
+        .cachedIn(viewModelScope)
     private var photoJob: Job? = null
 
     init {
@@ -103,29 +135,13 @@ class ReportViewModel @Inject constructor(
 
     fun refresh() {
         val s = _state.value
+        if (s.kind == ReportKind.ORDERS) orderQuery.update { s to (it?.second ?: 0) + 1 }
         job?.cancel()
         job = viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
             when (val r = repository.load(s.kind, s.period, s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors))) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, data = r.data) }
                 is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
-            }
-        }
-    }
-
-    /** Appends the next page of orders to the ones shown. */
-    fun moreOrders() {
-        val s = _state.value
-        val shown = s.data as? OrdersReport ?: return
-        if (s.loadingMore || shown.items.size >= shown.total) return
-        viewModelScope.launch {
-            _state.update { it.copy(loadingMore = true) }
-            when (val r = nextPage(s, shown.items.size)) {
-                is DataResult.Success -> _state.update { cur ->
-                    val now = cur.data as? OrdersReport
-                    cur.copy(loadingMore = false, data = now?.copy(items = now.items + r.data.items) ?: cur.data)
-                }
-                is DataResult.Failure -> _state.update { it.copy(loadingMore = false, error = r.error.toMessage()) }
             }
         }
     }
@@ -154,8 +170,8 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    private suspend fun nextPage(s: ReportState, offset: Int) =
-        repository.moreOrders(s.period, s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors), offset)
+    private suspend fun nextPage(s: ReportState, offset: Int, limit: Int = 50) =
+        repository.moreOrders(s.period, s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors), offset, limit)
 
     /** Opens the photo sheet for [salespersonId] on the day on screen. */
     fun openPhotos(salespersonId: String, name: String, customerCode: String? = null) {
@@ -202,3 +218,6 @@ class ReportViewModel @Inject constructor(
         refresh()
     }
 }
+
+/** Rows per page of Báo cáo đơn hàng. */
+private const val ORDER_PAGE = 30

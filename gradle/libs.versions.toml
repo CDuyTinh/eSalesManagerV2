@@ -48,6 +48,8 @@ coil = "3.5.0"
 # without applying it produces a sideways shelf photo, which is worse than useless
 # for a display audit.
 exifinterface = "1.4.1"
+# Long lists (Báo cáo đơn hàng) load a page at a time as the manager scrolls.
+paging = "3.3.6"
 playServicesLocation = "21.4.0"
 # The route map. maps-compose wraps the same MapView the legacy app used through
 # google_maps_flutter, so the tiles, the key and the restrictions are all the
@@ -122,6 +124,8 @@ kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "ko
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
+androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging" }
+androidx-paging-testing = { group = "androidx.paging", name = "paging-testing", version.ref = "paging" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }

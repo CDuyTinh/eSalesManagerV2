@@ -24,6 +24,7 @@ interface ReportRepository {
         supervisorId: String?,
         branchIds: List<String>?,
         offset: Int,
+        limit: Int = 50,
     ): DataResult<OrdersReport>
 
     /** What [salespersonId] photographed on [date] (ISO): punches and visits. */
