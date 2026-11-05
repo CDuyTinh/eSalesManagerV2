@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -27,6 +28,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.core.ui.theme.MyeSalesTheme
+import com.tinhcd.myesalesmanager.core.ui.theme.ThemeSettings
+import com.tinhcd.myesalesmanager.core.ui.theme.isDark
 import com.tinhcd.myesalesmanager.domain.model.SessionState
 import com.tinhcd.myesalesmanager.domain.repository.AuthRepository
 import com.tinhcd.myesalesmanager.navigation.AppNavHost
@@ -69,6 +72,8 @@ class MainActivity : ComponentActivity() {
 
     private val rootViewModel: RootViewModel by viewModels()
 
+    @Inject lateinit var themeSettings: ThemeSettings
+
     override fun onCreate(savedInstanceState: Bundle?) {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -85,7 +90,21 @@ class MainActivity : ComponentActivity() {
         // put dark icons on the blue in light mode.
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT))
         setContent {
-            MyeSalesTheme {
+            val mode by themeSettings.mode.collectAsStateWithLifecycle()
+            val dark = mode.isDark()
+            // The navigation bar follows the app's choice, not the phone's: Tối
+            // chosen on a light phone would otherwise put dark buttons on a dark bar.
+            DisposableEffect(dark) {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+                    navigationBarStyle = SystemBarStyle.auto(
+                        android.graphics.Color.TRANSPARENT,
+                        android.graphics.Color.TRANSPARENT,
+                    ) { dark },
+                )
+                onDispose {}
+            }
+            MyeSalesTheme(darkTheme = dark) {
                 val start by rootViewModel.startDestination.collectAsStateWithLifecycle()
                 val rejectReasons by rootViewModel.rejectReasons.collectAsStateWithLifecycle()
                 CompositionLocalProvider(LocalRejectReasons provides rejectReasons) {

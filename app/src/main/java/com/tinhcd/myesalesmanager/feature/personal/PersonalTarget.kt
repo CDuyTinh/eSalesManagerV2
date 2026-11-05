@@ -7,4 +7,5 @@ enum class PersonalTarget(val title: String, val subtitle: String) {
     NOTES("Ghi chú công việc", "Việc cần làm của tôi"),
     NOTIFICATIONS("Thông báo", "Yêu cầu chờ duyệt, kết quả"),
     PASSWORD("Đổi mật khẩu", "Mật khẩu đăng nhập ứng dụng"),
+    SETTINGS("Cài đặt", "Giao diện sáng, tối hoặc theo điện thoại"),
 }

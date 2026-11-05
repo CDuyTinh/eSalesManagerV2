@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.theme.status
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -62,8 +63,8 @@ fun StatusChips(
 @Composable
 fun StatusBadge(status: ApprovalStatus) {
     val (bg, fg) = when (status) {
-        ApprovalStatus.PENDING -> Color(0xFFFFF3E0) to Color(0xFFB45309)
-        ApprovalStatus.APPROVED -> Color(0xFFE6F4EA) to Color(0xFF1E7B34)
+        ApprovalStatus.PENDING -> MaterialTheme.status.warningContainer to MaterialTheme.status.onWarningContainer
+        ApprovalStatus.APPROVED -> MaterialTheme.status.successContainer to MaterialTheme.status.onSuccessContainer
         ApprovalStatus.REJECTED -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
     }
     Surface(color = bg, shape = RoundedCornerShape(8.dp)) {

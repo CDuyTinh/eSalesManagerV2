@@ -3,6 +3,7 @@ package com.tinhcd.myesalesmanager.feature.shell
 import com.tinhcd.myesalesmanager.core.ui.UpdateDialog
 import com.tinhcd.myesalesmanager.BuildConfig
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.AccessTime
@@ -276,4 +277,5 @@ private fun PersonalTarget.icon(): ImageVector = when (this) {
     PersonalTarget.NOTES -> Icons.Default.EditNote
     PersonalTarget.NOTIFICATIONS -> Icons.Default.Notifications
     PersonalTarget.PASSWORD -> Icons.Default.Lock
+    PersonalTarget.SETTINGS -> Icons.Default.Settings
 }

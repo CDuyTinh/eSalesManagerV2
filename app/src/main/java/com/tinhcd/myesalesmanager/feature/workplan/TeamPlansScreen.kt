@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.theme.status
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -376,9 +377,9 @@ private fun PlanCard(
 @Composable
 fun PlanStatusBadge(status: WorkPlanStatus) {
     val (bg, fg) = when (status) {
-        WorkPlanStatus.SUBMITTED -> Color(0xFFFFF3E0) to Color(0xFFB45309)
-        WorkPlanStatus.APPROVED -> Color(0xFFE3F2FD) to Color(0xFF0B57A4)
-        WorkPlanStatus.COMPLETED -> Color(0xFFE6F4EA) to Color(0xFF1E7B34)
+        WorkPlanStatus.SUBMITTED -> MaterialTheme.status.warningContainer to MaterialTheme.status.onWarningContainer
+        WorkPlanStatus.APPROVED -> MaterialTheme.status.infoContainer to MaterialTheme.status.onInfoContainer
+        WorkPlanStatus.COMPLETED -> MaterialTheme.status.successContainer to MaterialTheme.status.onSuccessContainer
         WorkPlanStatus.REJECTED, WorkPlanStatus.CANCELLED ->
             MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
         WorkPlanStatus.DRAFT -> MaterialTheme.colorScheme.surfaceVariant to MaterialTheme.colorScheme.onSurfaceVariant

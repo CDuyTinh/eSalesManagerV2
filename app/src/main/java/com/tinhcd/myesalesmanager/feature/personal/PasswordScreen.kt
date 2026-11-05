@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.theme.status
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -121,7 +122,7 @@ fun PasswordScreen(onBack: () -> Unit, viewModel: PasswordViewModel = hiltViewMo
                         Icon(
                             if (met) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
                             contentDescription = null,
-                            tint = if (met) Color(0xFF2E7D32) else MaterialTheme.colorScheme.outline,
+                            tint = if (met) MaterialTheme.status.success else MaterialTheme.colorScheme.outline,
                             modifier = Modifier.size(16.dp),
                         )
                         Text("  ${rule.label}", style = MaterialTheme.typography.bodySmall)
@@ -134,7 +135,7 @@ fun PasswordScreen(onBack: () -> Unit, viewModel: PasswordViewModel = hiltViewMo
             ) { v -> viewModel.edit { it.copy(confirm = v) } }
 
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            if (state.changed) Text("Đã đổi mật khẩu", color = Color(0xFF2E7D32))
+            if (state.changed) Text("Đã đổi mật khẩu", color = MaterialTheme.status.success)
 
             Button(
                 onClick = viewModel::save,
