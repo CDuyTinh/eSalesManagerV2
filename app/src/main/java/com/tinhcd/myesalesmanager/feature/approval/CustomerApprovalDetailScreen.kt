@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -156,7 +158,7 @@ fun CustomerApprovalDetailScreen(
 
     val detail = state.detail
     SubScreen(
-        title = "Khách hàng mới",
+        title = stringResource(R.string.cust_new_title),
         subtitle = detail?.summary?.code,
         onBack = onBack,
         snackbar = snackbar,
@@ -175,7 +177,7 @@ fun CustomerApprovalDetailScreen(
         when {
             state.loading && detail == null -> LoadingBox(Modifier.padding(padding))
             detail == null -> ErrorBox(
-                message = state.error ?: "Không tải được thông tin",
+                message = state.error ?: stringResource(R.string.cust_load_failed),
                 onRetry = viewModel::load,
                 modifier = Modifier.padding(padding),
             )
@@ -219,32 +221,32 @@ private fun DetailBody(
                         )
                         StatusBadge(c.status)
                     }
-                    LabeledLine("Địa chỉ", c.address)
+                    LabeledLine(stringResource(R.string.lbl_address), c.address)
                     LabeledLine(
-                        "Khu vực",
+                        stringResource(R.string.lbl_area),
                         listOfNotNull(detail.ward, detail.district, detail.province).joinToString(", "),
                     )
-                    LabeledLine("Điện thoại", c.phone)
-                    LabeledLine("Người liên hệ", detail.contactName)
-                    LabeledLine("Loại khách hàng", detail.className)
-                    LabeledLine("Kênh", detail.channelName)
-                    LabeledLine("Loại cửa hàng", detail.shopTypeName)
+                    LabeledLine(stringResource(R.string.lbl_phone), c.phone)
+                    LabeledLine(stringResource(R.string.lbl_contact), detail.contactName)
+                    LabeledLine(stringResource(R.string.lbl_class), detail.className)
+                    LabeledLine(stringResource(R.string.lbl_channel), detail.channelName)
+                    LabeledLine(stringResource(R.string.lbl_shop_type), detail.shopTypeName)
                     if (detail.lat != null && detail.lng != null) {
-                        LabeledLine("Toạ độ", "%.5f, %.5f".format(java.util.Locale.US, detail.lat, detail.lng))
+                        LabeledLine(stringResource(R.string.lbl_coords), "%.5f, %.5f".format(java.util.Locale.US, detail.lat, detail.lng))
                     }
-                    LabeledLine("Nhân viên", c.salesperson?.let { "${it.name} (${it.code})" })
-                    LabeledLine("Ngày đăng ký", formatIsoDate(c.createdAt))
-                    LabeledLine("Ghi chú NV", c.note)
-                    LabeledLine("Ghi chú duyệt", c.decisionNote)
+                    LabeledLine(stringResource(R.string.lbl_staff), c.salesperson?.let { "${it.name} (${it.code})" })
+                    LabeledLine(stringResource(R.string.lbl_registered), formatIsoDate(c.createdAt))
+                    LabeledLine(stringResource(R.string.lbl_staff_note), c.note)
+                    LabeledLine(stringResource(R.string.lbl_decision_note), c.decisionNote)
                 }
             }
         }
 
         item {
-            SectionTitle("Hình ảnh (${detail.photos.size})")
+            SectionTitle(stringResource(R.string.cust_photos, detail.photos.size))
             if (detail.photos.isEmpty()) {
                 Text(
-                    "Nhân viên chưa chụp ảnh nào",
+                    stringResource(R.string.cust_no_photos),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -269,17 +271,17 @@ private fun DetailBody(
         }
 
         if (pending) {
-            item { SectionTitle("Đưa vào tuyến khi duyệt") }
+            item { SectionTitle(stringResource(R.string.cust_route_on_approve)) }
             if (detail.routes.isEmpty()) {
                 item {
                     Text(
-                        "Nhân viên chưa có tuyến nào. Khách hàng sẽ được duyệt nhưng chưa nằm trong tuyến.",
+                        stringResource(R.string.cust_no_route),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             } else {
-                item { RouteRow("Không đưa vào tuyến", selected = routeId == null) { onSelectRoute(null) } }
+                item { RouteRow(stringResource(R.string.cust_no_route_pick), selected = routeId == null) { onSelectRoute(null) } }
                 items(detail.routes, key = { it.id }) { r ->
                     RouteRow("${r.code} – ${r.name}", selected = routeId == r.id) { onSelectRoute(r.id) }
                 }

@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -106,7 +108,7 @@ fun LeaveCalendarScreen(onBack: () -> Unit, viewModel: LeaveCalendarViewModel = 
         onPauseOrDispose { }
     }
 
-    SubScreen(title = "Lịch nghỉ phép", subtitle = "Đơn chờ duyệt và đã duyệt", onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.cal_title), subtitle = stringResource(R.string.cal_subtitle), onBack = onBack) { padding ->
         val leaves = state.leaves
         when {
             leaves == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
@@ -131,7 +133,7 @@ fun LeaveCalendarScreen(onBack: () -> Unit, viewModel: LeaveCalendarViewModel = 
                 }
                 val onDay = state.onDay
                 if (onDay.isEmpty()) {
-                    item { Text("Không ai nghỉ ngày này", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    item { Text(stringResource(R.string.cal_nobody), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
                 items(onDay, key = { it.id }) { l ->
                     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
@@ -140,7 +142,7 @@ fun LeaveCalendarScreen(onBack: () -> Unit, viewModel: LeaveCalendarViewModel = 
                                 Text(l.salesperson?.name.orEmpty(), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                                 Text(
                                     "${l.typeName} · ${formatIsoDate(l.fromDate)}" +
-                                        (if (l.toDate != l.fromDate) " – ${formatIsoDate(l.toDate)}" else "") + " · ${l.days} ngày",
+                                        (if (l.toDate != l.fromDate) " – ${formatIsoDate(l.toDate)}" else "") + stringResource(R.string.cal_days, l.days),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

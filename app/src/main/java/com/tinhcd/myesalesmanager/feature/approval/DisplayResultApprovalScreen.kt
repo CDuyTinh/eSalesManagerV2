@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Row
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -48,7 +50,7 @@ fun DisplayResultApprovalScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ApprovalListScaffold(
-        title = "Kết quả trưng bày",
+        title = stringResource(R.string.dr_title),
         state = state,
         viewModel = viewModel,
         onBack = onBack,
@@ -70,13 +72,13 @@ fun DisplayResultApprovalScreen(
                     )
                     StatusBadge(r.status)
                 }
-                LabeledLine("Chương trình", "${r.programCode} – ${r.programName}")
-                LabeledLine("Mức", r.levelName)
-                LabeledLine("Kết quả chấm", "đạt ${r.achieved}/${r.audits} lần chấm")
-                LabeledLine("Lần chấm cuối", r.lastAudit?.let(::formatIsoDate))
-                LabeledLine("Thưởng", r.reward)
-                LabeledLine("Kết thúc CT", r.programTo?.let(::formatIsoDate))
-                LabeledLine("Nhân viên", r.salesperson?.let { "${it.name} (${it.code})" })
+                LabeledLine(stringResource(R.string.lbl_program), "${r.programCode} – ${r.programName}")
+                LabeledLine(stringResource(R.string.lbl_level), r.levelName)
+                LabeledLine(stringResource(R.string.lbl_audit_result), stringResource(R.string.dr_achieved, r.achieved, r.audits))
+                LabeledLine(stringResource(R.string.lbl_last_audit), r.lastAudit?.let(::formatIsoDate))
+                LabeledLine(stringResource(R.string.lbl_reward), r.reward)
+                LabeledLine(stringResource(R.string.lbl_program_end), r.programTo?.let(::formatIsoDate))
+                LabeledLine(stringResource(R.string.lbl_staff), r.salesperson?.let { "${it.name} (${it.code})" })
             }
         }
     }

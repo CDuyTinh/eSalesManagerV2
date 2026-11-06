@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,7 +67,7 @@ fun <T> ApprovalListScaffold(
                     if (state.items.isEmpty()) {
                         item {
                             Text(
-                                "Không có mục nào ở trạng thái \"${state.status.label}\"",
+                                stringResource(R.string.appr_empty_status, state.status.label()),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = 32.dp).fillMaxSize(),

@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Row
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +61,7 @@ fun TradeApprovalScreen(
     val kind = viewModel.kind
 
     ApprovalListScaffold(
-        title = "Duyệt đăng ký ${kind.label}",
+        title = stringResource(R.string.trade_title, kind.label()),
         state = state,
         viewModel = viewModel,
         onBack = onBack,
@@ -88,24 +90,24 @@ fun TradeApprovalScreen(
                     )
                     StatusBadge(reg.status)
                 }
-                LabeledLine("Địa chỉ", reg.customerAddress)
-                LabeledLine("Chương trình", "${reg.programCode} – ${reg.programName}")
-                LabeledLine(if (kind == TradeKind.POSM) "Vật phẩm" else "Mức", reg.detailName)
+                LabeledLine(stringResource(R.string.lbl_address), reg.customerAddress)
+                LabeledLine(stringResource(R.string.lbl_program), "${reg.programCode} – ${reg.programName}")
+                LabeledLine(stringResource(if (kind == TradeKind.POSM) R.string.lbl_item else R.string.lbl_level), reg.detailName)
                 if (kind == TradeKind.POSM) {
                     LabeledLine(
-                        "Số lượng",
+                        stringResource(R.string.lbl_qty),
                         "${reg.qty}" + (reg.approvedQty?.takeIf { reg.status == ApprovalStatus.APPROVED }
-                            ?.let { " · duyệt $it" } ?: ""),
+                            ?.let { stringResource(R.string.trade_approved_qty, it) } ?: ""),
                     )
                 } else {
-                    LabeledLine("Suất", reg.qty.toString())
+                    LabeledLine(stringResource(R.string.lbl_lots), reg.qty.toString())
                 }
-                LabeledLine("Lý do", reg.reason)
+                LabeledLine(stringResource(R.string.lbl_reason), reg.reason)
                 LabeledLine(
-                    "Nhân viên",
+                    stringResource(R.string.lbl_staff),
                     reg.salesperson?.let { "${it.name} (${it.code})" },
                 )
-                LabeledLine("Ngày đăng ký", formatIsoDate(reg.registeredAt))
+                LabeledLine(stringResource(R.string.lbl_registered), formatIsoDate(reg.registeredAt))
             }
         }
     }

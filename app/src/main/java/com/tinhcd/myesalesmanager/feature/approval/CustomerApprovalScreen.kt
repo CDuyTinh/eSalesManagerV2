@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Row
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -49,7 +51,7 @@ fun CustomerApprovalScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ApprovalListScaffold(
-        title = "Duyệt khách hàng mới",
+        title = stringResource(R.string.cust_approval_title),
         state = state,
         viewModel = viewModel,
         onBack = onBack,
@@ -71,13 +73,13 @@ fun CustomerApprovalScreen(
                     )
                     StatusBadge(c.status)
                 }
-                LabeledLine("Mã", c.code)
-                LabeledLine("Địa chỉ", c.address)
-                LabeledLine("Điện thoại", c.phone)
-                LabeledLine("Nhân viên", c.salesperson?.let { "${it.name} (${it.code})" })
-                LabeledLine("Ngày đăng ký", formatIsoDate(c.createdAt))
-                LabeledLine("Ghi chú NV", c.note)
-                if (c.photoCount > 0) LabeledLine("Ảnh", "${c.photoCount} ảnh")
+                LabeledLine(stringResource(R.string.lbl_code), c.code)
+                LabeledLine(stringResource(R.string.lbl_address), c.address)
+                LabeledLine(stringResource(R.string.lbl_phone), c.phone)
+                LabeledLine(stringResource(R.string.lbl_staff), c.salesperson?.let { "${it.name} (${it.code})" })
+                LabeledLine(stringResource(R.string.lbl_registered), formatIsoDate(c.createdAt))
+                LabeledLine(stringResource(R.string.lbl_staff_note), c.note)
+                if (c.photoCount > 0) LabeledLine(stringResource(R.string.lbl_photo), stringResource(R.string.photo_count, c.photoCount))
             }
         }
     }

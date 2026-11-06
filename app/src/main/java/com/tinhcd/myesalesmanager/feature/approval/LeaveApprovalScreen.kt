@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Row
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -45,11 +47,11 @@ fun LeaveApprovalScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ApprovalListScaffold(
-        title = "Duyệt nghỉ phép",
+        title = stringResource(R.string.leave_title),
         state = state,
         viewModel = viewModel,
         onBack = onBack,
-        header = { item { TextButton(onClick = onOpenCalendar) { Text("Lịch nghỉ phép ›") } } },
+        header = { item { TextButton(onClick = onOpenCalendar) { Text(stringResource(R.string.leave_calendar_link)) } } },
     ) { list ->
         items(list, key = { it.id }) { leave ->
             val who = leave.salesperson?.let { "${it.name} (${it.code})" }.orEmpty()
@@ -58,14 +60,15 @@ fun LeaveApprovalScreen(
             } else {
                 "${formatIsoDate(leave.fromDate)} – ${formatIsoDate(leave.toDate)}"
             }
+            val decisionTitle = stringResource(R.string.leave_decision, who, period)
             ApprovalCard(
                 status = leave.status,
                 decisionNote = leave.decisionNote,
                 onApprove = {
-                    viewModel.ask(PendingDecision(leave.id, true, "$who nghỉ $period"))
+                    viewModel.ask(PendingDecision(leave.id, true, decisionTitle))
                 },
                 onReject = {
-                    viewModel.ask(PendingDecision(leave.id, false, "$who nghỉ $period"))
+                    viewModel.ask(PendingDecision(leave.id, false, decisionTitle))
                 },
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -77,9 +80,9 @@ fun LeaveApprovalScreen(
                     )
                     StatusBadge(leave.status)
                 }
-                LabeledLine("Loại", leave.typeName + if (leave.isPaid) " (có lương)" else " (không lương)")
-                LabeledLine("Thời gian", "$period · ${leave.days} ngày")
-                LabeledLine("Lý do", leave.reason)
+                LabeledLine(stringResource(R.string.lbl_type), leave.typeName + stringResource(if (leave.isPaid) R.string.leave_paid else R.string.leave_unpaid))
+                LabeledLine(stringResource(R.string.lbl_period), stringResource(R.string.leave_period_days, period, leave.days))
+                LabeledLine(stringResource(R.string.lbl_reason), leave.reason)
             }
         }
     }

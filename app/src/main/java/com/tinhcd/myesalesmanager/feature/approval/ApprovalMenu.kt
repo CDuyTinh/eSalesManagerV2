@@ -1,6 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import com.tinhcd.myesalesmanager.core.ui.GridEntry
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
+import androidx.annotation.StringRes
 import com.tinhcd.myesalesmanager.core.ui.MenuGrid
 import com.tinhcd.myesalesmanager.core.ui.tileColor
 import com.tinhcd.myesalesmanager.core.ui.MenuIcon
@@ -86,19 +89,19 @@ class ApprovalMenuViewModel @Inject constructor(
 
 private data class MenuEntry(
     val target: ApprovalTarget,
-    val title: String,
+    @StringRes val title: Int,
     val icon: ImageVector,
     val count: (ApprovalCounts) -> Int,
 )
 
 private val entries = listOf(
-    MenuEntry(ApprovalTarget.WorkPlan, "Kế hoạch làm việc", Icons.AutoMirrored.Filled.Assignment) { it.workPlan },
-    MenuEntry(ApprovalTarget.Leave, "Nghỉ phép", Icons.Default.EventBusy) { it.leave },
-    MenuEntry(ApprovalTarget.Customer, "Khách hàng mới", Icons.Default.Storefront) { it.customer },
-    MenuEntry(ApprovalTarget.Trade(TradeKind.DISPLAY), "Đăng ký trưng bày", Icons.AutoMirrored.Filled.ViewQuilt) { it.display },
-    MenuEntry(ApprovalTarget.Trade(TradeKind.LOYALTY), "Đăng ký tích lũy", Icons.Default.Loyalty) { it.loyalty },
-    MenuEntry(ApprovalTarget.Trade(TradeKind.POSM), "Đăng ký POSM", Icons.Default.Inventory2) { it.posm },
-    MenuEntry(ApprovalTarget.DisplayResult, "Kết quả trưng bày", Icons.Default.EmojiEvents) { it.displayResult },
+    MenuEntry(ApprovalTarget.WorkPlan, R.string.menu_work_plan, Icons.AutoMirrored.Filled.Assignment) { it.workPlan },
+    MenuEntry(ApprovalTarget.Leave, R.string.menu_leave, Icons.Default.EventBusy) { it.leave },
+    MenuEntry(ApprovalTarget.Customer, R.string.menu_new_customer, Icons.Default.Storefront) { it.customer },
+    MenuEntry(ApprovalTarget.Trade(TradeKind.DISPLAY), R.string.menu_display_reg, Icons.AutoMirrored.Filled.ViewQuilt) { it.display },
+    MenuEntry(ApprovalTarget.Trade(TradeKind.LOYALTY), R.string.menu_loyalty_reg, Icons.Default.Loyalty) { it.loyalty },
+    MenuEntry(ApprovalTarget.Trade(TradeKind.POSM), R.string.menu_posm_reg, Icons.Default.Inventory2) { it.posm },
+    MenuEntry(ApprovalTarget.DisplayResult, R.string.menu_display_result, Icons.Default.EmojiEvents) { it.displayResult },
 )
 
 /** Tab "Phê duyệt". Legacy ApprovalMenuScreen. */
@@ -115,8 +118,8 @@ fun ApprovalMenu(
     }
 
     MenuGrid(
-        entries = entries.map { GridEntry(it.title, it.icon, badge = counts?.let(it.count) ?: 0) },
+        entries = entries.map { GridEntry(stringResource(it.title), it.icon, badge = counts?.let(it.count) ?: 0) },
         onClick = { onOpen(entries[it].target) },
-        caption = counts?.let { "Đang chờ duyệt: ${it.total}" } ?: "Đang tải…",
+        caption = counts?.let { stringResource(R.string.appr_pending_total, it.total) } ?: stringResource(R.string.action_loading),
     )
 }

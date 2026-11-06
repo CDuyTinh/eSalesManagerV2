@@ -1,6 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
+import com.tinhcd.myesalesmanager.domain.model.TradeKind
 import com.tinhcd.myesalesmanager.core.ui.theme.status
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -54,7 +57,7 @@ fun StatusChips(
             FilterChip(
                 selected = status == selected,
                 onClick = { onSelect(status) },
-                label = { Text("${status.label} (${counts[status] ?: 0})") },
+                label = { Text("${status.label()} (${counts[status] ?: 0})") },
             )
         }
     }
@@ -69,7 +72,7 @@ fun StatusBadge(status: ApprovalStatus) {
     }
     Surface(color = bg, shape = RoundedCornerShape(8.dp)) {
         Text(
-            status.label,
+            status.label(),
             color = fg,
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
@@ -96,7 +99,7 @@ fun ApprovalCard(
             content()
             if (!decisionNote.isNullOrBlank() && status != ApprovalStatus.PENDING) {
                 Text(
-                    "Ghi chú duyệt: $decisionNote",
+                    stringResource(R.string.appr_decision_note, decisionNote),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -120,8 +123,8 @@ fun DecisionButtons(onApprove: () -> Unit, onReject: () -> Unit, modifier: Modif
             onClick = onReject,
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-        ) { Text("Từ chối") }
-        Button(onClick = onApprove, modifier = Modifier.weight(1f)) { Text("Duyệt") }
+        ) { Text(stringResource(R.string.appr_reject)) }
+        Button(onClick = onApprove, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.appr_approve)) }
     }
 }
 
@@ -161,7 +164,7 @@ fun DecisionDialog(
 
     AlertDialog(
         onDismissRequest = { if (!busy) onDismiss() },
-        title = { Text(pending.heading ?: if (pending.approve) "Duyệt" else "Từ chối") },
+        title = { Text(pending.heading ?: stringResource(if (pending.approve) R.string.appr_approve else R.string.appr_reject)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(pending.title, style = MaterialTheme.typography.bodyLarge)
@@ -169,7 +172,7 @@ fun DecisionDialog(
                     OutlinedTextField(
                         value = qty,
                         onValueChange = { qty = it.filter(Char::isDigit).take(5) },
-                        label = { Text("Số lượng duyệt (tối đa ${pending.maxQty})") },
+                        label = { Text(stringResource(R.string.appr_qty_label, pending.maxQty)) },
                         singleLine = true,
                         isError = !qtyValid,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -191,7 +194,7 @@ fun DecisionDialog(
                     label = {
                         Text(
                             pending.reasonLabel
-                                ?: if (pending.approve) "Ghi chú (không bắt buộc)" else "Lý do từ chối *",
+                                ?: stringResource(if (pending.approve) R.string.appr_note_optional else R.string.appr_reject_reason),
                         )
                     },
                     minLines = 2,
@@ -203,10 +206,10 @@ fun DecisionDialog(
             TextButton(
                 onClick = { onConfirm(note, if (pending.approve) qtyValue else null) },
                 enabled = canConfirm,
-            ) { Text(if (busy) "Đang lưu…" else "Xác nhận") }
+            ) { Text(stringResource(if (busy) R.string.action_saving else R.string.action_confirm)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss, enabled = !busy) { Text("Huỷ") }
+            TextButton(onClick = onDismiss, enabled = !busy) { Text(stringResource(R.string.action_cancel)) }
         },
     )
 }
@@ -230,3 +233,23 @@ fun AppError.toMessage(): String = when (this) {
     is AppError.Server -> message?.takeIf { it.isNotBlank() } ?: "Lỗi máy chủ${code?.let { " ($it)" }.orEmpty()}"
     is AppError.Unknown -> message?.takeIf { it.isNotBlank() } ?: "Đã có lỗi xảy ra"
 }
+
+/** The status's name, in the app's language. */
+@Composable
+fun ApprovalStatus.label(): String = stringResource(
+    when (this) {
+        ApprovalStatus.PENDING -> R.string.status_pending
+        ApprovalStatus.APPROVED -> R.string.status_approved
+        ApprovalStatus.REJECTED -> R.string.status_rejected
+    },
+)
+
+/** The registration kind's name, in the app's language, as it reads mid-sentence. */
+@Composable
+fun TradeKind.label(): String = stringResource(
+    when (this) {
+        TradeKind.DISPLAY -> R.string.trade_display
+        TradeKind.LOYALTY -> R.string.trade_loyalty
+        TradeKind.POSM -> R.string.trade_posm
+    },
+)
