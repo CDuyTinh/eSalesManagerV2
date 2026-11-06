@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import com.tinhcd.myesalesmanager.domain.model.OrderRow
+import com.tinhcd.myesalesmanager.feature.common.title
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.CircularProgressIndicator
@@ -100,7 +101,7 @@ fun ReportScreen(
 
     Box(Modifier.fillMaxSize()) {
         SubScreen(
-            title = state.kind.title,
+            title = state.kind.title(),
             onBack = onBack,
             // The period is no longer on the page, so the header says it.
             subtitle = periodLabel(state),

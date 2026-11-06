@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.feature.common.title
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -165,7 +166,7 @@ fun EdacCriteriaScreen(onBack: () -> Unit, viewModel: EdacCriteriaViewModel = hi
                 criteriaSteps.forEach { step ->
                     item(key = "h${step.index}") {
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 8.dp)) {
-                            Text("${step.index + 1}. ${step.title}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                            Text("${step.index + 1}. ${step.title()}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                             if (book.canEdit) {
                                 TextButton(onClick = { viewModel.new(step.index) }) {
                                     Icon(Icons.Default.Add, contentDescription = null)
@@ -213,7 +214,7 @@ fun EdacCriteriaScreen(onBack: () -> Unit, viewModel: EdacCriteriaViewModel = hi
 private fun CriterionDialog(c: EdacCriterionAdmin, saving: Boolean, viewModel: EdacCriteriaViewModel) {
     AlertDialog(
         onDismissRequest = viewModel::dismiss,
-        title = { Text(if (c.id == null) stringResource(R.string.mgt_12, EdacStep.of(c.step).title) else stringResource(R.string.mgt_13, c.code)) },
+        title = { Text(if (c.id == null) stringResource(R.string.mgt_12, EdacStep.of(c.step).title()) else stringResource(R.string.mgt_13, c.code)) },
         text = {
             Column(Modifier.heightIn(max = 480.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(

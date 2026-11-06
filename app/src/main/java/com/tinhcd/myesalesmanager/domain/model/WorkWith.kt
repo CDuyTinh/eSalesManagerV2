@@ -8,7 +8,7 @@ data class GeoPoint(
 )
 
 /** SFA's visit states, as the supervisor reads them on a rep's route. */
-enum class VisitStatus(val code: String, val label: String) {
+enum class VisitStatus(val code: String, val viLabel: String) {
     PLANNED("planned", "Chưa ghé"),
     IN_PROGRESS("in_progress", "Đang ghé"),
     COMPLETED("completed", "Đã ghé"),

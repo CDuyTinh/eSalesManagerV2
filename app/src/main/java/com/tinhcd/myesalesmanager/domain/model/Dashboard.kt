@@ -6,7 +6,7 @@ import kotlin.math.roundToInt
 data class SalesPoint(val title: String, val actual: Long)
 
 /** The three spans the chart can show, as the legacy screens had them. */
-enum class ChartRange(val label: String) {
+enum class ChartRange(val viLabel: String) {
     THIS_WEEK("Tuần này"),
     LAST_WEEK("Tuần trước"),
     THIS_MONTH("Tháng này"),

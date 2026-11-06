@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.feature.common.title
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -128,7 +129,7 @@ fun EdacResultScreen(onBack: () -> Unit, viewModel: EdacResultViewModel = hiltVi
                 byStep.forEach { (step, lines) ->
                     item(key = "step$step") {
                         Text(
-                            "${step + 1}. ${EdacStep.of(step).title}",
+                            "${step + 1}. ${EdacStep.of(step).title()}",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(top = 6.dp),

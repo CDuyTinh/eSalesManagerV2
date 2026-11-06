@@ -4,7 +4,7 @@ package com.tinhcd.myesalesmanager.domain.model
  * The SFA work_plan state machine, as the supervisor sees it. One enum for the
  * legacy's two alphabets (OM_MakingPlan H W A R C V / OM_WorkingPlan O W A R P C).
  */
-enum class WorkPlanStatus(val code: String, val label: String) {
+enum class WorkPlanStatus(val code: String, val viLabel: String) {
     DRAFT("draft", "Nháp"),
     SUBMITTED("submitted", "Chờ duyệt"),
     APPROVED("approved", "Đang thực hiện"),
@@ -22,7 +22,7 @@ enum class WorkPlanStatus(val code: String, val label: String) {
 }
 
 /** What a plan is with. Null on the category means the work has no object. */
-enum class WorkObjectKind(val code: String, val label: String) {
+enum class WorkObjectKind(val code: String, val viLabel: String) {
     CUSTOMER("customer", "Khách hàng"),
     SALESPERSON("salesperson", "Nhân viên"),
     BRANCH("branch", "Nhà phân phối"),
@@ -117,7 +117,7 @@ data class AssignDraft(
 )
 
 /** How an assigned task repeats (legacy RepeatID): every working day but Sunday, or weekly. */
-enum class RepeatEvery(val code: String, val label: String) {
+enum class RepeatEvery(val code: String, val viLabel: String) {
     DAY("day", "Hằng ngày (trừ CN)"),
     WEEK("week", "Hằng tuần"),
 }

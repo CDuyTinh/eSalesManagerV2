@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import com.tinhcd.myesalesmanager.core.ui.GridEntry
+import com.tinhcd.myesalesmanager.feature.common.title
 import com.tinhcd.myesalesmanager.core.ui.MenuGrid
 import com.tinhcd.myesalesmanager.core.ui.tileColor
 import com.tinhcd.myesalesmanager.core.ui.MenuIcon
@@ -57,7 +58,7 @@ private fun ReportKind.icon(): ImageVector = when (this) {
 fun ReportsMenu(onOpen: (ReportKind) -> Unit) {
     val kinds = ReportKind.entries
     MenuGrid(
-        entries = kinds.map { GridEntry(it.title, it.icon(), enabled = it.ready) },
+        entries = kinds.map { GridEntry(it.title(), it.icon(), enabled = it.ready) },
         onClick = { onOpen(kinds[it]) },
     )
 }

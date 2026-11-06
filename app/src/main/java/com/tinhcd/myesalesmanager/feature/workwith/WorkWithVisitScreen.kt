@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import android.Manifest
+import com.tinhcd.myesalesmanager.feature.common.title
+import com.tinhcd.myesalesmanager.feature.common.label
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
@@ -348,7 +350,7 @@ private fun VisitInfo(v: WorkWithVisit) {
             LabeledLine(
                 stringResource(R.string.mg_396),
                 listOfNotNull(
-                    v.repStatus?.label ?: stringResource(R.string.mg_387),
+                    v.repStatus?.label() ?: stringResource(R.string.mg_387),
                     v.repCheckIn?.let { stringResource(R.string.mgt_43, formatDateTime(it).takeLast(5)) },
                     if (v.repOrderAmount > 0) stringResource(R.string.mgt_113, formatDong(v.repOrderAmount)) else null,
                 ).joinToString(" · "),
@@ -446,7 +448,7 @@ private fun ScoreDialog(
 }
 
 /** The legacy in-call steps a supervisor can do alongside the rep. */
-enum class InStoreStep(val title: String) {
+enum class InStoreStep(val viTitle: String) {
     STOCK("Kiểm tồn"),
     ORDER("Đặt hàng hộ"),
     POSM("Kiểm POSM"),
@@ -469,7 +471,7 @@ private fun InStoreSteps(t: VisitTasks, open: Boolean, onOpen: (InStoreStep) -> 
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
-                        Text(step.title, style = MaterialTheme.typography.bodyLarge)
+                        Text(step.title(), style = MaterialTheme.typography.bodyLarge)
                         Text(done ?: stringResource(R.string.mg_410), style = MaterialTheme.typography.labelSmall, color = if (done != null) Kpi.Green.first() else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     // A closed call can still be looked at; nothing more is recorded on it.

@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.feature.common.title
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -250,6 +251,6 @@ private fun HistoryCard(h: EdacHistoryItem, onClick: () -> Unit) {
 @Composable
 private fun ProgressPill(started: Boolean, completed: Boolean, currentStep: Int) = when {
     completed -> StatusPill(stringResource(R.string.mg_74), Kpi.Green.first())
-    started -> StatusPill(stringResource(R.string.mgt_15, currentStep + 1, EdacStep.of(currentStep).title), Kpi.Orange.first())
+    started -> StatusPill(stringResource(R.string.mgt_15, currentStep + 1, EdacStep.of(currentStep).title()), Kpi.Orange.first())
     else -> StatusPill(stringResource(R.string.mg_75), Kpi.Slate.first())
 }

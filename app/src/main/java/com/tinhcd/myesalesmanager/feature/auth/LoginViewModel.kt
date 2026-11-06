@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.auth
 
 import androidx.lifecycle.ViewModel
+import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
@@ -25,6 +27,7 @@ data class LoginUiState(
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val signIn: SignInUseCase,
 ) : ViewModel() {
 
@@ -46,27 +49,27 @@ class LoginViewModel @Inject constructor(
                     _state.update { it.copy(loading = false, signedIn = true) }
 
                 is DataResult.Failure ->
-                    _state.update { it.copy(loading = false, error = result.error.toMessage()) }
+                    _state.update { it.copy(loading = false, error = result.error.toMessage(strings)) }
             }
         }
     }
 }
 
-private fun AppError.toMessage(): String = when (this) {
+private fun AppError.toMessage(strings: AppStrings): String = when (this) {
     is AppError.Auth -> when (message) {
-        "invalid_credentials" -> "Sai tên đăng nhập hoặc mật khẩu"
-        "account_not_provisioned" -> "Tài khoản chưa được gắn nhân viên"
-        "not_a_manager" -> "Tài khoản nhân viên bán hàng không dùng được ứng dụng quản lý. Vui lòng dùng eSales SFA."
-        "profile_unavailable" -> "Đã đăng nhập nhưng chưa tải được thông tin. Thử lại."
-        else -> "Đăng nhập thất bại"
+        "invalid_credentials" -> strings(R.string.mlg_1)
+        "account_not_provisioned" -> strings(R.string.mlg_2)
+        "not_a_manager" -> strings(R.string.mlg_3)
+        "profile_unavailable" -> strings(R.string.mlg_4)
+        else -> strings(R.string.mlg_5)
     }
 
-    is AppError.Network -> "Không có kết nối mạng"
+    is AppError.Network -> strings(R.string.error_network)
     is AppError.Rule -> when (key) {
-        "login_empty_fields" -> "Vui lòng nhập đầy đủ thông tin"
-        else -> "Dữ liệu không hợp lệ"
+        "login_empty_fields" -> strings(R.string.mlg_6)
+        else -> strings(R.string.error_invalid)
     }
 
-    is AppError.Server -> "Lỗi máy chủ${code?.let { " ($it)" }.orEmpty()}"
-    is AppError.Unknown -> message?.takeIf { it.isNotBlank() } ?: "Đã có lỗi xảy ra"
+    is AppError.Server -> code?.let { strings(R.string.error_server_code, it) } ?: strings(R.string.error_server)
+    is AppError.Unknown -> message?.takeIf { it.isNotBlank() } ?: strings(R.string.error_unknown)
 }

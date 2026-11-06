@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.feature.common.label
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -389,7 +390,7 @@ fun AssignWorkPlanScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(selected = state.repeat == null, onClick = { viewModel.setRepeat(null) }, label = { Text(stringResource(R.string.mg_88)) })
                         RepeatEvery.entries.forEach { e ->
-                            FilterChip(selected = state.repeat == e, onClick = { viewModel.setRepeat(e) }, label = { Text(e.label) })
+                            FilterChip(selected = state.repeat == e, onClick = { viewModel.setRepeat(e) }, label = { Text(e.label()) })
                         }
                     }
                     if (state.repeat != null) {
@@ -423,7 +424,7 @@ fun AssignWorkPlanScreen(
             if (kind != null) {
                 item {
                     Text(
-                        stringResource(R.string.mgt_86, kind.label, state.selected.size),
+                        stringResource(R.string.mgt_86, kind.label(), state.selected.size),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold,
                     )

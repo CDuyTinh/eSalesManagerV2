@@ -66,7 +66,7 @@ data class PosmPlaced(
 )
 
 /** usable | repairable | unusable: the legacy's three POSM results. */
-enum class PosmCondition(val code: String, val label: String) {
+enum class PosmCondition(val code: String, val viLabel: String) {
     USABLE("usable", "Dùng tốt"),
     REPAIRABLE("repairable", "Cần sửa"),
     UNUSABLE("unusable", "Hỏng"),

@@ -1,7 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import android.content.Context
+import com.tinhcd.myesalesmanager.feature.common.titleRes
 import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.feature.common.title
 import androidx.compose.ui.res.stringResource
 import android.content.Intent
 import androidx.core.content.FileProvider
@@ -83,7 +85,7 @@ fun shareReport(context: Context, kind: ReportKind, period: ReportPeriod, data: 
     val send = Intent(Intent.ACTION_SEND)
         .setType("text/csv")
         .putExtra(Intent.EXTRA_STREAM, uri)
-        .putExtra(Intent.EXTRA_SUBJECT, "${kind.title} ($span)")
+        .putExtra(Intent.EXTRA_SUBJECT, "${context.getString(kind.titleRes())} ($span)")
         .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-    context.startActivity(Intent.createChooser(send, "Chia sẻ báo cáo").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    context.startActivity(Intent.createChooser(send, context.getString(R.string.share_report)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }

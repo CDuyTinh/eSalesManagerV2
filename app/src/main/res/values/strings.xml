@@ -609,4 +609,80 @@
     <string name="mgv_75">Nhập số mặt hàng đếm được</string>
     <string name="mgv_76">Chụp ít nhất 1 ảnh trưng bày</string>
     <string name="mgv_77">Đã lưu điểm %1$s</string>
+
+    <!-- Nhãn trạng thái -->
+    <string name="enum_chart_range_this_week">Tuần này</string>
+    <string name="enum_chart_range_last_week">Tuần trước</string>
+    <string name="enum_chart_range_this_month">Tháng này</string>
+    <string name="enum_edac_step_prepare_title">Chuẩn bị</string>
+    <string name="enum_edac_step_observe_title">Quan sát</string>
+    <string name="enum_edac_step_explain_title">Giải thích</string>
+    <string name="enum_edac_step_demonstrate_title">Làm mẫu</string>
+    <string name="enum_edac_step_apply_title">Áp dụng</string>
+    <string name="enum_edac_step_evaluate_title">Đánh giá</string>
+    <string name="enum_edac_step_end_of_day_title">Đánh giá cuối ngày</string>
+    <string name="enum_edac_step_finish_title">Hoàn tất</string>
+    <string name="enum_edac_step_prepare_hint">Đánh giá nhân viên trước khi đi tuyến</string>
+    <string name="enum_edac_step_observe_hint">Nhân viên bán, giám sát quan sát 8 bước</string>
+    <string name="enum_edac_step_explain_hint">Giải thích điểm cần cải thiện</string>
+    <string name="enum_edac_step_demonstrate_hint">Giám sát bán mẫu tại điểm bán</string>
+    <string name="enum_edac_step_apply_hint">Nhân viên áp dụng, giám sát quan sát lại</string>
+    <string name="enum_edac_step_evaluate_hint">Đánh giá từng điểm bán</string>
+    <string name="enum_edac_step_end_of_day_hint">So kết quả trong ngày với chỉ tiêu</string>
+    <string name="enum_edac_step_finish_hint">Kết quả huấn luyện và ảnh</string>
+    <string name="enum_posm_condition_usable">Dùng tốt</string>
+    <string name="enum_posm_condition_repairable">Cần sửa</string>
+    <string name="enum_posm_condition_unusable">Hỏng</string>
+    <string name="enum_report_kind_activities_title">Hoạt động trong ngày</string>
+    <string name="enum_report_kind_sales_title">Doanh số tháng (MTD)</string>
+    <string name="enum_report_kind_orders_title">Báo cáo đơn hàng</string>
+    <string name="enum_report_kind_sku_title">Sản lượng SKU</string>
+    <string name="enum_report_kind_trade_title">Đăng ký chương trình</string>
+    <string name="enum_report_kind_work_title">Kết quả công việc</string>
+    <string name="enum_report_kind_training_title">Kết quả huấn luyện</string>
+    <string name="enum_report_kind_daily_tracking_title">Theo dõi bán hàng trong ngày</string>
+    <string name="enum_report_kind_map_title">Bản đồ vị trí nhân viên</string>
+    <string name="enum_work_plan_status_draft">Nháp</string>
+    <string name="enum_work_plan_status_submitted">Chờ duyệt</string>
+    <string name="enum_work_plan_status_approved">Đang thực hiện</string>
+    <string name="enum_work_plan_status_rejected">Từ chối</string>
+    <string name="enum_work_plan_status_completed">Hoàn thành</string>
+    <string name="enum_work_plan_status_cancelled">Đã huỷ</string>
+    <string name="enum_work_object_kind_customer">Khách hàng</string>
+    <string name="enum_work_object_kind_salesperson">Nhân viên</string>
+    <string name="enum_work_object_kind_branch">Nhà phân phối</string>
+    <string name="enum_repeat_every_day">Hằng ngày (trừ CN)</string>
+    <string name="enum_repeat_every_week">Hằng tuần</string>
+    <string name="enum_visit_status_planned">Chưa ghé</string>
+    <string name="enum_visit_status_in_progress">Đang ghé</string>
+    <string name="enum_visit_status_completed">Đã ghé</string>
+    <string name="enum_visit_status_no_order">Không đơn</string>
+    <string name="enum_visit_status_closed">Đóng cửa</string>
+    <string name="enum_range_preset_this_month">Tháng này</string>
+    <string name="enum_range_preset_last_month">Tháng trước</string>
+    <string name="enum_range_preset_last_7">7 ngày</string>
+    <string name="enum_range_preset_last_30">30 ngày</string>
+    <string name="enum_qty_mode_count_title">Kiểm tồn</string>
+    <string name="enum_qty_mode_order_title">Đặt hàng hộ</string>
+    <string name="enum_in_store_step_stock_title">Kiểm tồn</string>
+    <string name="enum_in_store_step_order_title">Đặt hàng hộ</string>
+    <string name="enum_in_store_step_posm_title">Kiểm POSM</string>
+    <string name="enum_in_store_step_market_title">Thông tin thị trường</string>
+    <string name="enum_in_store_step_feedback_title">Phản hồi khách hàng</string>
+
+    <!-- Xuất báo cáo -->
+    <string name="share_report">Chia sẻ báo cáo</string>
+
+    <!-- Đăng nhập, mật khẩu -->
+    <string name="mlg_1">Sai tên đăng nhập hoặc mật khẩu</string>
+    <string name="mlg_2">Tài khoản chưa được gắn nhân viên</string>
+    <string name="mlg_3">Tài khoản nhân viên bán hàng không dùng được ứng dụng quản lý. Vui lòng dùng eSales SFA.</string>
+    <string name="mlg_4">Đã đăng nhập nhưng chưa tải được thông tin. Thử lại.</string>
+    <string name="mlg_5">Đăng nhập thất bại</string>
+    <string name="mlg_6">Vui lòng nhập đầy đủ thông tin</string>
+    <string name="pw_length">Ít nhất 8 ký tự</string>
+    <string name="pw_lower">Có chữ thường</string>
+    <string name="pw_upper">Có chữ hoa</string>
+    <string name="pw_digit">Có chữ số</string>
+    <string name="pw_special">Có ký tự đặc biệt</string>
 </resources>

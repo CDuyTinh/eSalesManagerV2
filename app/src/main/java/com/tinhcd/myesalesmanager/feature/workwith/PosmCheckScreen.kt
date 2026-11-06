@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.height
+import com.tinhcd.myesalesmanager.feature.common.label
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
@@ -191,7 +192,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     PosmCondition.entries.forEach { c ->
-                        FilterChip(selected = draft.condition == c, onClick = { viewModel.edit { it.copy(condition = c) } }, label = { Text(c.label) })
+                        FilterChip(selected = draft.condition == c, onClick = { viewModel.edit { it.copy(condition = c) } }, label = { Text(c.label()) })
                     }
                 }
                 OutlinedTextField(draft.remark, { v -> viewModel.edit { it.copy(remark = v) } }, label = { Text(stringResource(R.string.mg_89)) }, modifier = Modifier.fillMaxWidth())
@@ -230,7 +231,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                             }
                             if (i.countedQty != null) {
                                 StatusPill(
-                                    "${i.countedQty} · ${PosmCondition.entries.firstOrNull { it.code == i.condition }?.label ?: i.condition}",
+                                    "${i.countedQty} · ${PosmCondition.entries.firstOrNull { it.code == i.condition }?.label() ?: i.condition}",
                                     if (i.condition == "usable") Kpi.Green.first() else Kpi.Orange.first(),
                                 )
                             } else {

@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.feature.common.hint
+import com.tinhcd.myesalesmanager.feature.common.title
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -177,9 +179,9 @@ private fun StepCard(step: EdacStep, open: Boolean, done: Boolean, outlets: Int?
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(step.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                Text(step.title(), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                 Text(
-                    step.hint + (if (step.perOutlet && outlets != null && outlets > 0) stringResource(R.string.mgt_23, outlets) else ""),
+                    step.hint() + (if (step.perOutlet && outlets != null && outlets > 0) stringResource(R.string.mgt_23, outlets) else ""),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

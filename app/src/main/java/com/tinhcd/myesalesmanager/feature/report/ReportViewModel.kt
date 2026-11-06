@@ -42,7 +42,7 @@ import javax.inject.Inject
 const val ARG_REPORT = "report"
 
 /** Ready-made windows for the range reports; the legacy screens offered the same few. */
-enum class RangePreset(val label: String) {
+enum class RangePreset(val viLabel: String) {
     THIS_MONTH("Tháng này"),
     LAST_MONTH("Tháng trước"),
     LAST_7("7 ngày"),

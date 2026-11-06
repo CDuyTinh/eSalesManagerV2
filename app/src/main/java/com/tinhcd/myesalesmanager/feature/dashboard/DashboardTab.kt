@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.feature.common.label
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -335,7 +336,7 @@ private fun ChartCard(d: TeamDashboard, range: ChartRange, onRange: (ChartRange)
     SectionCard(stringResource(R.string.mg_40)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ChartRange.entries.forEach { r ->
-                FilterChip(selected = r == range, onClick = { onRange(r) }, label = { Text(r.label) })
+                FilterChip(selected = r == range, onClick = { onRange(r) }, label = { Text(r.label()) })
             }
         }
         val points = d.charts[range].orEmpty()

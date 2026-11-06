@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.feature.common.label
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -330,7 +331,7 @@ private fun DetailBody(detail: WorkPlanDetail, padding: PaddingValues) {
         }
 
         if (detail.objects.isNotEmpty()) {
-            item { Section("${p.objectKind?.label ?: stringResource(R.string.mg_194)} (${detail.objects.size})") }
+            item { Section("${p.objectKind?.label() ?: stringResource(R.string.mg_194)} (${detail.objects.size})") }
             items(detail.objects, key = { it.targetId }) { o ->
                 Column {
                     Text(listOfNotNull(o.code, o.name).joinToString(" – "), style = MaterialTheme.typography.bodyLarge)
@@ -362,7 +363,7 @@ private fun DetailBody(detail: WorkPlanDetail, padding: PaddingValues) {
             items(detail.history) { h ->
                 Column {
                     Text(
-                        "${formatDateTime(h.at)} · ${h.status.label}",
+                        "${formatDateTime(h.at)} · ${h.status.label()}",
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     Text(

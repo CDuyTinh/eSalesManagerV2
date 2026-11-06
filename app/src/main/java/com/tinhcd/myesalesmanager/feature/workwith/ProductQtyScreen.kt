@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.feature.common.title
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -63,7 +64,7 @@ import javax.inject.Inject
 const val ARG_QTY_MODE = "mode"
 
 /** One screen for both product-by-product steps: they differ in what a quantity means. */
-enum class QtyMode(val code: String, val title: String) {
+enum class QtyMode(val code: String, val viTitle: String) {
     COUNT("count", "Kiểm tồn"),
     ORDER("order", "Đặt hàng hộ"),
     ;
@@ -193,7 +194,7 @@ fun ProductQtyScreen(onBack: () -> Unit, viewModel: ProductQtyViewModel = hiltVi
     val order = viewModel.mode == QtyMode.ORDER
 
     SubScreen(
-        title = viewModel.mode.title,
+        title = viewModel.mode.title(),
         subtitle = if (order) stringResource(R.string.mg_376) else state.data?.previousCountDate?.let { stringResource(R.string.mgt_100, formatIsoDate(it)) },
         onBack = onBack,
         snackbar = snackbar,

@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.feature.common.hint
+import com.tinhcd.myesalesmanager.feature.common.title
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -197,8 +199,8 @@ fun EdacStepScreen(
     val step = viewModel.step
     val form = state.form
     SubScreen(
-        title = "${step.index + 1}. ${step.title}",
-        subtitle = form?.customer?.let { "${it.code} – ${it.name}" } ?: step.hint,
+        title = "${step.index + 1}. ${step.title()}",
+        subtitle = form?.customer?.let { "${it.code} – ${it.name}" } ?: step.hint(),
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
@@ -209,7 +211,7 @@ fun EdacStepScreen(
                 ) {
                     when {
                         viewModel.isOutletList -> PrimaryButton(
-                            stringResource(R.string.mgt_20, step.title.lowercase()), viewModel::finishStep,
+                            stringResource(R.string.mgt_20, step.title().lowercase()), viewModel::finishStep,
                             Modifier.weight(1f), enabled = !state.saving && state.outlets != null, loading = state.saving,
                         )
                         step.perOutlet -> PrimaryButton(
@@ -271,7 +273,7 @@ private fun OutletList(outlets: List<EdacOutlet>, step: EdacStep, modifier: Modi
                         Text(
                             listOfNotNull(
                                 if (!o.due) stringResource(R.string.mg_83) else null,
-                                others.takeIf { it.isNotEmpty() }?.joinToString(", ", prefix = stringResource(R.string.mg_84)) { EdacStep.of(it).title },
+                                others.takeIf { it.isNotEmpty() }?.map { EdacStep.of(it).title() }?.joinToString(", ", prefix = stringResource(R.string.mg_84)),
                             ).joinToString(" · "),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,

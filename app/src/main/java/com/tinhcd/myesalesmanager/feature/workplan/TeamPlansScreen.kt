@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.feature.common.label
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -248,7 +249,7 @@ fun TeamPlansScreen(
                     FilterChip(
                         selected = state.status == s,
                         onClick = { viewModel.selectStatus(s) },
-                        label = { Text("${s.label} (${state.counts[s] ?: 0})") },
+                        label = { Text("${s.label()} (${state.counts[s] ?: 0})") },
                     )
                 }
             }
@@ -362,7 +363,7 @@ private fun PlanCard(
         LabeledLine(stringResource(R.string.lbl_period), formatWindow(plan.fromAt, plan.toAt))
         LabeledLine(stringResource(R.string.mg_310), plan.place)
         if (plan.objectCount > 0) {
-            LabeledLine(plan.objectKind?.label ?: stringResource(R.string.mg_194), "${plan.objectCount}")
+            LabeledLine(plan.objectKind?.label() ?: stringResource(R.string.mg_194), "${plan.objectCount}")
         }
         LabeledLine(
             stringResource(R.string.mg_334),
@@ -390,7 +391,7 @@ fun PlanStatusBadge(status: WorkPlanStatus) {
     }
     Surface(color = bg, shape = RoundedCornerShape(8.dp)) {
         Text(
-            status.label,
+            status.label(),
             color = fg,
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),

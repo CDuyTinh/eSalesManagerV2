@@ -4,7 +4,7 @@ package com.tinhcd.myesalesmanager.domain.model
  * The eight steps of an EDAC coaching day, in order. [perOutlet] steps are
  * recorded outlet by outlet; the others once for the day. Legacy EdacStepIndex.
  */
-enum class EdacStep(val index: Int, val title: String, val hint: String, val perOutlet: Boolean) {
+enum class EdacStep(val index: Int, val viTitle: String, val viHint: String, val perOutlet: Boolean) {
     PREPARE(0, "Chuẩn bị", "Đánh giá nhân viên trước khi đi tuyến", false),
     OBSERVE(1, "Quan sát", "Nhân viên bán, giám sát quan sát 8 bước", true),
     EXPLAIN(2, "Giải thích", "Giải thích điểm cần cải thiện", false),

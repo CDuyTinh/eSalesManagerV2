@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.annotation.StringRes
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -47,12 +48,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** The rules the SFA app applies, so one account is held to one standard. */
-private enum class PasswordRule(val label: String, val met: (String) -> Boolean) {
-    LENGTH("Ít nhất 8 ký tự", { it.length >= 8 }),
-    LOWERCASE("Có chữ thường", { p -> p.any { it.isLowerCase() } }),
-    UPPERCASE("Có chữ hoa", { p -> p.any { it.isUpperCase() } }),
-    DIGIT("Có chữ số", { p -> p.any { it.isDigit() } }),
-    SPECIAL("Có ký tự đặc biệt", { Regex("[^\\p{L}\\p{N}\\s]").containsMatchIn(it) }),
+private enum class PasswordRule(@StringRes val label: Int, val met: (String) -> Boolean) {
+    LENGTH(R.string.pw_length, { it.length >= 8 }),
+    LOWERCASE(R.string.pw_lower, { p -> p.any { it.isLowerCase() } }),
+    UPPERCASE(R.string.pw_upper, { p -> p.any { it.isUpperCase() } }),
+    DIGIT(R.string.pw_digit, { p -> p.any { it.isDigit() } }),
+    SPECIAL(R.string.pw_special, { Regex("[^\\p{L}\\p{N}\\s]").containsMatchIn(it) }),
 }
 
 data class PasswordState(
@@ -129,7 +130,7 @@ fun PasswordScreen(onBack: () -> Unit, viewModel: PasswordViewModel = hiltViewMo
                             tint = if (met) MaterialTheme.status.success else MaterialTheme.colorScheme.outline,
                             modifier = Modifier.size(16.dp),
                         )
-                        Text("  ${rule.label}", style = MaterialTheme.typography.bodySmall)
+                        Text("  " + stringResource(rule.label), style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }

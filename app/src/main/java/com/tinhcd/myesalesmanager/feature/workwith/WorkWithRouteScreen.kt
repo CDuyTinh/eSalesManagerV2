@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import android.Manifest
+import com.tinhcd.myesalesmanager.feature.common.label
 import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
@@ -247,7 +248,7 @@ private fun StopCard(stop: WorkWithStop, onClick: () -> Unit) {
             stop.address?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val rep = stop.repStatus
-                StatusPill("NV: ${rep?.label ?: stringResource(R.string.mg_387)}", if (rep == null) Kpi.Slate.first() else Kpi.Blue.first())
+                StatusPill("NV: ${rep?.label() ?: stringResource(R.string.mg_387)}", if (rep == null) Kpi.Slate.first() else Kpi.Blue.first())
                 stop.myStatus?.let {
                     StatusPill(
                         if (it == VisitStatus.IN_PROGRESS) stringResource(R.string.mg_388) else stringResource(R.string.mg_389),

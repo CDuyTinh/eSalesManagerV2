@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import androidx.activity.compose.BackHandler
+import com.tinhcd.myesalesmanager.feature.common.label
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.BorderStroke
@@ -327,7 +328,7 @@ private fun WindowFilter(
     onPreset: (Pair<LocalDate, LocalDate>) -> Unit,
 ) {
     // The same presets the report offered before the filter page existed.
-    val presets = RangePreset.entries.map { it.label to it.resolve(today) }
+    val presets = RangePreset.entries.map { it.label() to it.resolve(today) }
     PresetRow(presets = presets, selected = from to to, onSelect = onPreset)
 
     DateField(label = stringResource(R.string.mg_213), date = from, today = today, onDate = onFrom)
