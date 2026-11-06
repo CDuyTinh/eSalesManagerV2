@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.core.ui.theme.status
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -105,15 +107,15 @@ private fun AppError.passwordMessage(): String = when (this) {
 fun PasswordScreen(onBack: () -> Unit, viewModel: PasswordViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    SubScreen(title = "Đổi mật khẩu", onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.personal_password), onBack = onBack) { padding ->
         Column(
             modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            PasswordField("Mật khẩu hiện tại", state.current) { v -> viewModel.edit { it.copy(current = v) } }
+            PasswordField(stringResource(R.string.mg_117), state.current) { v -> viewModel.edit { it.copy(current = v) } }
             PasswordField(
-                "Mật khẩu mới", state.new,
-                error = if (state.sameAsCurrent) "Mật khẩu mới phải khác mật khẩu hiện tại" else null,
+                stringResource(R.string.mg_118), state.new,
+                error = if (state.sameAsCurrent) stringResource(R.string.mg_119) else null,
             ) { v -> viewModel.edit { it.copy(new = v) } }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 PasswordRule.entries.forEach { rule ->
@@ -130,18 +132,18 @@ fun PasswordScreen(onBack: () -> Unit, viewModel: PasswordViewModel = hiltViewMo
                 }
             }
             PasswordField(
-                "Nhập lại mật khẩu mới", state.confirm,
-                error = if (state.confirmMismatch) "Không khớp với mật khẩu mới" else null,
+                stringResource(R.string.mg_120), state.confirm,
+                error = if (state.confirmMismatch) stringResource(R.string.mg_121) else null,
             ) { v -> viewModel.edit { it.copy(confirm = v) } }
 
             state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            if (state.changed) Text("Đã đổi mật khẩu", color = MaterialTheme.status.success)
+            if (state.changed) Text(stringResource(R.string.mg_122), color = MaterialTheme.status.success)
 
             Button(
                 onClick = viewModel::save,
                 enabled = state.canSubmit && !state.saving,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text(if (state.saving) "Đang lưu…" else "Đổi mật khẩu") }
+            ) { Text(if (state.saving) stringResource(R.string.action_saving) else stringResource(R.string.personal_password)) }
         }
     }
 }

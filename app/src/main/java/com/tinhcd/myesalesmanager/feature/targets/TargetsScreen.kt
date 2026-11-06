@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.targets
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -202,14 +204,14 @@ fun TargetsScreen(onBack: () -> Unit, viewModel: TargetsViewModel = hiltViewMode
     var adding by rememberSaveable { mutableStateOf(false) }
 
     SubScreen(
-        title = "Chỉ tiêu nhân viên",
+        title = stringResource(R.string.mg_284),
         onBack = onBack,
-        subtitle = "Tháng %02d/%d".format(state.month.monthValue, state.month.year),
+        subtitle = stringResource(R.string.mg_216, state.month.monthValue, state.month.year),
         bottomBar = {
             if (editable) {
                 Surface(shadowElevation = 8.dp) {
                     PrimaryButton(
-                        "Lưu chỉ tiêu",
+                        stringResource(R.string.mg_285),
                         viewModel::save,
                         Modifier.navigationBarsPadding().padding(16.dp),
                         enabled = !state.loading,
@@ -241,26 +243,26 @@ fun TargetsScreen(onBack: () -> Unit, viewModel: TargetsViewModel = hiltViewMode
             state.error?.takeIf { sheet != null }?.let { item { Notice(it, isError = true) } }
 
             when {
-                state.reps.isEmpty() -> item { ErrorBox("Chưa có nhân viên trong nhóm") }
+                state.reps.isEmpty() -> item { ErrorBox(stringResource(R.string.mg_286)) }
                 state.loading && sheet == null -> item { SkeletonList(count = 3) }
-                sheet == null -> item { ErrorBox(state.error ?: "Không tải được chỉ tiêu", onRetry = viewModel::load) }
+                sheet == null -> item { ErrorBox(state.error ?: stringResource(R.string.mg_287), onRetry = viewModel::load) }
                 else -> {
                     if (!editable) {
                         item {
                             Notice(
-                                "Chỉ xem. Chỉ quản lý khu vực / vùng được đặt chỉ tiêu, và không sửa tháng đã qua.",
+                                stringResource(R.string.mg_288),
                                 isError = false,
                             )
                         }
                     }
                     item {
-                        FormCard("Tổng tháng") {
-                            AmountField("Doanh số (VND)", state.revenue, editable, viewModel::setRevenue)
-                            AmountField("Số đơn hàng", state.orders, editable, viewModel::setOrders, money = false)
+                        FormCard(stringResource(R.string.mg_289)) {
+                            AmountField(stringResource(R.string.mg_290), state.revenue, editable, viewModel::setRevenue)
+                            AmountField(stringResource(R.string.mg_291), state.orders, editable, viewModel::setOrders, money = false)
                         }
                     }
                     item {
-                        FormCard("Theo nhóm hàng") {
+                        FormCard(stringResource(R.string.mg_292)) {
                             sheet.categories.forEach { c ->
                                 AmountField(c.name, state.categories[c.id].orEmpty(), editable, { viewModel.setCategory(c.id, it) })
                             }
@@ -268,10 +270,10 @@ fun TargetsScreen(onBack: () -> Unit, viewModel: TargetsViewModel = hiltViewMode
                     }
                     item {
                         val names = sheet.products.associateBy { it.id }
-                        FormCard("Theo sản phẩm") {
+                        FormCard(stringResource(R.string.mg_293)) {
                             if (state.products.isEmpty()) {
                                 Text(
-                                    "Chưa có sản phẩm nào có chỉ tiêu riêng",
+                                    stringResource(R.string.mg_294),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -286,7 +288,7 @@ fun TargetsScreen(onBack: () -> Unit, viewModel: TargetsViewModel = hiltViewMode
                                     )
                                     if (editable) {
                                         IconButton(onClick = { viewModel.removeProduct(id) }) {
-                                            Icon(Icons.Default.Close, contentDescription = "Bỏ sản phẩm")
+                                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.mg_295))
                                         }
                                     }
                                 }
@@ -294,7 +296,7 @@ fun TargetsScreen(onBack: () -> Unit, viewModel: TargetsViewModel = hiltViewMode
                             if (editable && sheet.products.any { it.id !in state.products }) {
                                 OutlinedButton(onClick = { adding = true }, modifier = Modifier.fillMaxWidth()) {
                                     Icon(Icons.Default.Add, contentDescription = null)
-                                    Text("  Thêm sản phẩm")
+                                    Text(stringResource(R.string.mg_296))
                                 }
                             }
                         }
@@ -307,7 +309,7 @@ fun TargetsScreen(onBack: () -> Unit, viewModel: TargetsViewModel = hiltViewMode
     if (adding && sheet != null) {
         AlertDialog(
             onDismissRequest = { adding = false },
-            title = { Text("Thêm sản phẩm") },
+            title = { Text(stringResource(R.string.mg_297)) },
             text = {
                 LazyColumn(Modifier.heightIn(max = 400.dp)) {
                     items(sheet.products.filter { it.id !in state.products }, key = { it.id }) { p ->
@@ -327,7 +329,7 @@ fun TargetsScreen(onBack: () -> Unit, viewModel: TargetsViewModel = hiltViewMode
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { adding = false }) { Text("Đóng") } },
+            confirmButton = { TextButton(onClick = { adding = false }) { Text(stringResource(R.string.mg_203)) } },
         )
     }
 }
@@ -339,17 +341,17 @@ private fun MonthStepper(month: LocalDate, onShift: (Long) -> Unit) {
         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
     ) {
         IconButton(onClick = { onShift(-1) }) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Tháng trước")
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.mg_5))
         }
         Text(
-            "Tháng %02d/%d".format(month.monthValue, month.year),
+            stringResource(R.string.mg_216, month.monthValue, month.year),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(1f),
         )
         IconButton(onClick = { onShift(1) }) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Tháng sau")
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.mg_6))
         }
     }
 }
@@ -382,10 +384,10 @@ private fun AmountField(
         value = value,
         onValueChange = onChange,
         label = { Text(label) },
-        placeholder = { Text("Chưa đặt") },
+        placeholder = { Text(stringResource(R.string.mg_298)) },
         readOnly = !editable,
         singleLine = true,
-        suffix = if (money && value.isNotEmpty()) ({ Text("đ") }) else null,
+        suffix = if (money && value.isNotEmpty()) ({ Text(stringResource(R.string.mg_299)) }) else null,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         visualTransformation = ThousandsTransformation,
         modifier = modifier.fillMaxWidth(),

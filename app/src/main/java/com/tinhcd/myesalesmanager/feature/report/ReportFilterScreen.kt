@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import androidx.activity.compose.BackHandler
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -95,8 +97,8 @@ internal fun ReportFilterScreen(
     var draftTo by rememberSaveable { mutableStateOf(to) }
 
     val windowError = when {
-        draftTo.isAfter(today) -> "Không chọn được ngày trong tương lai"
-        draftFrom.isAfter(draftTo) -> "Từ ngày phải trước hoặc bằng Đến ngày"
+        draftTo.isAfter(today) -> stringResource(R.string.mg_201)
+        draftFrom.isAfter(draftTo) -> stringResource(R.string.mg_202)
         else -> null
     }
     val canApply = when (kind) {
@@ -140,17 +142,17 @@ internal fun ReportFilterScreen(
                     modifier = Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp),
                 ) {
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "Đóng", tint = MaterialTheme.brand.onHeader)
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.mg_203), tint = MaterialTheme.brand.onHeader)
                     }
                     Text(
-                        "Bộ lọc",
+                        stringResource(R.string.mg_204),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.brand.onHeader,
                         modifier = Modifier.weight(1f).padding(start = 4.dp),
                     )
                     TextButton(onClick = ::reset) {
-                        Text("Đặt lại", color = MaterialTheme.brand.onHeader)
+                        Text(stringResource(R.string.mg_205), color = MaterialTheme.brand.onHeader)
                     }
                 }
 
@@ -193,7 +195,7 @@ internal fun ReportFilterScreen(
                         .navigationBarsPadding()
                         .padding(16.dp)
                         .height(50.dp),
-                ) { Text("Áp dụng", style = MaterialTheme.typography.titleMedium) }
+                ) { Text(stringResource(R.string.mg_206), style = MaterialTheme.typography.titleMedium) }
             }
         }
     }
@@ -238,11 +240,11 @@ private fun FilterCard(title: String, content: @Composable ColumnScope.() -> Uni
 @Composable
 private fun DayFilter(date: LocalDate, today: LocalDate, onDate: (LocalDate) -> Unit) {
     PresetRow(
-        presets = listOf("Hôm nay" to today, "Hôm qua" to today.minusDays(1)),
+        presets = listOf(stringResource(R.string.mg_26) to today, stringResource(R.string.mg_210) to today.minusDays(1)),
         selected = date,
         onSelect = onDate,
     )
-    DateField(label = "Ngày", date = date, today = today, onDate = onDate)
+    DateField(label = stringResource(R.string.mg_183), date = date, today = today, onDate = onDate)
 }
 
 // -----------------------------------------------------------------------------
@@ -259,7 +261,7 @@ private fun MonthFilter(month: LocalDate, today: LocalDate, onMonth: (LocalDate)
     var year by rememberSaveable { mutableStateOf(month.year) }
 
     PresetRow(
-        presets = listOf("Tháng này" to thisMonth, "Tháng trước" to thisMonth.minusMonths(1)),
+        presets = listOf(stringResource(R.string.mg_32) to thisMonth, stringResource(R.string.mg_5) to thisMonth.minusMonths(1)),
         selected = month,
         onSelect = {
             year = it.year
@@ -269,7 +271,7 @@ private fun MonthFilter(month: LocalDate, today: LocalDate, onMonth: (LocalDate)
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         IconButton(onClick = { year-- }) {
-            Icon(Icons.Default.ChevronLeft, contentDescription = "Năm trước")
+            Icon(Icons.Default.ChevronLeft, contentDescription = stringResource(R.string.mg_211))
         }
         Text(
             "Năm $year",
@@ -278,7 +280,7 @@ private fun MonthFilter(month: LocalDate, today: LocalDate, onMonth: (LocalDate)
             modifier = Modifier.weight(1f),
         )
         IconButton(onClick = { year++ }, enabled = year < today.year) {
-            Icon(Icons.Default.ChevronRight, contentDescription = "Năm sau")
+            Icon(Icons.Default.ChevronRight, contentDescription = stringResource(R.string.mg_212))
         }
     }
 
@@ -328,8 +330,8 @@ private fun WindowFilter(
     val presets = RangePreset.entries.map { it.label to it.resolve(today) }
     PresetRow(presets = presets, selected = from to to, onSelect = onPreset)
 
-    DateField(label = "Từ ngày", date = from, today = today, onDate = onFrom)
-    DateField(label = "Đến ngày", date = to, today = today, onDate = onTo)
+    DateField(label = stringResource(R.string.mg_213), date = from, today = today, onDate = onFrom)
+    DateField(label = stringResource(R.string.mg_214), date = to, today = today, onDate = onTo)
 
     if (error != null) {
         Text(error, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
@@ -401,9 +403,9 @@ private fun DateField(label: String, date: LocalDate, today: LocalDate, onDate: 
                         }
                         picking = false
                     },
-                ) { Text("Chọn") }
+                ) { Text(stringResource(R.string.mg_3)) }
             },
-            dismissButton = { TextButton(onClick = { picking = false }) { Text("Huỷ") } },
+            dismissButton = { TextButton(onClick = { picking = false }) { Text(stringResource(R.string.action_cancel)) } },
         ) { DatePicker(state = pickerState) }
     }
 }

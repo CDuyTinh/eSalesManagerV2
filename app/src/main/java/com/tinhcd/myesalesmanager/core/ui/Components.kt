@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.core.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -71,7 +73,7 @@ fun ErrorBox(
         if (onRetry != null) {
             OutlinedButton(onClick = onRetry) {
                 Icon(Icons.Default.Refresh, contentDescription = null)
-                Text("  Thử lại")
+                Text(stringResource(R.string.mg_1))
             }
         }
     }
@@ -195,7 +197,7 @@ fun SearchBox(
                 IconButton(onClick = { onQueryChanged("") }) {
                     Icon(
                         Icons.Default.Close,
-                        contentDescription = "Xoá từ khoá",
+                        contentDescription = stringResource(R.string.mg_2),
                         modifier = Modifier.size(18.dp),
                     )
                 }

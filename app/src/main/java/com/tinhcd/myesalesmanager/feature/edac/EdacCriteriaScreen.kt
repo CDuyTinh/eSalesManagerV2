@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -145,8 +147,8 @@ fun EdacCriteriaScreen(onBack: () -> Unit, viewModel: EdacCriteriaViewModel = hi
 
     val book = state.book
     SubScreen(
-        title = "Bộ tiêu chí EDAC",
-        subtitle = book?.let { if (it.canEdit) "Bấm để sửa" else "Chỉ xem — quản lý khu vực / vùng sửa" },
+        title = stringResource(R.string.mg_46),
+        subtitle = book?.let { if (it.canEdit) stringResource(R.string.mg_47) else stringResource(R.string.mg_48) },
         onBack = onBack,
         snackbar = snackbar,
     ) { padding ->
@@ -165,7 +167,7 @@ fun EdacCriteriaScreen(onBack: () -> Unit, viewModel: EdacCriteriaViewModel = hi
                             if (book.canEdit) {
                                 TextButton(onClick = { viewModel.new(step.index) }) {
                                     Icon(Icons.Default.Add, contentDescription = null)
-                                    Text(" Thêm")
+                                    Text(stringResource(R.string.mg_49))
                                 }
                             }
                         }
@@ -182,8 +184,8 @@ fun EdacCriteriaScreen(onBack: () -> Unit, viewModel: EdacCriteriaViewModel = hi
                                 Text(c.content, style = MaterialTheme.typography.bodyLarge)
                                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     StatusPill(c.kind.label, Kpi.Blue.first())
-                                    if (c.required) StatusPill("Bắt buộc", Kpi.Orange.first())
-                                    if (!c.active) StatusPill("Ngừng dùng", Kpi.Slate.first())
+                                    if (c.required) StatusPill(stringResource(R.string.mg_50), Kpi.Orange.first())
+                                    if (!c.active) StatusPill(stringResource(R.string.mg_51), Kpi.Slate.first())
                                     c.kpi?.let { StatusPill("KPI $it", Kpi.Violet.first()) }
                                 }
                                 if (c.kind == EdacKind.SCALE) {
@@ -214,7 +216,7 @@ private fun CriterionDialog(c: EdacCriterionAdmin, saving: Boolean, viewModel: E
             Column(Modifier.heightIn(max = 480.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(
                     c.content, { v -> viewModel.edit { it.copy(content = v) } },
-                    label = { Text("Nội dung") }, minLines = 2, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.mg_52)) }, minLines = 2, modifier = Modifier.fillMaxWidth(),
                 )
                 // A criterion already answered keeps its kind, or old answers would mean nothing.
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -228,15 +230,15 @@ private fun CriterionDialog(c: EdacCriterionAdmin, saving: Boolean, viewModel: E
                     }
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Bắt buộc", modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.mg_50), modifier = Modifier.weight(1f))
                     Switch(checked = c.required, onCheckedChange = { v -> viewModel.edit { it.copy(required = v) } })
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Đang dùng", modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.mg_53), modifier = Modifier.weight(1f))
                     Switch(checked = c.active, onCheckedChange = { v -> viewModel.edit { it.copy(active = v) } })
                 }
                 if (c.kind == EdacKind.SCALE) {
-                    Text("Các mức (mức đã được chấm không xoá được)", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.mg_54), style = MaterialTheme.typography.labelSmall)
                     c.options.forEachIndexed { i, o ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("${o.value}.", modifier = Modifier.width(28.dp))
@@ -249,18 +251,18 @@ private fun CriterionDialog(c: EdacCriterionAdmin, saving: Boolean, viewModel: E
                             IconButton(
                                 onClick = { viewModel.edit { e -> e.copy(options = e.options.filterIndexed { j, _ -> j != i }) } },
                                 enabled = c.options.size > 2,
-                            ) { Icon(Icons.Default.Close, contentDescription = "Bỏ mức") }
+                            ) { Icon(Icons.Default.Close, contentDescription = stringResource(R.string.mg_55)) }
                         }
                     }
                     TextButton(onClick = {
                         viewModel.edit { e -> e.copy(options = e.options + EdacOption((e.options.maxOfOrNull { it.value } ?: 0) + 1, "")) }
-                    }) { Text("+ Thêm mức") }
+                    }) { Text(stringResource(R.string.mg_56)) }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = viewModel::save, enabled = !saving && c.content.isNotBlank()) { Text(if (saving) "Đang lưu…" else "Lưu") }
+            TextButton(onClick = viewModel::save, enabled = !saving && c.content.isNotBlank()) { Text(if (saving) stringResource(R.string.action_saving) else stringResource(R.string.mg_57)) }
         },
-        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !saving) { Text("Huỷ") } },
+        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !saving) { Text(stringResource(R.string.action_cancel)) } },
     )
 }

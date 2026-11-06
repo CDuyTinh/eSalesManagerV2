@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.core.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyListState
@@ -59,7 +61,7 @@ fun TeamFilter(
         val regions = branches.filter { it.regionId != null }.distinctBy { it.regionId }
         if (regions.size > 1) {
             ChipRow(
-                all = "Mọi vùng", allSelected = regionId == null, onAll = { onPlace(null) },
+                all = stringResource(R.string.mg_9), allSelected = regionId == null, onAll = { onPlace(null) },
                 options = regions.map { it.regionId!! to it.regionName.orEmpty() },
                 selected = regionId, onPick = { onPlace(PlacePick.Region(it)) },
             )
@@ -67,7 +69,7 @@ fun TeamFilter(
         val areas = branches.filter { it.areaId != null && (regionId == null || it.regionId == regionId) }.distinctBy { it.areaId }
         if (areas.size > 1) {
             ChipRow(
-                all = "Mọi khu vực", allSelected = areaId == null,
+                all = stringResource(R.string.mg_10), allSelected = areaId == null,
                 onAll = { onPlace(regionId?.let { PlacePick.Region(it) }) },
                 options = areas.map { it.areaId!! to it.areaName.orEmpty() },
                 selected = areaId, onPick = { onPlace(PlacePick.Area(it)) },
@@ -77,7 +79,7 @@ fun TeamFilter(
         if (shownBranches.size > 1) {
             val branchId = (place as? PlacePick.Branch)?.id
             ChipRow(
-                all = "Mọi NPP", allSelected = branchId == null,
+                all = stringResource(R.string.mg_11), allSelected = branchId == null,
                 onAll = { onPlace(areaId?.let { PlacePick.Area(it) } ?: regionId?.let { PlacePick.Region(it) }) },
                 options = shownBranches.map { it.id to it.name },
                 selected = branchId, onPick = { onPlace(PlacePick.Branch(it)) },
@@ -85,7 +87,7 @@ fun TeamFilter(
         }
         if (shownSupervisors.isNotEmpty()) {
             ChipRow(
-                all = "Mọi giám sát", allSelected = supervisorId == null, onAll = { onSupervisor(null) },
+                all = stringResource(R.string.mg_12), allSelected = supervisorId == null, onAll = { onSupervisor(null) },
                 options = shownSupervisors.map { it.id to "GS ${it.fullName}" },
                 selected = supervisorId, onPick = onSupervisor,
             )

@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.core.ui
 
 import androidx.compose.foundation.background
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

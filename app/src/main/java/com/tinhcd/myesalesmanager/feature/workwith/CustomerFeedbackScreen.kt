@@ -159,7 +159,7 @@ fun CustomerFeedbackScreen(onBack: () -> Unit, viewModel: CustomerFeedbackViewMo
     LaunchedEffect(state.done) { if (state.done) onBack() }
     LaunchedEffect(state.message) { state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() } }
 
-    SubScreen(title = "Phản hồi khách hàng", onBack = onBack, snackbar = snackbar) { padding ->
+    SubScreen(title = stringResource(R.string.mg_354), onBack = onBack, snackbar = snackbar) { padding ->
         val form = state.form
         when {
             form == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::load, modifier = Modifier.padding(padding))
@@ -176,7 +176,7 @@ fun CustomerFeedbackScreen(onBack: () -> Unit, viewModel: CustomerFeedbackViewMo
                     )
                 }
                 if (form.topics.isNotEmpty()) {
-                    Text("Chủ đề", style = MaterialTheme.typography.titleSmall)
+                    Text(stringResource(R.string.mg_356), style = MaterialTheme.typography.titleSmall)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         form.topics.forEach { (id, name) ->
                             FilterChip(selected = state.topicId == id, onClick = { viewModel.topic(id) }, label = { Text(name) })
@@ -192,7 +192,7 @@ fun CustomerFeedbackScreen(onBack: () -> Unit, viewModel: CustomerFeedbackViewMo
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(state.photos) { path ->
                         AsyncImage(
-                            model = File(path), contentDescription = "Ảnh phản hồi", contentScale = ContentScale.Crop,
+                            model = File(path), contentDescription = stringResource(R.string.mg_358), contentScale = ContentScale.Crop,
                             modifier = Modifier.size(80.dp).clip(RoundedCornerShape(8.dp)),
                         )
                     }
@@ -206,7 +206,7 @@ fun CustomerFeedbackScreen(onBack: () -> Unit, viewModel: CustomerFeedbackViewMo
                     ) {
                         Text("Chụp ảnh (${state.photos.size}/${form.photoMax})", maxLines = 1)
                     }
-                    PrimaryButton("Lưu phản hồi", viewModel::save, Modifier.weight(1f), enabled = !state.saving, loading = state.saving, height = 48.dp)
+                    PrimaryButton(stringResource(R.string.mg_359), viewModel::save, Modifier.weight(1f), enabled = !state.saving, loading = state.saving, height = 48.dp)
                 }
             }
         }

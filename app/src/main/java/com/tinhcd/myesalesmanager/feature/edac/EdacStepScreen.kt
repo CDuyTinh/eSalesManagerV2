@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -209,15 +211,15 @@ fun EdacStepScreen(
                             Modifier.weight(1f), enabled = !state.saving && state.outlets != null, loading = state.saving,
                         )
                         step.perOutlet -> PrimaryButton(
-                            "Lưu điểm bán", { viewModel.save(false) },
+                            stringResource(R.string.mg_78), { viewModel.save(false) },
                             Modifier.weight(1f), enabled = !state.saving && form != null, loading = state.saving,
                         )
                         else -> {
                             OutlinedButton(onClick = { viewModel.save(false) }, enabled = !state.saving && form != null, modifier = Modifier.weight(1f)) {
-                                Text("Lưu nháp")
+                                Text(stringResource(R.string.mg_79))
                             }
                             PrimaryButton(
-                                "Hoàn tất bước", { viewModel.save(true) },
+                                stringResource(R.string.mg_80), { viewModel.save(true) },
                                 Modifier.weight(1f), enabled = !state.saving && form != null, loading = state.saving,
                             )
                         }
@@ -252,22 +254,22 @@ private fun OutletList(outlets: List<EdacOutlet>, step: EdacStep, modifier: Modi
             )
         }
         if (outlets.isEmpty()) {
-            item { Text("Hôm nay nhân viên không có điểm bán trên tuyến", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { Text(stringResource(R.string.mg_81), color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         items(outlets, key = { it.customerId }) { o ->
             Card(onClick = { onOpen(o) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("${o.code} – ${o.name}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                        if (step.index in o.doneSteps) StatusPill("Đã ghi nhận", Kpi.Green.first())
+                        if (step.index in o.doneSteps) StatusPill(stringResource(R.string.mg_82), Kpi.Green.first())
                     }
                     o.address?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     val others = o.doneSteps.filter { it != step.index }.sorted()
                     if (!o.due || others.isNotEmpty()) {
                         Text(
                             listOfNotNull(
-                                if (!o.due) "Ngoài lịch hôm nay" else null,
-                                others.takeIf { it.isNotEmpty() }?.joinToString(", ", prefix = "Đã có: ") { EdacStep.of(it).title },
+                                if (!o.due) stringResource(R.string.mg_83) else null,
+                                others.takeIf { it.isNotEmpty() }?.joinToString(", ", prefix = stringResource(R.string.mg_84)) { EdacStep.of(it).title },
                             ).joinToString(" · "),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -291,7 +293,7 @@ private fun FormBody(state: EdacStepState, form: EdacStepForm, modifier: Modifie
             item {
                 Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                     Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("Kết quả quan sát", fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.mg_85), fontWeight = FontWeight.SemiBold)
                         form.observed.forEach { o ->
                             Row {
                                 Text(o.content, style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
@@ -311,7 +313,7 @@ private fun FormBody(state: EdacStepState, form: EdacStepForm, modifier: Modifie
                 OutlinedTextField(
                     value = state.note,
                     onValueChange = viewModel::setNote,
-                    label = { Text("Nội dung giám sát làm mẫu") },
+                    label = { Text(stringResource(R.string.mg_86)) },
                     minLines = 4,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -331,8 +333,8 @@ private fun CriterionCard(c: EdacCriterion, answer: EdacAnswer?, onChange: ((Eda
             Text(c.content + if (c.required) " *" else "", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             when (c.kind) {
                 EdacKind.YES_NO -> FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(selected = answer?.yes == true, onClick = { onChange { it.copy(yes = true) } }, label = { Text("Có") })
-                    FilterChip(selected = answer?.yes == false, onClick = { onChange { it.copy(yes = false) } }, label = { Text("Không") })
+                    FilterChip(selected = answer?.yes == true, onClick = { onChange { it.copy(yes = true) } }, label = { Text(stringResource(R.string.mg_87)) })
+                    FilterChip(selected = answer?.yes == false, onClick = { onChange { it.copy(yes = false) } }, label = { Text(stringResource(R.string.mg_88)) })
                 }
                 EdacKind.SCALE -> c.options.forEach { o ->
                     Row(
@@ -354,7 +356,7 @@ private fun CriterionCard(c: EdacCriterion, answer: EdacAnswer?, onChange: ((Eda
                 OutlinedTextField(
                     value = answer?.note.orEmpty(),
                     onValueChange = { v -> onChange { it.copy(note = v) } },
-                    label = { Text("Ghi chú") },
+                    label = { Text(stringResource(R.string.mg_89)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )

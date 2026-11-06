@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -232,7 +234,7 @@ fun WorkPlanDetailScreen(
     val ownMoves = mine && plan?.status in setOf(WorkPlanStatus.DRAFT, WorkPlanStatus.SUBMITTED, WorkPlanStatus.APPROVED)
 
     SubScreen(
-        title = "Chi tiết công việc",
+        title = stringResource(R.string.mg_348),
         subtitle = plan?.salesperson?.name,
         onBack = onBack,
         snackbar = snackbar,
@@ -248,13 +250,13 @@ fun WorkPlanDetailScreen(
                             enabled = !state.busy,
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                        ) { Text("Huỷ kế hoạch") }
+                        ) { Text(stringResource(R.string.mg_341)) }
                         when (plan?.status) {
                             WorkPlanStatus.DRAFT -> Button(onClick = viewModel::submitOwn, enabled = !state.busy, modifier = Modifier.weight(1f)) {
-                                Text("Gửi duyệt")
+                                Text(stringResource(R.string.mg_305))
                             }
                             WorkPlanStatus.APPROVED -> Button(onClick = { viewModel.askOwn(complete = true) }, enabled = !state.busy, modifier = Modifier.weight(1f)) {
-                                Text("Báo hoàn thành")
+                                Text(stringResource(R.string.mg_340))
                             }
                             else -> Unit
                         }
@@ -271,10 +273,10 @@ fun WorkPlanDetailScreen(
                                 onClick = viewModel::askCancel,
                                 modifier = Modifier.weight(1f),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                            ) { Text("Huỷ việc") }
+                            ) { Text(stringResource(R.string.mg_349)) }
                             // Still to be done: change it rather than cancel and hand it down again.
                             if (plan?.status == WorkPlanStatus.APPROVED) {
-                                Button(onClick = { onEdit(plan.id) }, modifier = Modifier.weight(1f)) { Text("Sửa") }
+                                Button(onClick = { onEdit(plan.id) }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.mg_350)) }
                             }
                         }
                     }
@@ -285,7 +287,7 @@ fun WorkPlanDetailScreen(
         val detail = state.detail
         when {
             state.loading && detail == null -> LoadingBox(Modifier.padding(padding))
-            detail == null -> ErrorBox(state.error ?: "Không tải được công việc", onRetry = viewModel::load, modifier = Modifier.padding(padding))
+            detail == null -> ErrorBox(state.error ?: stringResource(R.string.mg_351), onRetry = viewModel::load, modifier = Modifier.padding(padding))
             else -> DetailBody(detail, padding)
         }
     }
@@ -310,23 +312,23 @@ private fun DetailBody(detail: WorkPlanDetail, padding: PaddingValues) {
                         Text(p.content, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
                         PlanStatusBadge(p.status)
                     }
-                    LabeledLine("Nhân viên", p.salesperson?.let { "${it.name} (${it.code})" })
-                    LabeledLine("Loại công việc", p.categoryName)
-                    LabeledLine("Thời gian", formatWindow(p.fromAt, p.toAt))
-                    LabeledLine("Địa điểm", p.place)
-                    LabeledLine("Ghi chú", detail.note)
+                    LabeledLine(stringResource(R.string.lbl_staff), p.salesperson?.let { "${it.name} (${it.code})" })
+                    LabeledLine(stringResource(R.string.mg_352), p.categoryName)
+                    LabeledLine(stringResource(R.string.lbl_period), formatWindow(p.fromAt, p.toAt))
+                    LabeledLine(stringResource(R.string.mg_310), p.place)
+                    LabeledLine(stringResource(R.string.mg_89), detail.note)
                     LabeledLine(
-                        "Nguồn",
-                        if (p.isAssigned) "Giao bởi ${p.author?.name ?: "cấp trên"}" else "Nhân viên tự lập",
+                        stringResource(R.string.mg_334),
+                        if (p.isAssigned) "Giao bởi ${p.author?.name ?: stringResource(R.string.mg_335)}" else "Nhân viên tự lập",
                     )
-                    LabeledLine("Kết quả", p.result)
-                    LabeledLine("Lý do", p.reason)
+                    LabeledLine(stringResource(R.string.mg_76), p.result)
+                    LabeledLine(stringResource(R.string.lbl_reason), p.reason)
                 }
             }
         }
 
         if (detail.objects.isNotEmpty()) {
-            item { Section("${p.objectKind?.label ?: "Đối tượng"} (${detail.objects.size})") }
+            item { Section("${p.objectKind?.label ?: stringResource(R.string.mg_194)} (${detail.objects.size})") }
             items(detail.objects, key = { it.targetId }) { o ->
                 Column {
                     Text(listOfNotNull(o.code, o.name).joinToString(" – "), style = MaterialTheme.typography.bodyLarge)
@@ -354,7 +356,7 @@ private fun DetailBody(detail: WorkPlanDetail, padding: PaddingValues) {
         }
 
         if (detail.history.isNotEmpty()) {
-            item { Section("Lịch sử") }
+            item { Section(stringResource(R.string.mg_353)) }
             items(detail.history) { h ->
                 Column {
                     Text(

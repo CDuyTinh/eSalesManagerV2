@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -317,9 +319,9 @@ fun AssignWorkPlanScreen(
 
     SubScreen(
         title = when {
-            state.editId != null -> "Sửa công việc"
-            state.self -> "Lập kế hoạch"
-            else -> "Giao việc"
+            state.editId != null -> stringResource(R.string.mg_302)
+            state.self -> stringResource(R.string.mg_303)
+            else -> stringResource(R.string.mg_304)
         },
         onBack = onBack,
         snackbar = snackbar,
@@ -327,9 +329,9 @@ fun AssignWorkPlanScreen(
             Surface(tonalElevation = 3.dp) {
                 PrimaryButton(
                     text = when {
-                        state.editId != null -> "Lưu thay đổi"
-                        state.self -> "Gửi duyệt"
-                        else -> "Giao việc"
+                        state.editId != null -> stringResource(R.string.mg_143)
+                        state.self -> stringResource(R.string.mg_305)
+                        else -> stringResource(R.string.mg_304)
                     },
                     onClick = viewModel::save,
                     enabled = state.canSave,
@@ -346,7 +348,7 @@ fun AssignWorkPlanScreen(
         ) {
             if (!state.self && state.editId == null) item {
                 Picker(
-                    label = "Nhân viên *",
+                    label = stringResource(R.string.mg_306),
                     value = state.rep?.let { it.pickerLabel() },
                     options = state.team.map { it.id to it.pickerLabel() },
                     onSelect = viewModel::selectRep,
@@ -354,7 +356,7 @@ fun AssignWorkPlanScreen(
             }
             item {
                 Picker(
-                    label = "Loại công việc *",
+                    label = stringResource(R.string.mg_307),
                     value = state.category?.name,
                     options = state.categories.map { it.id to it.name },
                     onSelect = viewModel::selectCategory,
@@ -381,9 +383,9 @@ fun AssignWorkPlanScreen(
             // A series only when handing work down; an own plan or a change is one task.
             if (!state.self && state.editId == null) item {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Lặp lại", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.mg_308), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = state.repeat == null, onClick = { viewModel.setRepeat(null) }, label = { Text("Không") })
+                        FilterChip(selected = state.repeat == null, onClick = { viewModel.setRepeat(null) }, label = { Text(stringResource(R.string.mg_88)) })
                         RepeatEvery.entries.forEach { e ->
                             FilterChip(selected = state.repeat == e, onClick = { viewModel.setRepeat(e) }, label = { Text(e.label) })
                         }
@@ -398,20 +400,20 @@ fun AssignWorkPlanScreen(
             item {
                 OutlinedTextField(
                     value = state.content, onValueChange = viewModel::setContent,
-                    label = { Text("Nội dung công việc *") }, minLines = 2,
+                    label = { Text(stringResource(R.string.mg_309)) }, minLines = 2,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
             item {
                 OutlinedTextField(
                     value = state.place, onValueChange = viewModel::setPlace,
-                    label = { Text("Địa điểm") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.mg_310)) }, singleLine = true, modifier = Modifier.fillMaxWidth(),
                 )
             }
             item {
                 OutlinedTextField(
                     value = state.note, onValueChange = viewModel::setNote,
-                    label = { Text("Ghi chú") }, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.mg_89)) }, modifier = Modifier.fillMaxWidth(),
                 )
             }
 
@@ -427,14 +429,14 @@ fun AssignWorkPlanScreen(
                 if (kind == WorkObjectKind.CUSTOMER) {
                     item {
                         if (state.salespersonId == null) {
-                            Text("Chọn nhân viên trước", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.mg_311), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         } else {
-                            SearchBox(query = state.query, onQueryChanged = viewModel::onQuery, placeholder = "Tìm khách hàng trong tuyến")
+                            SearchBox(query = state.query, onQueryChanged = viewModel::onQuery, placeholder = stringResource(R.string.mg_312))
                         }
                     }
                 }
                 if (state.options.isEmpty() && !state.loadingCustomers && state.salespersonId != null) {
-                    item { Text("Không có lựa chọn nào", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    item { Text(stringResource(R.string.mg_313), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
                 items(state.options, key = { it.id }) { o ->
                     Row(
@@ -470,9 +472,9 @@ fun AssignWorkPlanScreen(
                             viewModel.setDate(Instant.ofEpochMilli(it).atZone(java.time.ZoneOffset.UTC).toLocalDate())
                         }
                         picking = null
-                    }) { Text("Chọn") }
+                    }) { Text(stringResource(R.string.mg_3)) }
                 },
-                dismissButton = { TextButton(onClick = { picking = null }) { Text("Huỷ") } },
+                dismissButton = { TextButton(onClick = { picking = null }) { Text(stringResource(R.string.action_cancel)) } },
             ) { DatePicker(state = dateState) }
         }
         "until" -> DatePickDialog(
@@ -490,9 +492,9 @@ fun AssignWorkPlanScreen(
                         val t = LocalTime.of(timeState.hour, timeState.minute)
                         if (picking == "from") viewModel.setFrom(t) else viewModel.setTo(t)
                         picking = null
-                    }) { Text("Chọn") }
+                    }) { Text(stringResource(R.string.mg_3)) }
                 },
-                dismissButton = { TextButton(onClick = { picking = null }) { Text("Huỷ") } },
+                dismissButton = { TextButton(onClick = { picking = null }) { Text(stringResource(R.string.action_cancel)) } },
                 text = { TimePicker(state = timeState) },
             )
         }

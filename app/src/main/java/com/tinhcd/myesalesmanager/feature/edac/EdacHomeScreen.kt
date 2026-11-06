@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -138,7 +140,7 @@ fun EdacHomeScreen(
     LaunchedEffect(state.open) { state.open?.let { onOpenTraining(it); viewModel.opened() } }
     LaunchedEffect(state.message) { state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() } }
 
-    SubScreen(title = "Huấn luyện EDAC", subtitle = "Kèm cặp nhân viên tại điểm bán", onBack = onBack, snackbar = snackbar) { padding ->
+    SubScreen(title = stringResource(R.string.mg_67), subtitle = stringResource(R.string.mg_68), onBack = onBack, snackbar = snackbar) { padding ->
         val sessions = state.sessions
         when {
             sessions == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
@@ -149,9 +151,9 @@ fun EdacHomeScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 item {
-                    TextButton(onClick = onOpenCriteria) { Text("Bộ tiêu chí EDAC ›") }
+                    TextButton(onClick = onOpenCriteria) { Text(stringResource(R.string.mg_69)) }
                 }
-                item { SectionTitle("Hôm nay") }
+                item { SectionTitle(stringResource(R.string.mg_26)) }
                 if (sessions.isEmpty()) {
                     item {
                         Text(
@@ -164,7 +166,7 @@ fun EdacHomeScreen(
 
                 val past = state.history.filter { it.id !in sessions.mapNotNull { s -> s.trainingId } }
                 if (past.isNotEmpty()) {
-                    item { SectionTitle("Lịch sử huấn luyện") }
+                    item { SectionTitle(stringResource(R.string.mg_70)) }
                     items(past, key = { it.id }) { h ->
                         HistoryCard(h) { if (h.completed) onOpenResult(h.id) else onOpenTraining(h.id) }
                     }
@@ -176,7 +178,7 @@ fun EdacHomeScreen(
                 ExtendedFloatingActionButton(
                     onClick = viewModel::pickRep,
                     icon = { Icon(Icons.Default.PlayArrow, contentDescription = null) },
-                    text = { Text("Bắt đầu huấn luyện") },
+                    text = { Text(stringResource(R.string.mg_71)) },
                 )
             }
         }
@@ -185,7 +187,7 @@ fun EdacHomeScreen(
     if (state.picking) {
         AlertDialog(
             onDismissRequest = viewModel::dismiss,
-            title = { Text("Huấn luyện nhân viên") },
+            title = { Text(stringResource(R.string.mg_72)) },
             text = {
                 Column {
                     team.forEach { m ->
@@ -198,11 +200,11 @@ fun EdacHomeScreen(
                                 .padding(vertical = 12.dp),
                         )
                     }
-                    if (state.starting) Text("Đang bắt đầu…", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (state.starting) Text(stringResource(R.string.mg_73), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             },
             confirmButton = {},
-            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.starting) { Text("Huỷ") } },
+            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.starting) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
 }
@@ -245,7 +247,7 @@ private fun HistoryCard(h: EdacHistoryItem, onClick: () -> Unit) {
 
 @Composable
 private fun ProgressPill(started: Boolean, completed: Boolean, currentStep: Int) = when {
-    completed -> StatusPill("Hoàn tất", Kpi.Green.first())
+    completed -> StatusPill(stringResource(R.string.mg_74), Kpi.Green.first())
     started -> StatusPill("Bước ${currentStep + 1}/8 · ${EdacStep.of(currentStep).title}", Kpi.Orange.first())
-    else -> StatusPill("Chưa bắt đầu", Kpi.Slate.first())
+    else -> StatusPill(stringResource(R.string.mg_75), Kpi.Slate.first())
 }

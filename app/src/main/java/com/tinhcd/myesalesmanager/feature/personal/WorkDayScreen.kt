@@ -114,7 +114,7 @@ fun WorkDayScreen(onBack: () -> Unit, viewModel: WorkDayViewModel = hiltViewMode
     }
     LaunchedEffect(state.message) { state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() } }
 
-    SubScreen(title = "Chấm công", subtitle = formatDay(todayVn()), onBack = onBack, snackbar = snackbar) { padding ->
+    SubScreen(title = stringResource(R.string.personal_work_day), subtitle = formatDay(todayVn()), onBack = onBack, snackbar = snackbar) { padding ->
         val day = state.day
         when {
             day == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
@@ -127,7 +127,7 @@ fun WorkDayScreen(onBack: () -> Unit, viewModel: WorkDayViewModel = hiltViewMode
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(day.branchName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         day.branchAddress?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
-                        PunchLine("Vào", day.checkInAt)
+                        PunchLine(stringResource(R.string.mg_125), day.checkInAt)
                         PunchLine("Ra", day.checkOutAt)
                         if (day.openVisits > 0) {
                             Text(
@@ -139,9 +139,9 @@ fun WorkDayScreen(onBack: () -> Unit, viewModel: WorkDayViewModel = hiltViewMode
                     }
                 }
                 when {
-                    day.checkOutAt != null -> Text("Đã kết thúc ngày làm việc", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    day.checkOutAt != null -> Text(stringResource(R.string.mg_126), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     else -> PrimaryButton(
-                        if (day.checkInAt == null) "Chấm công vào" else "Chấm công ra",
+                        if (day.checkInAt == null) stringResource(R.string.mg_127) else stringResource(R.string.mg_128),
                         viewModel::punch,
                         Modifier.fillMaxWidth(),
                         enabled = !state.punching,
@@ -157,6 +157,6 @@ fun WorkDayScreen(onBack: () -> Unit, viewModel: WorkDayViewModel = hiltViewMode
 private fun PunchLine(label: String, at: String?) {
     Row {
         Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-        if (at != null) StatusPill(formatDateTime(at), Kpi.Green.first()) else StatusPill("Chưa chấm", Kpi.Slate.first())
+        if (at != null) StatusPill(formatDateTime(at), Kpi.Green.first()) else StatusPill(stringResource(R.string.mg_129), Kpi.Slate.first())
     }
 }

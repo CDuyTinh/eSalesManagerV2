@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -163,7 +165,7 @@ fun DashboardTab(viewModel: DashboardViewModel = hiltViewModel()) {
     val data = state.data
     when {
         state.loading && data == null -> SkeletonDashboard()
-        data == null -> ErrorBox(state.error ?: "Không tải được số liệu", onRetry = viewModel::refresh)
+        data == null -> ErrorBox(state.error ?: stringResource(R.string.mg_22), onRetry = viewModel::refresh)
         else -> LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 16.dp),
@@ -189,7 +191,7 @@ fun DashboardTab(viewModel: DashboardViewModel = hiltViewModel()) {
             if (state.salespersonId == null && data.members.isNotEmpty()) {
                 item {
                     Text(
-                        "Xếp hạng nhân viên (tháng)",
+                        stringResource(R.string.mg_23),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(horizontal = 16.dp),
                     )
@@ -210,17 +212,17 @@ private fun DayBar(state: DashboardState, viewModel: DashboardViewModel) {
         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
     ) {
         IconButton(onClick = { viewModel.shiftDay(-1) }) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Ngày trước")
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.mg_24))
         }
         Text(
-            (if (isToday) "Hôm nay · " else "") + formatDay(state.date),
+            (if (isToday) stringResource(R.string.mg_25) else "") + formatDay(state.date),
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.weight(1f),
         )
-        if (!isToday) TextButton(onClick = viewModel::today) { Text("Hôm nay") }
+        if (!isToday) TextButton(onClick = viewModel::today) { Text(stringResource(R.string.mg_26)) }
         IconButton(onClick = { viewModel.shiftDay(1) }, enabled = !isToday) {
-            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Ngày sau")
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.mg_27))
         }
     }
 }
@@ -238,12 +240,12 @@ private fun SectionCard(title: String, content: @Composable () -> Unit) {
 @Composable
 private fun TodayCard(d: TeamDashboard) {
     val t = d.today
-    SectionCard("Trong ngày") {
+    SectionCard(stringResource(R.string.mg_28)) {
         Text(formatDong(t.revenue), style = MaterialTheme.typography.headlineSmall)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            StatTile("Viếng thăm", "${t.visitDone}/${t.visitPlanned}", Kpi.Blue, Modifier.weight(1f))
-            StatTile("Đơn hàng", "${t.orderCount}", Kpi.Green, Modifier.weight(1f))
-            StatTile("SKU/đơn", oneDecimal(t.skuPerOrder), Kpi.Orange, Modifier.weight(1f))
+            StatTile(stringResource(R.string.mg_29), "${t.visitDone}/${t.visitPlanned}", Kpi.Blue, Modifier.weight(1f))
+            StatTile(stringResource(R.string.mg_30), "${t.orderCount}", Kpi.Green, Modifier.weight(1f))
+            StatTile(stringResource(R.string.mg_31), oneDecimal(t.skuPerOrder), Kpi.Orange, Modifier.weight(1f))
         }
         if (d.teamSize > 1) {
             Text(
@@ -258,14 +260,14 @@ private fun TodayCard(d: TeamDashboard) {
 @Composable
 private fun MonthCard(d: TeamDashboard, kpi: KpiThresholds) {
     val m = d.month
-    SectionCard("Tháng này") {
-        KpiLine("Doanh số", compactMoney(m.revenue), m.revenueTarget?.let(::compactMoney), percent(m.revenue, m.revenueTarget), kpi)
-        KpiLine("Đơn hàng", "${m.orderCount}", m.orderTarget?.toString(), percent(m.orderCount.toLong(), m.orderTarget?.toLong()), kpi)
-        KpiLine("Độ phủ tuyến", "${m.visitDone}", "${m.visitPlanned}", percent(m.visitDone.toLong(), m.visitPlanned.toLong()), kpi)
+    SectionCard(stringResource(R.string.mg_32)) {
+        KpiLine(stringResource(R.string.mg_33), compactMoney(m.revenue), m.revenueTarget?.let(::compactMoney), percent(m.revenue, m.revenueTarget), kpi)
+        KpiLine(stringResource(R.string.mg_30), "${m.orderCount}", m.orderTarget?.toString(), percent(m.orderCount.toLong(), m.orderTarget?.toLong()), kpi)
+        KpiLine(stringResource(R.string.mg_34), "${m.visitDone}", "${m.visitPlanned}", percent(m.visitDone.toLong(), m.visitPlanned.toLong()), kpi)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
             StatTile("VPO", compactMoney(m.vpo), Kpi.Slate, Modifier.weight(1f))
-            StatTile("SKU/đơn", oneDecimal(m.skuPerOrder), Kpi.Orange, Modifier.weight(1f))
-            StatTile("KH mới", "${m.newCustomers}", Kpi.Green, Modifier.weight(1f))
+            StatTile(stringResource(R.string.mg_31), oneDecimal(m.skuPerOrder), Kpi.Orange, Modifier.weight(1f))
+            StatTile(stringResource(R.string.mg_35), "${m.newCustomers}", Kpi.Green, Modifier.weight(1f))
         }
     }
 }
@@ -277,12 +279,12 @@ private fun MonthCard(d: TeamDashboard, kpi: KpiThresholds) {
 @Composable
 private fun ProductTargetsCard(d: TeamDashboard, kpi: KpiThresholds) {
     val (groups, products) = d.productTargets.partition { it.isGroup }
-    SectionCard("Chỉ tiêu theo nhóm hàng / sản phẩm") {
-        if (groups.isNotEmpty()) TargetHeading("Nhóm hàng")
+    SectionCard(stringResource(R.string.mg_36)) {
+        if (groups.isNotEmpty()) TargetHeading(stringResource(R.string.mg_37))
         groups.forEach { t ->
             KpiLine(t.name, compactMoney(t.actual), compactMoney(t.target), t.achievement, kpi)
         }
-        if (products.isNotEmpty()) TargetHeading("Sản phẩm")
+        if (products.isNotEmpty()) TargetHeading(stringResource(R.string.mg_38))
         products.forEach { t ->
             KpiLine(t.name, compactMoney(t.actual), compactMoney(t.target), t.achievement, kpi)
         }
@@ -318,7 +320,7 @@ private fun KpiLine(label: String, value: String, target: String?, pct: Int?, kp
             KpiBar(pct / 100f, ramp)
         } else {
             Text(
-                "Chưa có chỉ tiêu",
+                stringResource(R.string.mg_39),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -328,7 +330,7 @@ private fun KpiLine(label: String, value: String, target: String?, pct: Int?, kp
 
 @Composable
 private fun ChartCard(d: TeamDashboard, range: ChartRange, onRange: (ChartRange) -> Unit) {
-    SectionCard("Doanh số bán hàng") {
+    SectionCard(stringResource(R.string.mg_40)) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ChartRange.entries.forEach { r ->
                 FilterChip(selected = r == range, onClick = { onRange(r) }, label = { Text(r.label) })

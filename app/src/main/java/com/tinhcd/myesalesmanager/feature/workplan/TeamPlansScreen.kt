@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.core.ui.theme.status
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -219,7 +221,7 @@ fun TeamPlansScreen(
         state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() }
     }
 
-    SubScreen(title = if (state.mine) "Kế hoạch của tôi" else "Công việc của nhóm", onBack = onBack, snackbar = snackbar) { padding ->
+    SubScreen(title = if (state.mine) stringResource(R.string.mg_316) else stringResource(R.string.mg_314), onBack = onBack, snackbar = snackbar) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -229,7 +231,7 @@ fun TeamPlansScreen(
                     FilterChip(
                         selected = state.calendar,
                         onClick = viewModel::toggleCalendar,
-                        label = { Text("Lịch tháng") },
+                        label = { Text(stringResource(R.string.mg_330)) },
                         leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null) },
                     )
                 }
@@ -256,7 +258,7 @@ fun TeamPlansScreen(
                     FilterChip(
                         selected = state.salespersonId == null,
                         onClick = { viewModel.selectSalesperson(null) },
-                        label = { Text("Cả nhóm") },
+                        label = { Text(stringResource(R.string.mg_331)) },
                     )
                 }
                 items(state.team, key = { it.id }) { m ->
@@ -293,7 +295,7 @@ fun TeamPlansScreen(
                     if (state.shown.isEmpty()) {
                         item {
                             Text(
-                                if (state.calendar) "Không có công việc trong ngày" else "Không có công việc nào",
+                                if (state.calendar) stringResource(R.string.mg_332) else stringResource(R.string.mg_333),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(top = if (state.calendar) 4.dp else 32.dp),
@@ -317,7 +319,7 @@ fun TeamPlansScreen(
             ExtendedFloatingActionButton(
                 onClick = onAssign,
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text(if (state.mine) "Lập kế hoạch" else "Giao việc") },
+                text = { Text(if (state.mine) stringResource(R.string.mg_303) else stringResource(R.string.mg_304)) },
             )
         }
     }
@@ -353,24 +355,24 @@ private fun PlanCard(
             )
             PlanStatusBadge(plan.status)
         }
-        if (!mine) LabeledLine("Nhân viên", plan.salesperson?.let { "${it.name} (${it.code})" })
-        LabeledLine("Loại", plan.categoryName)
-        LabeledLine("Thời gian", formatWindow(plan.fromAt, plan.toAt))
-        LabeledLine("Địa điểm", plan.place)
+        if (!mine) LabeledLine(stringResource(R.string.lbl_staff), plan.salesperson?.let { "${it.name} (${it.code})" })
+        LabeledLine(stringResource(R.string.lbl_type), plan.categoryName)
+        LabeledLine(stringResource(R.string.lbl_period), formatWindow(plan.fromAt, plan.toAt))
+        LabeledLine(stringResource(R.string.mg_310), plan.place)
         if (plan.objectCount > 0) {
-            LabeledLine(plan.objectKind?.label ?: "Đối tượng", "${plan.objectCount}")
+            LabeledLine(plan.objectKind?.label ?: stringResource(R.string.mg_194), "${plan.objectCount}")
         }
         LabeledLine(
-            "Nguồn",
+            stringResource(R.string.mg_334),
             when {
-                plan.isAssigned -> "Giao bởi ${plan.author?.name ?: "cấp trên"}"
-                mine -> "Tự lập"
-                else -> "Nhân viên tự lập"
+                plan.isAssigned -> "Giao bởi ${plan.author?.name ?: stringResource(R.string.mg_335)}"
+                mine -> stringResource(R.string.mg_336)
+                else -> stringResource(R.string.mg_337)
             },
         )
-        if (plan.repeats) LabeledLine("Lặp lại", "Một lần trong chuỗi việc lặp")
-        LabeledLine("Kết quả", plan.result)
-        LabeledLine("Lý do", plan.reason)
+        if (plan.repeats) LabeledLine(stringResource(R.string.mg_308), stringResource(R.string.mg_338))
+        LabeledLine(stringResource(R.string.mg_76), plan.result)
+        LabeledLine(stringResource(R.string.lbl_reason), plan.reason)
     }
 }
 

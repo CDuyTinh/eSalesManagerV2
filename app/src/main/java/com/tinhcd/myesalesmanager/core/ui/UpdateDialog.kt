@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.core.ui
 
 import android.content.ActivityNotFoundException
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -40,7 +42,7 @@ fun UpdateDialog(
         onDismissRequest = { if (!required) onLater() },
         properties = DialogProperties(dismissOnBackPress = !required, dismissOnClickOutside = !required),
         icon = { Icon(Icons.Default.SystemUpdate, contentDescription = null) },
-        title = { Text(if (required) "Cần cập nhật ứng dụng" else "Đã có phiên bản mới") },
+        title = { Text(if (required) stringResource(R.string.mg_13) else stringResource(R.string.mg_14)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
@@ -56,8 +58,8 @@ fun UpdateDialog(
                 }
             }
         },
-        confirmButton = { TextButton(onClick = { openUpdate(context, url) }) { Text("Cập nhật") } },
-        dismissButton = if (required) null else ({ TextButton(onClick = onLater) { Text("Để sau") } }),
+        confirmButton = { TextButton(onClick = { openUpdate(context, url) }) { Text(stringResource(R.string.mg_15)) } },
+        dismissButton = if (required) null else ({ TextButton(onClick = onLater) { Text(stringResource(R.string.permission_later)) } }),
     )
 }
 

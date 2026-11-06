@@ -155,7 +155,7 @@ fun EditCustomerScreen(onBack: () -> Unit, viewModel: EditCustomerViewModel = hi
             if (d != null) {
                 Surface(tonalElevation = 3.dp) {
                     PrimaryButton(
-                        "Lưu thay đổi", viewModel::save,
+                        stringResource(R.string.mg_143), viewModel::save,
                         Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp, 10.dp),
                         enabled = !state.saving && state.draft != state.original,
                         loading = state.saving,
@@ -171,32 +171,32 @@ fun EditCustomerScreen(onBack: () -> Unit, viewModel: EditCustomerViewModel = hi
                 Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                OutlinedTextField(d.name, { v -> viewModel.edit { it.copy(name = v) } }, label = { Text("Tên điểm bán *") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(d.contactName.orEmpty(), { v -> viewModel.edit { it.copy(contactName = v) } }, label = { Text("Người liên hệ") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(d.name, { v -> viewModel.edit { it.copy(name = v) } }, label = { Text(stringResource(R.string.mg_144)) }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(d.contactName.orEmpty(), { v -> viewModel.edit { it.copy(contactName = v) } }, label = { Text(stringResource(R.string.lbl_contact)) }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(
                     d.phone.orEmpty(), { v -> viewModel.edit { it.copy(phone = v) } },
-                    label = { Text("Điện thoại") },
+                    label = { Text(stringResource(R.string.lbl_phone)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth(),
                 )
-                OutlinedTextField(d.address.orEmpty(), { v -> viewModel.edit { it.copy(address = v) } }, label = { Text("Địa chỉ *") }, minLines = 2, modifier = Modifier.fillMaxWidth())
-                OptionGroup("Hạng", d.classes, d.classId) { id -> viewModel.edit { it.copy(classId = id) } }
-                OptionGroup("Kênh", d.channels, d.channelId) { id -> viewModel.edit { it.copy(channelId = id) } }
-                OptionGroup("Loại cửa hàng", d.shopTypes, d.shopTypeId) { id -> viewModel.edit { it.copy(shopTypeId = id) } }
+                OutlinedTextField(d.address.orEmpty(), { v -> viewModel.edit { it.copy(address = v) } }, label = { Text(stringResource(R.string.mg_145)) }, minLines = 2, modifier = Modifier.fillMaxWidth())
+                OptionGroup(stringResource(R.string.mg_146), d.classes, d.classId) { id -> viewModel.edit { it.copy(classId = id) } }
+                OptionGroup(stringResource(R.string.lbl_channel), d.channels, d.channelId) { id -> viewModel.edit { it.copy(channelId = id) } }
+                OptionGroup(stringResource(R.string.lbl_shop_type), d.shopTypes, d.shopTypeId) { id -> viewModel.edit { it.copy(shopTypeId = id) } }
 
-                Text("Vị trí", style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.mg_147), style = MaterialTheme.typography.labelSmall)
                 Text(
-                    if (d.lat != null && d.lng != null) String.format(Locale.US, "%.6f, %.6f", d.lat, d.lng) else "Chưa có toạ độ",
+                    if (d.lat != null && d.lng != null) String.format(Locale.US, "%.6f, %.6f", d.lat, d.lng) else stringResource(R.string.mg_148),
                     style = MaterialTheme.typography.bodyLarge,
                 )
                 OutlinedButton(onClick = viewModel::useCurrentLocation, enabled = !state.locating) {
                     Icon(Icons.Default.MyLocation, contentDescription = null)
-                    Text(if (state.locating) " Đang lấy vị trí…" else " Lấy vị trí hiện tại")
+                    Text(if (state.locating) stringResource(R.string.mg_149) else stringResource(R.string.mg_150))
                 }
 
                 if (d.history.isNotEmpty()) {
                     HorizontalDivider()
-                    Text("Lịch sử chỉnh sửa", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.mg_151), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                     d.history.forEach { HistoryEntry(it, d) }
                 }
             }

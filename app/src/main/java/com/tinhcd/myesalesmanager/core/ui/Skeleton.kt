@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.core.ui
 
 import androidx.compose.animation.core.LinearEasing
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable

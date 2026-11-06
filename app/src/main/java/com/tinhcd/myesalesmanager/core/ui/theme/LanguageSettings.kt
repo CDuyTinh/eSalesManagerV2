@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.core.ui.theme
 
 import android.content.Context
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import android.content.res.Configuration
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext

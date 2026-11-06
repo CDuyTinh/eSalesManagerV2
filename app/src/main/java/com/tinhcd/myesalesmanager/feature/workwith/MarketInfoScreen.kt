@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -91,7 +93,7 @@ fun MarketInfoScreen(
         viewModel.load()
         onPauseOrDispose { }
     }
-    SubScreen(title = "Thông tin thị trường", onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.mg_360), onBack = onBack) { padding ->
         val list = state.surveys
         when {
             list == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::load, modifier = Modifier.padding(padding))
@@ -101,7 +103,7 @@ fun MarketInfoScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                if (list.isEmpty()) item { Text("Không có khảo sát đang chạy", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                if (list.isEmpty()) item { Text(stringResource(R.string.mg_361), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 items(list, key = { it.kind + it.id }) { s ->
                     // Market questionnaires are scored step forms on the rep's app;
                     // competitor surveys are the grid filled in here.
@@ -124,7 +126,7 @@ fun MarketInfoScreen(
                                     style = MaterialTheme.typography.labelSmall,
                                 )
                             }
-                            if (s.completed) StatusPill("Đã làm", Kpi.Green.first())
+                            if (s.completed) StatusPill(stringResource(R.string.mg_362), Kpi.Green.first())
                         }
                     }
                 }
@@ -207,13 +209,13 @@ fun CompetitorSurveyScreen(onBack: () -> Unit, viewModel: CompetitorSurveyViewMo
 
     val survey = state.survey
     SubScreen(
-        title = survey?.name ?: "Khảo sát đối thủ",
+        title = survey?.name ?: stringResource(R.string.mg_364),
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
             Surface(tonalElevation = 3.dp) {
                 PrimaryButton(
-                    "Lưu khảo sát", viewModel::save, Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp, 10.dp),
+                    stringResource(R.string.mg_365), viewModel::save, Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp, 10.dp),
                     enabled = !state.saving && survey != null, loading = state.saving,
                 )
             }

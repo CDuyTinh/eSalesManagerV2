@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import android.content.Context
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import android.content.Intent
 import androidx.core.content.FileProvider
 import com.tinhcd.myesalesmanager.core.ui.formatDateTime

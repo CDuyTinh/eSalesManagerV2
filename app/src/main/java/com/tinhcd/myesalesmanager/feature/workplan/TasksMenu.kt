@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import com.tinhcd.myesalesmanager.core.ui.GridEntry
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.core.ui.MenuGrid
 import com.tinhcd.myesalesmanager.core.ui.tileColor
 import com.tinhcd.myesalesmanager.core.ui.MenuIcon

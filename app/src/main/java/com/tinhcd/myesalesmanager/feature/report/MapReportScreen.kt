@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import android.content.Context
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -138,7 +140,7 @@ class MapReportViewModel @Inject constructor(
 private val palette = listOf(Kpi.Blue, Kpi.Orange, Kpi.Green, Kpi.Violet, Kpi.Slate).map { it.first() }
 
 /**
- * Báº£n Äá» vá» trÃ­ nhÃ¢n viÃªn (legacy OM30400): each rep's path through the day as
+ * Bản đồ vị trí nhân viên (legacy OM30400): each rep's path through the day as
  * the tracking service recorded it, the outlets they checked in at, and where
  * they were last seen. OpenStreetMap tiles, so no map key is needed.
  */
@@ -151,12 +153,12 @@ fun MapReportScreen(onBack: () -> Unit, viewModel: MapReportViewModel = hiltView
     val inPlace = state.place.branchIds(everyone)?.toSet()?.let { b -> everyone.filter { it.branch?.id in b }.map { it.id }.toSet() }
     val days = state.days?.filter { (shownReps == null || it.rep.id in shownReps) && (inPlace == null || it.rep.id in inPlace) }
 
-    SubScreen(title = "Báº£n Äá» vá» trÃ­ nhÃ¢n viÃªn", onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.mg_170), onBack = onBack) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
-                IconButton(onClick = { viewModel.shiftDay(-1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "NgÃ y trÆ°á»c") }
+                IconButton(onClick = { viewModel.shiftDay(-1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.mg_171)) }
                 Text(formatDay(state.date), fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                IconButton(onClick = { viewModel.shiftDay(1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "NgÃ y sau") }
+                IconButton(onClick = { viewModel.shiftDay(1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.mg_172)) }
             }
             TeamFilter(
                 supervisors = state.supervisors,
@@ -177,7 +179,7 @@ fun MapReportScreen(onBack: () -> Unit, viewModel: MapReportViewModel = hiltView
                     Box(Modifier.fillMaxWidth().height(340.dp)) { OsmMap(days, colours) }
                     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         if (days.all { it.path.isEmpty() && it.visits.isEmpty() }) {
-                            item { Text("KhÃ´ng cÃ³ dá»¯ liá»u vá» trÃ­ ngÃ y nÃ y", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                            item { Text(stringResource(R.string.mg_173), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         }
                         items(days, key = { it.rep.id }) { d -> RepLegend(d, colours.getValue(d.rep.id)) }
                     }
@@ -199,12 +201,12 @@ private fun RepLegend(d: RepDay, colour: Color) {
             )
             Text(
                 listOfNotNull(
-                    d.clockIn?.let { "vÃ o ${formatDateTime(it).takeLast(5)}" },
+                    d.clockIn?.let { "vào ${formatDateTime(it).takeLast(5)}" },
                     d.clockOut?.let { "ra ${formatDateTime(it).takeLast(5)}" },
-                    "${d.visits.size} Äiá»m ghÃ©",
-                    "${d.path.size} Äiá»m GPS",
-                    d.path.lastOrNull()?.let { "tháº¥y láº§n cuá»i ${formatDateTime(it.at).takeLast(5)}" },
-                ).joinToString(" Â· "),
+                    "${d.visits.size} điểm ghé",
+                    "${d.path.size} điểm GPS",
+                    d.path.lastOrNull()?.let { "thấy lần cuối ${formatDateTime(it.at).takeLast(5)}" },
+                ).joinToString(stringResource(R.string.mg_174)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -241,12 +243,12 @@ private fun OsmMap(days: List<RepDay>, colours: Map<String, Color>) {
                 view.overlays.add(Marker(view).apply {
                     position = at
                     setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = "${i + 1}. ${v.customerCode} â ${v.customerName}"
+                    title = "${i + 1}. ${v.customerCode} – ${v.customerName}"
                     snippet = listOfNotNull(
                         d.rep.name,
-                        v.checkInAt?.let { "vÃ o ${formatDateTime(it).takeLast(5)}" },
+                        v.checkInAt?.let { "vào ${formatDateTime(it).takeLast(5)}" },
                         v.checkOutAt?.let { "ra ${formatDateTime(it).takeLast(5)}" },
-                    ).joinToString(" Â· ")
+                    ).joinToString(" · ")
                 })
                 all += at
             }
@@ -257,7 +259,7 @@ private fun OsmMap(days: List<RepDay>, colours: Map<String, Color>) {
                     icon = android.graphics.drawable.ShapeDrawable(android.graphics.drawable.shapes.OvalShape()).apply {
                         intrinsicWidth = 36; intrinsicHeight = 36; paint.color = colour
                     }
-                    title = "${d.rep.name} â vá» trÃ­ cuá»i"
+                    title = "${d.rep.name} — vị trí cuối"
                 })
             }
             all += d.path.map { GeoPoint(it.lat, it.lng) }

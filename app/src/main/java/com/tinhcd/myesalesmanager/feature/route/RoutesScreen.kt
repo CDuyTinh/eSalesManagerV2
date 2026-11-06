@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.route
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -131,7 +133,7 @@ fun RoutesScreen(
     }
     LaunchedEffect(state.created) { state.created?.let { onOpen(it); viewModel.opened() } }
 
-    SubScreen(title = "Lập tuyến & phân tuyến", subtitle = "Tuyến của nhóm", onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.mg_273), subtitle = stringResource(R.string.mg_274), onBack = onBack) { padding ->
         val routes = state.routes
         when {
             routes == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
@@ -142,7 +144,7 @@ fun RoutesScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 if (routes.isEmpty()) {
-                    item { Text("Nhóm chưa có tuyến nào", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    item { Text(stringResource(R.string.mg_275), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
                 items(routes, key = { it.id }) { r -> RouteCard(r) { onOpen(r.id) } }
             }
@@ -152,7 +154,7 @@ fun RoutesScreen(
                 ExtendedFloatingActionButton(
                     onClick = viewModel::newRoute,
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                    text = { Text("Tạo tuyến") },
+                    text = { Text(stringResource(R.string.mg_276)) },
                 )
             }
         }
@@ -161,10 +163,10 @@ fun RoutesScreen(
     state.draft?.let { d ->
         AlertDialog(
             onDismissRequest = viewModel::dismiss,
-            title = { Text("Tạo tuyến mới") },
+            title = { Text(stringResource(R.string.mg_277)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("Nhân viên phụ trách", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(R.string.mg_278), style = MaterialTheme.typography.labelMedium)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         state.reps.forEach { m ->
                             FilterChip(
@@ -176,21 +178,21 @@ fun RoutesScreen(
                     }
                     OutlinedTextField(
                         d.name, { v -> viewModel.edit { it.copy(name = v) } },
-                        label = { Text("Tên tuyến *") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                        label = { Text(stringResource(R.string.mg_279)) }, singleLine = true, modifier = Modifier.fillMaxWidth(),
                     )
                     OutlinedTextField(
                         d.code, { v -> viewModel.edit { it.copy(code = v.uppercase()) } },
-                        label = { Text("Mã tuyến (để trống: tự cấp)") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                        label = { Text(stringResource(R.string.mg_280)) }, singleLine = true, modifier = Modifier.fillMaxWidth(),
                     )
                     state.error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall) }
                 }
             },
             confirmButton = {
                 TextButton(onClick = viewModel::create, enabled = d.canSave && !state.saving) {
-                    Text(if (state.saving) "Đang tạo…" else "Tạo")
+                    Text(if (state.saving) stringResource(R.string.mg_281) else stringResource(R.string.mg_282))
                 }
             },
-            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text("Huỷ") } },
+            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
 }

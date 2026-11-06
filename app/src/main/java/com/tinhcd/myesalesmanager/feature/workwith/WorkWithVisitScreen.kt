@@ -255,7 +255,7 @@ fun WorkWithVisitScreen(
 
     val visit = state.visit
     SubScreen(
-        title = visit?.customerName ?: "Viếng thăm",
+        title = visit?.customerName ?: stringResource(R.string.mg_29),
         subtitle = visit?.let { "Cùng ${it.rep?.name.orEmpty()}" },
         onBack = onBack,
         snackbar = snackbar,
@@ -272,7 +272,7 @@ fun WorkWithVisitScreen(
     ) { padding ->
         when {
             state.loading && visit == null -> LoadingBox(Modifier.padding(padding))
-            visit == null -> ErrorBox(state.error ?: "Không tải được lượt viếng thăm", onRetry = viewModel::load, modifier = Modifier.padding(padding))
+            visit == null -> ErrorBox(state.error ?: stringResource(R.string.mg_392), onRetry = viewModel::load, modifier = Modifier.padding(padding))
             else -> LazyColumn(
                 modifier = Modifier.padding(padding).fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
@@ -286,7 +286,7 @@ fun WorkWithVisitScreen(
                     Text("Chấm điểm trưng bày (${visit.programs.size})", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                 }
                 if (visit.programs.isEmpty()) {
-                    item { Text("Cửa hàng không có chương trình trưng bày nào đang chạy", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    item { Text(stringResource(R.string.mg_393), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
                 items(visit.programs, key = { it.programId }) { p ->
                     ProgramCard(p, canScore = visit.isOpen) { viewModel.openScore(p) }
@@ -317,16 +317,16 @@ fun WorkWithVisitScreen(
             text = {
                 OutlinedTextField(
                     value = note, onValueChange = { note = it },
-                    label = { Text("Nhận xét về nhân viên tại điểm này") }, minLines = 2,
+                    label = { Text(stringResource(R.string.mg_394)) }, minLines = 2,
                     modifier = Modifier.fillMaxWidth(),
                 )
             },
             confirmButton = {
                 TextButton(onClick = { viewModel.checkOut(note) }, enabled = !state.checkingOut) {
-                    Text(if (state.checkingOut) "Đang lưu…" else "Check-out")
+                    Text(if (state.checkingOut) stringResource(R.string.action_saving) else "Check-out")
                 }
             },
-            dismissButton = { TextButton(onClick = { viewModel.askCheckOut(false) }, enabled = !state.checkingOut) { Text("Huỷ") } },
+            dismissButton = { TextButton(onClick = { viewModel.askCheckOut(false) }, enabled = !state.checkingOut) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
 }
@@ -337,21 +337,21 @@ private fun VisitInfo(v: WorkWithVisit) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${v.customerCode} – ${v.customerName}", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                StatusPill(if (v.isOpen) "Đang ghé" else "Đã check-out", if (v.isOpen) Kpi.Orange.first() else Kpi.Green.first())
+                StatusPill(if (v.isOpen) stringResource(R.string.mg_239) else stringResource(R.string.mg_395), if (v.isOpen) Kpi.Orange.first() else Kpi.Green.first())
             }
-            LabeledLine("Địa chỉ", v.customerAddress)
-            LabeledLine("Điện thoại", v.customerPhone)
+            LabeledLine(stringResource(R.string.lbl_address), v.customerAddress)
+            LabeledLine(stringResource(R.string.lbl_phone), v.customerPhone)
             LabeledLine("Check-in", v.checkInAt?.let { formatDateTime(it) + (v.distanceM?.let { d -> " · cách $d m" } ?: "") })
             LabeledLine("Check-out", v.checkOutAt?.let(::formatDateTime))
             LabeledLine(
-                "Nhân viên hôm nay",
+                stringResource(R.string.mg_396),
                 listOfNotNull(
-                    v.repStatus?.label ?: "Chưa ghé",
+                    v.repStatus?.label ?: stringResource(R.string.mg_387),
                     v.repCheckIn?.let { "vào ${formatDateTime(it).takeLast(5)}" },
                     if (v.repOrderAmount > 0) "đơn ${formatDong(v.repOrderAmount)}" else null,
                 ).joinToString(" · "),
             )
-            LabeledLine("Nhận xét", v.note)
+            LabeledLine(stringResource(R.string.mg_397), v.note)
         }
     }
 }
@@ -364,11 +364,11 @@ private fun ProgramCard(p: DisplayToScore, canScore: Boolean, onScore: () -> Uni
             Text("${p.levelName} · yêu cầu ${p.requiredFaces} mặt", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ScorePill("NV", p.repFaces, p.repAchieved)
-                ScorePill("Bạn", p.myFaces, p.myAchieved)
+                ScorePill(stringResource(R.string.mg_398), p.myFaces, p.myAchieved)
             }
             if (canScore) {
                 OutlinedButton(onClick = onScore, modifier = Modifier.fillMaxWidth()) {
-                    Text(if (p.myAuditId == null) "Chấm điểm" else "Chấm lại")
+                    Text(if (p.myAuditId == null) stringResource(R.string.mg_399) else stringResource(R.string.mg_400))
                 }
             }
         }
@@ -377,7 +377,7 @@ private fun ProgramCard(p: DisplayToScore, canScore: Boolean, onScore: () -> Uni
 
 @Composable
 private fun ScorePill(who: String, faces: Int?, achieved: Boolean?) {
-    val text = if (faces == null) "$who: chưa chấm" else "$who: $faces mặt · ${if (achieved == true) "Đạt" else "Không đạt"}"
+    val text = if (faces == null) "$who: chưa chấm" else "$who: $faces mặt · ${if (achieved == true) stringResource(R.string.mg_401) else stringResource(R.string.mg_402)}"
     val color = when (achieved) {
         true -> Kpi.Green.first()
         false -> Kpi.Orange.first()
@@ -406,23 +406,23 @@ private fun ScoreDialog(
                 Text("${draft.program.levelName} · yêu cầu ${draft.program.requiredFaces} mặt", style = MaterialTheme.typography.bodyLarge)
                 OutlinedTextField(
                     value = draft.faces, onValueChange = onFaces,
-                    label = { Text("Số mặt đếm được *") }, singleLine = true,
+                    label = { Text(stringResource(R.string.mg_403)) }, singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Đạt chuẩn", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.mg_404), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                     Switch(checked = draft.achieved, onCheckedChange = onAchieved)
                 }
                 OutlinedTextField(
                     value = draft.note, onValueChange = onNote,
-                    label = { Text("Ghi chú") }, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.mg_89)) }, modifier = Modifier.fillMaxWidth(),
                 )
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(draft.photos) { path ->
                         AsyncImage(
                             model = File(path),
-                            contentDescription = "Ảnh trưng bày",
+                            contentDescription = stringResource(R.string.mg_405),
                             contentScale = ContentScale.Crop,
                             modifier = Modifier.size(72.dp).clip(RoundedCornerShape(8.dp)),
                         )
@@ -431,15 +431,15 @@ private fun ScoreDialog(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = onShoot, enabled = !saving) { Text("Chụp ảnh (${draft.photos.size})") }
                     if (draft.photos.isNotEmpty()) {
-                        TextButton(onClick = { onRemove(draft.photos.last()) }, enabled = !saving) { Text("Xoá ảnh cuối") }
+                        TextButton(onClick = { onRemove(draft.photos.last()) }, enabled = !saving) { Text(stringResource(R.string.mg_406)) }
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = onSave, enabled = !saving) { Text(if (saving) "Đang lưu…" else "Lưu") }
+            TextButton(onClick = onSave, enabled = !saving) { Text(if (saving) stringResource(R.string.action_saving) else stringResource(R.string.mg_57)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss, enabled = !saving) { Text("Huỷ") } },
+        dismissButton = { TextButton(onClick = onDismiss, enabled = !saving) { Text(stringResource(R.string.action_cancel)) } },
     )
 }
 
@@ -456,22 +456,22 @@ enum class InStoreStep(val title: String) {
 private fun InStoreSteps(t: VisitTasks, open: Boolean, onOpen: (InStoreStep) -> Unit) {
     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Công việc tại điểm bán", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.mg_408), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             InStoreStep.entries.forEach { step ->
                 val done = when (step) {
                     InStoreStep.STOCK -> t.stockCountedAt?.let { "${t.stockCountLines} dòng · ${formatDateTime(it).takeLast(5)}" }
                     InStoreStep.ORDER -> t.orders.takeIf { it.isNotEmpty() }?.let { o -> "${o.size} đơn · ${formatDong(o.sumOf { it.totalAmount })}" }
                     InStoreStep.POSM -> t.posmChecked.takeIf { it > 0 }?.let { "$it vật phẩm" }
                     InStoreStep.MARKET -> t.surveysDone.takeIf { it > 0 }?.let { "$it khảo sát" }
-                    InStoreStep.FEEDBACK -> if (t.feedback) "Đã ghi" else null
+                    InStoreStep.FEEDBACK -> if (t.feedback) stringResource(R.string.mg_409) else null
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.weight(1f)) {
                         Text(step.title, style = MaterialTheme.typography.bodyLarge)
-                        Text(done ?: "Chưa làm", style = MaterialTheme.typography.labelSmall, color = if (done != null) Kpi.Green.first() else MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(done ?: stringResource(R.string.mg_410), style = MaterialTheme.typography.labelSmall, color = if (done != null) Kpi.Green.first() else MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     // A closed call can still be looked at; nothing more is recorded on it.
-                    TextButton(onClick = { onOpen(step) }, enabled = open) { Text(if (done != null) "Làm lại" else "Làm") }
+                    TextButton(onClick = { onOpen(step) }, enabled = open) { Text(if (done != null) stringResource(R.string.mg_411) else stringResource(R.string.mg_412)) }
                 }
             }
             if (open && t.minMinutes > 0) {

@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -149,7 +151,7 @@ fun WorkNotesScreen(onBack: () -> Unit, viewModel: WorkNotesViewModel = hiltView
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(state.message) { state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() } }
 
-    SubScreen(title = "Ghi chú công việc", onBack = onBack, snackbar = snackbar) { padding ->
+    SubScreen(title = stringResource(R.string.personal_notes), onBack = onBack, snackbar = snackbar) { padding ->
         val notes = state.notes
         when {
             notes == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
@@ -167,7 +169,7 @@ fun WorkNotesScreen(onBack: () -> Unit, viewModel: WorkNotesViewModel = hiltView
                         }
                     }
                     if (shown.isEmpty()) {
-                        item { Text("Không có ghi chú", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        item { Text(stringResource(R.string.mg_135), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     }
                     items(shown, key = { it.id }) { n ->
                         NoteCard(n, onComplete = { viewModel.askComplete(n) }, onDelete = { viewModel.askDelete(n) })
@@ -176,7 +178,7 @@ fun WorkNotesScreen(onBack: () -> Unit, viewModel: WorkNotesViewModel = hiltView
                 ExtendedFloatingActionButton(
                     onClick = viewModel::newNote,
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                    text = { Text("Thêm ghi chú") },
+                    text = { Text(stringResource(R.string.mg_136)) },
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
                 )
             }
@@ -188,24 +190,24 @@ fun WorkNotesScreen(onBack: () -> Unit, viewModel: WorkNotesViewModel = hiltView
         var result by remember(n.id) { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = viewModel::dismiss,
-            title = { Text("Hoàn thành") },
+            title = { Text(stringResource(R.string.mg_137)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(n.title, fontWeight = FontWeight.SemiBold)
-                    OutlinedTextField(result, { result = it }, label = { Text("Kết quả") }, minLines = 2, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(result, { result = it }, label = { Text(stringResource(R.string.mg_76)) }, minLines = 2, modifier = Modifier.fillMaxWidth())
                 }
             },
-            confirmButton = { TextButton(onClick = { viewModel.complete(result) }, enabled = !state.saving) { Text("Lưu") } },
-            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text("Huỷ") } },
+            confirmButton = { TextButton(onClick = { viewModel.complete(result) }, enabled = !state.saving) { Text(stringResource(R.string.mg_57)) } },
+            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
     state.deleting?.let { n ->
         AlertDialog(
             onDismissRequest = viewModel::dismiss,
-            title = { Text("Xoá ghi chú") },
+            title = { Text(stringResource(R.string.mg_138)) },
             text = { Text("Xoá \"${n.title}\"?") },
-            confirmButton = { TextButton(onClick = viewModel::delete, enabled = !state.saving) { Text("Xoá") } },
-            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text("Huỷ") } },
+            confirmButton = { TextButton(onClick = viewModel::delete, enabled = !state.saving) { Text(stringResource(R.string.mg_139)) } },
+            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
 }
@@ -226,8 +228,8 @@ private fun NoteCard(n: WorkNote, onComplete: () -> Unit, onDelete: () -> Unit) 
                     n.doneAt?.let { Text("Xong lúc ${formatDateTime(it)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
             }
-            if (!n.done) IconButton(onClick = onComplete) { Icon(Icons.Default.CheckCircle, contentDescription = "Hoàn thành", tint = Kpi.Green.first()) }
-            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = "Xoá") }
+            if (!n.done) IconButton(onClick = onComplete) { Icon(Icons.Default.CheckCircle, contentDescription = stringResource(R.string.mg_137), tint = Kpi.Green.first()) }
+            IconButton(onClick = onDelete) { Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.mg_139)) }
         }
     }
 }
@@ -237,18 +239,18 @@ private fun NoteDialog(d: NoteDraft, saving: Boolean, viewModel: WorkNotesViewMo
     var picking by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = viewModel::dismiss,
-        title = { Text("Thêm ghi chú") },
+        title = { Text(stringResource(R.string.mg_136)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                OutlinedTextField(d.title, { v -> viewModel.edit { it.copy(title = v) } }, label = { Text("Công việc") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(d.body, { v -> viewModel.edit { it.copy(body = v) } }, label = { Text("Chi tiết") }, minLines = 2, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(d.title, { v -> viewModel.edit { it.copy(title = v) } }, label = { Text(stringResource(R.string.tab_tasks)) }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(d.body, { v -> viewModel.edit { it.copy(body = v) } }, label = { Text(stringResource(R.string.mg_140)) }, minLines = 2, modifier = Modifier.fillMaxWidth())
                 OutlinedButton(onClick = { picking = true }) {
                     Text(d.dueOn?.let { "Hạn ${formatIsoDate(it.toString())}" } ?: "Chọn hạn (không bắt buộc)")
                 }
             }
         },
-        confirmButton = { TextButton(onClick = viewModel::add, enabled = !saving) { Text(if (saving) "Đang lưu…" else "Lưu") } },
-        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !saving) { Text("Huỷ") } },
+        confirmButton = { TextButton(onClick = viewModel::add, enabled = !saving) { Text(if (saving) stringResource(R.string.action_saving) else stringResource(R.string.mg_57)) } },
+        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !saving) { Text(stringResource(R.string.action_cancel)) } },
     )
     if (picking) DatePickDialog(d.dueOn ?: todayVn(), { v -> viewModel.edit { it.copy(dueOn = v) } }) { picking = false }
 }

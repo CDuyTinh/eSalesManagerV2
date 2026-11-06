@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.prepare
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -82,7 +84,7 @@ fun StockScreen(onBack: () -> Unit, viewModel: StockViewModel = hiltViewModel())
     val state by viewModel.state.collectAsStateWithLifecycle()
     val number = NumberFormat.getIntegerInstance(Locale.forLanguageTag("vi-VN"))
 
-    SubScreen(title = "Tồn kho", subtitle = "Kho nhà phân phối", onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.mg_162), subtitle = stringResource(R.string.mg_163), onBack = onBack) { padding ->
         val stock = state.stock
         when {
             stock == null && state.error != null -> ErrorBox(state.error!!, onRetry = { viewModel.load(null) }, modifier = Modifier.padding(padding))
@@ -99,7 +101,7 @@ fun StockScreen(onBack: () -> Unit, viewModel: StockViewModel = hiltViewModel())
                         Text(it.name, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(16.dp, 8.dp))
                     }
                 }
-                SearchBox(state.query, viewModel::query, placeholder = "Mã, tên sản phẩm", modifier = Modifier.padding(horizontal = 16.dp))
+                SearchBox(state.query, viewModel::query, placeholder = stringResource(R.string.mg_164), modifier = Modifier.padding(horizontal = 16.dp))
                 val q = state.query.foldForSearch()
                 val shown = stock.items.filter { q.isEmpty() || "${it.productCode} ${it.productName}".foldForSearch().contains(q) }
                 LazyColumn(contentPadding = PaddingValues(16.dp)) {
@@ -110,7 +112,7 @@ fun StockScreen(onBack: () -> Unit, viewModel: StockViewModel = hiltViewModel())
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    if (shown.isEmpty()) item { Text("Không có sản phẩm", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    if (shown.isEmpty()) item { Text(stringResource(R.string.mg_165), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     items(shown, key = { it.productCode }) { i ->
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)) {
                             Column(Modifier.weight(1f)) {

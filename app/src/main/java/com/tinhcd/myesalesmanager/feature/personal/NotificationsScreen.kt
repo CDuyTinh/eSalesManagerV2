@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.background
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -107,7 +109,7 @@ fun NotificationsScreen(
 
     val feed = state.feed
     SubScreen(
-        title = "Thông báo",
+        title = stringResource(R.string.action_notifications),
         subtitle = feed?.let { if (it.unread > 0) "${it.unread} chưa đọc" else "Đã đọc hết" },
         onBack = onBack,
     ) { padding ->
@@ -122,12 +124,12 @@ fun NotificationsScreen(
                 if (feed.unread > 0) {
                     item {
                         Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-                            TextButton(onClick = viewModel::markAll) { Text("Đánh dấu đã đọc tất cả") }
+                            TextButton(onClick = viewModel::markAll) { Text(stringResource(R.string.mg_107)) }
                         }
                     }
                 }
                 if (feed.items.isEmpty()) {
-                    item { Text("Chưa có thông báo", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    item { Text(stringResource(R.string.mg_108), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
                 items(feed.items, key = { it.kindCode + it.sourceId }) { n ->
                     Card(onClick = { viewModel.open(n); onOpen(n) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {

@@ -182,7 +182,7 @@ fun WorkWithRouteScreen(
     }
 
     SubScreen(
-        title = "Đi tuyến cùng nhân viên",
+        title = stringResource(R.string.mg_320),
         subtitle = "Hôm nay · ${formatDay(todayVn())}",
         onBack = onBack,
         snackbar = snackbar,
@@ -210,7 +210,7 @@ fun WorkWithRouteScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         if (route.stops.isEmpty()) {
-                            item { Text("Hôm nay nhân viên không có điểm nào trên tuyến", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                            item { Text(stringResource(R.string.mg_385), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                         }
                         items(route.stops, key = { it.customerId }) { stop -> StopCard(stop) { viewModel.onStop(stop) } }
                     }
@@ -226,10 +226,10 @@ fun WorkWithRouteScreen(
             text = { Text("Bắt đầu viếng thăm ${stop.name} cùng nhân viên? Vị trí hiện tại sẽ được ghi lại.") },
             confirmButton = {
                 TextButton(onClick = viewModel::checkIn, enabled = !state.checkingIn) {
-                    Text(if (state.checkingIn) "Đang check-in…" else "Check-in")
+                    Text(if (state.checkingIn) stringResource(R.string.mg_386) else "Check-in")
                 }
             },
-            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.checkingIn) { Text("Huỷ") } },
+            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.checkingIn) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
 }
@@ -240,15 +240,15 @@ private fun StopCard(stop: WorkWithStop, onClick: () -> Unit) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("${stop.code} – ${stop.name}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                if (!stop.planned) StatusPill("Ngoài tuyến", Kpi.Orange.first())
+                if (!stop.planned) StatusPill(stringResource(R.string.mg_223), Kpi.Orange.first())
             }
             stop.address?.let { Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 val rep = stop.repStatus
-                StatusPill("NV: ${rep?.label ?: "Chưa ghé"}", if (rep == null) Kpi.Slate.first() else Kpi.Blue.first())
+                StatusPill("NV: ${rep?.label ?: stringResource(R.string.mg_387)}", if (rep == null) Kpi.Slate.first() else Kpi.Blue.first())
                 stop.myStatus?.let {
                     StatusPill(
-                        if (it == VisitStatus.IN_PROGRESS) "Bạn: đang ghé" else "Bạn: đã ghé",
+                        if (it == VisitStatus.IN_PROGRESS) stringResource(R.string.mg_388) else stringResource(R.string.mg_389),
                         if (it == VisitStatus.IN_PROGRESS) Kpi.Orange.first() else Kpi.Green.first(),
                     )
                 }

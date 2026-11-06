@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.core.ui
 
 import androidx.compose.foundation.background
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -60,7 +62,7 @@ fun SubScreen(
                 IconButton(onClick = onBack) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Quay lại",
+                        contentDescription = stringResource(R.string.mg_8),
                         tint = MaterialTheme.brand.onHeader,
                     )
                 }

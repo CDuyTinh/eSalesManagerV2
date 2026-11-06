@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -145,7 +147,7 @@ fun MyLeaveScreen(onBack: () -> Unit, viewModel: MyLeaveViewModel = hiltViewMode
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(state.message) { state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() } }
 
-    SubScreen(title = "Nghỉ phép của tôi", onBack = onBack, snackbar = snackbar) { padding ->
+    SubScreen(title = stringResource(R.string.personal_leave), onBack = onBack, snackbar = snackbar) { padding ->
         val board = state.board
         when {
             board == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
@@ -159,20 +161,20 @@ fun MyLeaveScreen(onBack: () -> Unit, viewModel: MyLeaveViewModel = hiltViewMode
                         // There is no AM level yet, so nobody in the app rules on a
                         // supervisor's leave; head office does, as before.
                         Text(
-                            "Đơn của giám sát do cấp quản lý trên (ASM) duyệt.",
+                            stringResource(R.string.mg_97),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     if (board.requests.isEmpty()) {
-                        item { Text("Chưa có đơn nghỉ phép nào", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        item { Text(stringResource(R.string.mg_98), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     }
                     items(board.requests, key = { it.id }) { l -> LeaveCard(l) { viewModel.askWithdraw(l) } }
                 }
                 ExtendedFloatingActionButton(
                     onClick = viewModel::newRequest,
                     icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                    text = { Text("Xin nghỉ") },
+                    text = { Text(stringResource(R.string.mg_99)) },
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
                 )
             }
@@ -183,10 +185,10 @@ fun MyLeaveScreen(onBack: () -> Unit, viewModel: MyLeaveViewModel = hiltViewMode
     state.withdrawing?.let { l ->
         AlertDialog(
             onDismissRequest = viewModel::dismiss,
-            title = { Text("Rút đơn") },
+            title = { Text(stringResource(R.string.mg_100)) },
             text = { Text("Rút đơn ${l.typeName} ${formatIsoDate(l.fromDate)} – ${formatIsoDate(l.toDate)}?") },
-            confirmButton = { TextButton(onClick = viewModel::withdraw, enabled = !state.saving) { Text("Rút đơn") } },
-            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text("Huỷ") } },
+            confirmButton = { TextButton(onClick = viewModel::withdraw, enabled = !state.saving) { Text(stringResource(R.string.mg_100)) } },
+            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
 }
@@ -198,19 +200,19 @@ private fun LeaveCard(l: MyLeave, onWithdraw: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(l.typeName, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 val (label, color) = when (l.status) {
-                    "approved" -> "Đã duyệt" to Kpi.Green.first()
-                    "rejected" -> "Từ chối" to Kpi.Orange.first()
-                    "cancelled" -> "Đã rút" to Kpi.Slate.first()
-                    "pending" -> "Chờ duyệt" to Kpi.Blue.first()
+                    "approved" -> stringResource(R.string.status_approved) to Kpi.Green.first()
+                    "rejected" -> stringResource(R.string.status_rejected) to Kpi.Orange.first()
+                    "cancelled" -> stringResource(R.string.mg_101) to Kpi.Slate.first()
+                    "pending" -> stringResource(R.string.status_pending) to Kpi.Blue.first()
                     else -> l.status to Kpi.Slate.first()
                 }
                 StatusPill(label, color)
             }
-            Text("${formatIsoDate(l.fromDate)} – ${formatIsoDate(l.toDate)} · ${if (l.isPaid) "có lương" else "không lương"}",
+            Text("${formatIsoDate(l.fromDate)} – ${formatIsoDate(l.toDate)} · ${if (l.isPaid) stringResource(R.string.mg_102) else stringResource(R.string.mg_103)}",
                 style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (l.reason.isNotBlank()) Text(l.reason, style = MaterialTheme.typography.bodyLarge)
             l.decisionNote?.let { Text("Ghi chú duyệt: $it", style = MaterialTheme.typography.labelSmall) }
-            if (l.status == "pending") OutlinedButton(onClick = onWithdraw) { Text("Rút đơn") }
+            if (l.status == "pending") OutlinedButton(onClick = onWithdraw) { Text(stringResource(R.string.mg_100)) }
         }
     }
 }
@@ -221,7 +223,7 @@ private fun LeaveDialog(d: LeaveDraft, board: LeaveBoard, saving: Boolean, viewM
     var picking by remember { mutableStateOf<String?>(null) }
     AlertDialog(
         onDismissRequest = viewModel::dismiss,
-        title = { Text("Xin nghỉ phép") },
+        title = { Text(stringResource(R.string.mg_104)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -236,14 +238,14 @@ private fun LeaveDialog(d: LeaveDraft, board: LeaveBoard, saving: Boolean, viewM
                 OutlinedTextField(
                     value = d.reason,
                     onValueChange = { v -> viewModel.edit { it.copy(reason = v) } },
-                    label = { Text("Lý do") },
+                    label = { Text(stringResource(R.string.lbl_reason)) },
                     minLines = 2,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
-        confirmButton = { TextButton(onClick = viewModel::submit, enabled = !saving) { Text(if (saving) "Đang gửi…" else "Gửi đơn") } },
-        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !saving) { Text("Huỷ") } },
+        confirmButton = { TextButton(onClick = viewModel::submit, enabled = !saving) { Text(if (saving) stringResource(R.string.mg_105) else stringResource(R.string.mg_106)) } },
+        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !saving) { Text(stringResource(R.string.action_cancel)) } },
     )
     when (picking) {
         "from" -> DatePickDialog(d.from, { v -> viewModel.edit { it.copy(from = v, to = if (it.to.isBefore(v)) v else it.to) } }) { picking = null }

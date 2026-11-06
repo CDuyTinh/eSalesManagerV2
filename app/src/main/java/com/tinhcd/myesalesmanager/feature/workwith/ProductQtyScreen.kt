@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -190,7 +192,7 @@ fun ProductQtyScreen(onBack: () -> Unit, viewModel: ProductQtyViewModel = hiltVi
 
     SubScreen(
         title = viewModel.mode.title,
-        subtitle = if (order) "Đơn ghi cho nhân viên" else state.data?.previousCountDate?.let { "Lần kiểm trước ${formatIsoDate(it)}" },
+        subtitle = if (order) stringResource(R.string.mg_376) else state.data?.previousCountDate?.let { "Lần kiểm trước ${formatIsoDate(it)}" },
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
@@ -203,19 +205,19 @@ fun ProductQtyScreen(onBack: () -> Unit, viewModel: ProductQtyViewModel = hiltVi
                                 Text("Tạm tính ${formatDong(gross)}", fontWeight = FontWeight.SemiBold)
                                 state.preview?.let { p ->
                                     Text(
-                                        if (p.earned.isEmpty()) "Không có khuyến mãi" else "KM: ${p.earned.joinToString("; ")}" +
+                                        if (p.earned.isEmpty()) stringResource(R.string.mg_377) else "KM: ${p.earned.joinToString("; ")}" +
                                             (if (p.totalDiscount > 0) " · giảm ${formatDong(p.totalDiscount)}" else ""),
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                 }
                             }
                             OutlinedButton(onClick = viewModel::preview, enabled = !state.previewing && gross > 0) {
-                                Text(if (state.previewing) "Đang tính…" else "Tính KM")
+                                Text(if (state.previewing) stringResource(R.string.mg_378) else stringResource(R.string.mg_379))
                             }
                         }
                     }
                     PrimaryButton(
-                        if (order) "Gửi đơn hàng" else "Lưu kiểm tồn", viewModel::submit, Modifier.fillMaxWidth(),
+                        if (order) stringResource(R.string.mg_380) else stringResource(R.string.mg_381), viewModel::submit, Modifier.fillMaxWidth(),
                         enabled = !state.saving && state.data != null, loading = state.saving,
                     )
                 }
@@ -234,12 +236,12 @@ fun ProductQtyScreen(onBack: () -> Unit, viewModel: ProductQtyViewModel = hiltVi
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    item { SearchBox(state.query, viewModel::query, placeholder = "Mã, tên sản phẩm") }
+                    item { SearchBox(state.query, viewModel::query, placeholder = stringResource(R.string.mg_164)) }
                     items(shown, key = { it.id }) { p -> ProductRow(p, order, state.qty, viewModel::setQty) }
                     if (order) {
                         item {
                             OutlinedTextField(
-                                state.note, viewModel::setNote, label = { Text("Ghi chú đơn hàng") },
+                                state.note, viewModel::setNote, label = { Text(stringResource(R.string.mg_382)) },
                                 modifier = Modifier.fillMaxWidth(),
                             )
                         }
@@ -261,7 +263,7 @@ private fun ProductRow(p: VisitProduct, order: Boolean, qty: Map<String, String>
                 Text("Lần trước: ${p.previousBaseQty} ${p.baseUom}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (units.isEmpty()) {
-                Text("Không có giá bán", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.mg_383), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 units.forEach { u ->

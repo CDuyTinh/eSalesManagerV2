@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.prepare
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -113,20 +115,20 @@ fun TeamCustomersScreen(
         onPauseOrDispose { }
     }
 
-    SubScreen(title = "Sửa khách hàng", subtitle = "Điểm bán trên tuyến của nhân viên", onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.mg_166), subtitle = stringResource(R.string.mg_167), onBack = onBack) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(16.dp, 8.dp)) {
                 items(state.team, key = { it.id }) { m ->
                     FilterChip(selected = state.repId == m.id, onClick = { viewModel.selectRep(m.id) }, label = { Text(m.fullName) })
                 }
             }
-            SearchBox(state.query, viewModel::query, placeholder = "Mã, tên, địa chỉ, SĐT", modifier = Modifier.padding(horizontal = 16.dp))
+            SearchBox(state.query, viewModel::query, placeholder = stringResource(R.string.mg_168), modifier = Modifier.padding(horizontal = 16.dp))
             val list = state.customers
             when {
                 list == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh)
                 list == null -> SkeletonList(count = 7)
                 else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    if (list.isEmpty()) item { Text("Không có điểm bán", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    if (list.isEmpty()) item { Text(stringResource(R.string.mg_169), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     items(list, key = { it.id }) { c ->
                         Card(onClick = { onOpen(c.id) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                             Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {

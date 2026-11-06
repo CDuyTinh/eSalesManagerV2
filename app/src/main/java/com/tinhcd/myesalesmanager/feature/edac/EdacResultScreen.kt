@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -94,7 +96,7 @@ fun EdacResultScreen(onBack: () -> Unit, viewModel: EdacResultViewModel = hiltVi
                 item {
                     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text("Kết quả", fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.mg_76), fontWeight = FontWeight.SemiBold)
                             Text(r.training.result ?: "—")
                             Text(
                                 "Bắt đầu ${formatDateTime(r.training.checkInAt)}" +
@@ -103,7 +105,7 @@ fun EdacResultScreen(onBack: () -> Unit, viewModel: EdacResultViewModel = hiltVi
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                                listOf(r.training.supervisorPhotoUrl to "Giám sát", r.training.salespersonPhotoUrl to "Nhân viên")
+                                listOf(r.training.supervisorPhotoUrl to stringResource(R.string.mg_77), r.training.salespersonPhotoUrl to stringResource(R.string.lbl_staff))
                                     .forEach { (url, label) ->
                                         Column(Modifier.weight(1f)) {
                                             Text(label, style = MaterialTheme.typography.labelSmall)

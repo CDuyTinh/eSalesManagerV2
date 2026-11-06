@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import com.tinhcd.myesalesmanager.domain.model.OrderRow
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.size
 import androidx.paging.compose.itemKey
@@ -105,7 +107,7 @@ fun ReportScreen(
             band = true,
             actions = {
                 IconButton(onClick = { filtering = true }) {
-                    Icon(Icons.Default.FilterList, contentDescription = "Bộ lọc", tint = MaterialTheme.brand.onHeader)
+                    Icon(Icons.Default.FilterList, contentDescription = stringResource(R.string.mg_204), tint = MaterialTheme.brand.onHeader)
                 }
             },
         ) { padding ->
@@ -140,7 +142,7 @@ fun ReportScreen(
                             modifier = Modifier.padding(horizontal = 8.dp),
                         ) {
                             Icon(Icons.Default.Share, contentDescription = null)
-                            Text("  Xuất Excel (CSV) / chia sẻ")
+                            Text(stringResource(R.string.mg_215))
                         }
                     }
                 }
@@ -259,21 +261,21 @@ private fun LazyListScope.activities(d: ActivitiesReport, team: Boolean, onPhoto
     item {
         Block {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("Kế hoạch", "${s.planned}", Kpi.Slate, Modifier.weight(1f))
-                StatTile("Đã ghé", "${s.visited}", Kpi.Blue, Modifier.weight(1f))
-                StatTile("Có đơn", "${s.strike}", Kpi.Green, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_195), "${s.planned}", Kpi.Slate, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_199), "${s.visited}", Kpi.Blue, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_221), "${s.strike}", Kpi.Green, Modifier.weight(1f))
             }
-            Line("Không đơn / Đóng cửa", "${s.nonStrike} / ${s.closed}")
-            Line("Ngoài tuyến", "${s.unplanned}")
-            Line("Doanh số", formatDong(s.orderAmount))
+            Line(stringResource(R.string.mg_222), "${s.nonStrike} / ${s.closed}")
+            Line(stringResource(R.string.mg_223), "${s.unplanned}")
+            Line(stringResource(R.string.mg_33), formatDong(s.orderAmount))
         }
     }
     if (team && d.members.isNotEmpty()) {
-        item { Block { Title("Theo nhân viên")
+        item { Block { Title(stringResource(R.string.mg_224))
             d.members.forEach { m ->
                 Line(m.name, "${m.visited}/${m.planned} · ${m.strike} đơn · ${compactMoney(m.orderAmount)}")
                 Faint(
-                    if (m.firstCheckIn == null) "Chưa đi tuyến"
+                    if (m.firstCheckIn == null) stringResource(R.string.mg_225)
                     else "Bắt đầu ${formatDateTime(m.firstCheckIn).takeLast(5)}" +
                         (m.lastCheckOut?.let { " · kết thúc ${formatDateTime(it).takeLast(5)}" } ?: ""),
                 )
@@ -284,14 +286,14 @@ private fun LazyListScope.activities(d: ActivitiesReport, team: Boolean, onPhoto
         Block(onClick = { onPhotos(r.salesperson, r.customerCode) }) {
             Row {
                 Text("${r.customerCode} – ${r.customerName}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                if (!r.planned) StatusPill("Ngoài tuyến", Kpi.Orange.first())
+                if (!r.planned) StatusPill(stringResource(R.string.mg_223), Kpi.Orange.first())
             }
             Faint(
                 listOfNotNull(
                     if (team) who(r.salesperson) else null,
                     r.checkInAt?.let { formatDateTime(it).takeLast(5) },
                     r.minutes?.let { "$it phút" },
-                    if (r.orderAmount > 0) formatDong(r.orderAmount) else when (r.status) { "closed" -> "Đóng cửa"; else -> "Không đơn" },
+                    if (r.orderAmount > 0) formatDong(r.orderAmount) else when (r.status) { "closed" -> stringResource(R.string.mg_227); else -> stringResource(R.string.mg_228) },
                 ).joinToString(" · "),
             )
         }
@@ -304,7 +306,7 @@ private fun LazyListScope.sales(d: SalesReport, team: Boolean) {
     item {
         Block {
             Text(formatDong(d.revenue), style = MaterialTheme.typography.headlineSmall)
-            Line("Số đơn", "${d.orderCount}")
+            Line(stringResource(R.string.mg_181), "${d.orderCount}")
             val pct = percent(d.revenue, d.target)
             if (pct != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -312,11 +314,11 @@ private fun LazyListScope.sales(d: SalesReport, team: Boolean) {
                     PercentPill(pct, Kpi.Violet.first())
                 }
                 KpiBar(pct / 100f, Kpi.Violet)
-            } else Faint("Chưa có chỉ tiêu")
+            } else Faint(stringResource(R.string.mg_39))
         }
     }
     if (team && d.members.isNotEmpty()) {
-        item { Block { Title("Theo nhân viên")
+        item { Block { Title(stringResource(R.string.mg_224))
             d.members.forEach { m ->
                 Line(m.name, compactMoney(m.revenue) + (percent(m.revenue, m.target)?.let { " · $it%" } ?: ""))
                 Faint("${m.orders} đơn" + (m.target?.let { " · chỉ tiêu ${compactMoney(it)}" } ?: ""))
@@ -324,12 +326,12 @@ private fun LazyListScope.sales(d: SalesReport, team: Boolean) {
         } }
     }
     item { Block { Title("Theo khách hàng (${d.customers.size})")
-        if (d.customers.isEmpty()) Faint("Chưa có")
+        if (d.customers.isEmpty()) Faint(stringResource(R.string.mg_229))
         d.customers.take(20).forEach { c -> Line("${c.code} – ${c.name}", compactMoney(c.revenue)) }
         if (d.customers.size > 20) Faint("… và ${d.customers.size - 20} khách hàng khác")
     } }
     item { Block { Title("Theo sản phẩm (${d.products.size})")
-        if (d.products.isEmpty()) Faint("Chưa có")
+        if (d.products.isEmpty()) Faint(stringResource(R.string.mg_229))
         d.products.forEach { p ->
             Line(p.name, compactMoney(p.revenue))
             Faint("${p.code} · ${p.baseQty} ${p.baseUom}")
@@ -342,14 +344,14 @@ private fun LazyListScope.sales(d: SalesReport, team: Boolean) {
 private fun LazyListScope.orders(d: OrdersReport, team: Boolean, rows: LazyPagingItems<OrderRow>) {
     item {
         Block {
-            Line("Số đơn", "${d.total}")
-            Line("Tổng tiền (trừ đơn huỷ)", formatDong(d.totalAmount))
+            Line(stringResource(R.string.mg_181), "${d.total}")
+            Line(stringResource(R.string.mg_230), formatDong(d.totalAmount))
             Faint(d.counts.entries.joinToString(" · ") { "${orderStatusLabel(it.key)}: ${it.value}" })
         }
     }
     when (rows.loadState.refresh) {
         is LoadState.Loading -> if (rows.itemCount == 0) return item { SkeletonList(count = 3) }
-        is LoadState.Error -> return item { PageError("Không tải được danh sách đơn hàng", rows::retry) }
+        is LoadState.Error -> return item { PageError(stringResource(R.string.mg_231), rows::retry) }
         is LoadState.NotLoading -> if (rows.itemCount == 0) return empty()
     }
     items(count = rows.itemCount, key = rows.itemKey { it.orderNo }) { index ->
@@ -371,7 +373,7 @@ private fun LazyListScope.orders(d: OrdersReport, team: Boolean, rows: LazyPagin
                 CircularProgressIndicator(strokeWidth = 2.dp, modifier = Modifier.size(24.dp))
             }
         }
-        is LoadState.Error -> item { PageError("Không tải được trang tiếp theo", rows::retry) }
+        is LoadState.Error -> item { PageError(stringResource(R.string.mg_232), rows::retry) }
         is LoadState.NotLoading -> Unit
     }
 }
@@ -380,7 +382,7 @@ private fun LazyListScope.orders(d: OrdersReport, team: Boolean, rows: LazyPagin
 private fun PageError(message: String, onRetry: () -> Unit) {
     Column(Modifier.fillMaxWidth().padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error)
-        TextButton(onClick = onRetry) { Text("Thử lại") }
+        TextButton(onClick = onRetry) { Text(stringResource(R.string.permission_ask_again)) }
     }
 }
 
@@ -389,8 +391,8 @@ private fun PageError(message: String, onRetry: () -> Unit) {
 private fun LazyListScope.sku(d: SkuReport) {
     item {
         Block {
-            Line("Số sản phẩm", "${d.items.size}")
-            Line("Doanh số", formatDong(d.items.sumOf { it.amountTotal }))
+            Line(stringResource(R.string.mg_233), "${d.items.size}")
+            Line(stringResource(R.string.mg_33), formatDong(d.items.sumOf { it.amountTotal }))
         }
     }
     if (d.items.isEmpty()) empty() else items(d.items, key = { it.code }) { r ->
@@ -407,9 +409,9 @@ private fun LazyListScope.trade(d: TradeReport, team: Boolean) {
     item {
         Block {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("Trưng bày", "${d.displayCount}", Kpi.Blue, Modifier.weight(1f))
-                StatTile("Tích lũy", "${d.loyaltyCount}", Kpi.Violet, Modifier.weight(1f))
-                StatTile("Khách hàng", "${d.customerCount}", Kpi.Green, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_160), "${d.displayCount}", Kpi.Blue, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_161), "${d.loyaltyCount}", Kpi.Violet, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_176), "${d.customerCount}", Kpi.Green, Modifier.weight(1f))
             }
         }
     }
@@ -421,7 +423,7 @@ private fun LazyListScope.trade(d: TradeReport, team: Boolean) {
             }
             Faint(
                 listOfNotNull(
-                    if (r.kind == "display") "Trưng bày" else "Tích lũy",
+                    if (r.kind == "display") stringResource(R.string.mg_160) else stringResource(R.string.mg_161),
                     "${r.programCode} ${r.levelName.orEmpty()}".trim(),
                     "${r.portion} suất",
                     formatIsoDate(r.registeredAt),
@@ -438,9 +440,9 @@ private fun LazyListScope.work(d: WorkReport, team: Boolean) {
     item {
         Block {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("Hoàn thành", "${d.completed}", Kpi.Green, Modifier.weight(1f))
-                StatTile("Đã huỷ", "${d.cancelled}", Kpi.Orange, Modifier.weight(1f))
-                StatTile("Tổng", "${d.total}", Kpi.Slate, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_137), "${d.completed}", Kpi.Green, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_220), "${d.cancelled}", Kpi.Orange, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_234), "${d.total}", Kpi.Slate, Modifier.weight(1f))
             }
         }
     }
@@ -448,7 +450,7 @@ private fun LazyListScope.work(d: WorkReport, team: Boolean) {
         Block {
             Row {
                 Text(r.content, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                StatusPill(if (r.status == "completed") "Hoàn thành" else "Đã huỷ",
+                StatusPill(if (r.status == "completed") stringResource(R.string.mg_137) else stringResource(R.string.mg_220),
                     if (r.status == "completed") Kpi.Green.first() else Kpi.Orange.first())
             }
             Faint(listOfNotNull(r.categoryName, formatWindow(r.fromAt, r.toAt), if (team) who(r.salesperson) else null).joinToString(" · "))
@@ -463,9 +465,9 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
     item {
         Block {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("Đã xong", "${d.trained}/${d.plans}", Kpi.Green, Modifier.weight(1f))
-                StatTile("Chưa xong", "${d.untrained}", Kpi.Orange, Modifier.weight(1f))
-                StatTile("Điểm", d.score?.let { "$it%" } ?: "—", Kpi.Blue, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_90), "${d.trained}/${d.plans}", Kpi.Green, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_236), "${d.untrained}", Kpi.Orange, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_198), d.score?.let { "$it%" } ?: "—", Kpi.Blue, Modifier.weight(1f))
             }
             Faint("${d.outlets} điểm bán đã kèm cặp · điểm = trung bình bước Đánh giá theo thang tối đa")
         }
@@ -473,7 +475,7 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
     if (team && d.members.isNotEmpty()) {
         item {
             Block {
-                Title("Theo nhân viên")
+                Title(stringResource(R.string.mg_224))
                 d.members.forEach { m ->
                     Line(m.name, "${m.trained}/${m.plans} buổi" + (m.score?.let { " · $it%" } ?: ""))
                 }
@@ -493,9 +495,9 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
                 Row {
                     Text(r.rep.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     when (r.status) {
-                        "completed" -> StatusPill("Đã huấn luyện", Kpi.Green.first())
+                        "completed" -> StatusPill(stringResource(R.string.mg_196), Kpi.Green.first())
                         "in_progress" -> StatusPill("Đang ở bước ${(r.currentStep ?: 0) + 1}/8", Kpi.Orange.first())
-                        else -> StatusPill("Chưa huấn luyện", Kpi.Slate.first())
+                        else -> StatusPill(stringResource(R.string.mg_238), Kpi.Slate.first())
                     }
                 }
                 Faint(
@@ -517,9 +519,9 @@ private fun LazyListScope.tracking(d: TrackingReport, team: Boolean, onPhotos: (
     item {
         Block {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("Đã ghé", "${d.members.sumOf { it.visited }}/${d.members.sumOf { it.planned }}", Kpi.Blue, Modifier.weight(1f))
-                StatTile("Đơn hàng", "${d.members.sumOf { it.orders }}", Kpi.Green, Modifier.weight(1f))
-                StatTile("Doanh số", compactMoney(d.members.sumOf { it.revenue }), Kpi.Orange, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_199), "${d.members.sumOf { it.visited }}/${d.members.sumOf { it.planned }}", Kpi.Blue, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_30), "${d.members.sumOf { it.orders }}", Kpi.Green, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_33), compactMoney(d.members.sumOf { it.revenue }), Kpi.Orange, Modifier.weight(1f))
             }
         }
     }
@@ -528,10 +530,10 @@ private fun LazyListScope.tracking(d: TrackingReport, team: Boolean, onPhotos: (
             Row {
                 Text(m.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 when {
-                    m.inVisit != null -> StatusPill("Đang ghé", Kpi.Orange.first())
-                    m.clockOut != null -> StatusPill("Đã nghỉ", Kpi.Slate.first())
-                    m.clockIn != null -> StatusPill("Đang làm", Kpi.Green.first())
-                    else -> StatusPill("Chưa vào ca", Kpi.Slate.first())
+                    m.inVisit != null -> StatusPill(stringResource(R.string.mg_239), Kpi.Orange.first())
+                    m.clockOut != null -> StatusPill(stringResource(R.string.mg_240), Kpi.Slate.first())
+                    m.clockIn != null -> StatusPill(stringResource(R.string.mg_241), Kpi.Green.first())
+                    else -> StatusPill(stringResource(R.string.mg_242), Kpi.Slate.first())
                 }
             }
             m.inVisit?.let { Text("Tại $it" + (m.inVisitSince?.let { s -> " từ ${formatDateTime(s).takeLast(5)}" } ?: ""), style = MaterialTheme.typography.bodyLarge) }
@@ -550,7 +552,7 @@ private fun LazyListScope.tracking(d: TrackingReport, team: Boolean, onPhotos: (
             if (m.clockIn != null || m.visited > 0) {
                 TextButton(onClick = { onPhotos(m.code) }, contentPadding = PaddingValues(0.dp)) {
                     Icon(Icons.Default.PhotoLibrary, contentDescription = null)
-                    Text("  Xem ảnh chấm công & viếng thăm")
+                    Text(stringResource(R.string.mg_243))
                 }
             }
         }

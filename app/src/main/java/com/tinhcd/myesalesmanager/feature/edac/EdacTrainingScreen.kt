@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -134,25 +136,25 @@ fun EdacTrainingScreen(
 fun RepFigures(t: EdacTraining, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         t.today?.let { d ->
-            Text("Trong ngày", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.mg_28), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatTile("Doanh số", compactMoney(d.revenue), Kpi.Blue, Modifier.weight(1f))
-                StatTile("Đơn hàng", d.orderCount.toString(), Kpi.Green, Modifier.weight(1f))
-                StatTile("Viếng thăm", "${d.visitDone}/${d.visitPlanned}", Kpi.Violet, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_33), compactMoney(d.revenue), Kpi.Blue, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_30), d.orderCount.toString(), Kpi.Green, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_29), "${d.visitDone}/${d.visitPlanned}", Kpi.Violet, Modifier.weight(1f))
             }
         }
         t.month?.let { m ->
-            Text("Tháng này", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.mg_32), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatTile(
-                    "Doanh số", compactMoney(m.revenue), Kpi.Blue, Modifier.weight(1f),
+                    stringResource(R.string.mg_33), compactMoney(m.revenue), Kpi.Blue, Modifier.weight(1f),
                     footer = m.revenueTarget?.let { "CT ${compactMoney(it)}" },
                 )
                 StatTile(
-                    "Đơn hàng", m.orderCount.toString(), Kpi.Green, Modifier.weight(1f),
+                    stringResource(R.string.mg_30), m.orderCount.toString(), Kpi.Green, Modifier.weight(1f),
                     footer = m.orderTarget?.let { "CT $it" },
                 )
-                StatTile("SKU/đơn", "%.1f".format(m.skuPerOrder), Kpi.Orange, Modifier.weight(1f))
+                StatTile(stringResource(R.string.mg_31), "%.1f".format(m.skuPerOrder), Kpi.Orange, Modifier.weight(1f))
             }
         }
     }
@@ -181,9 +183,9 @@ private fun StepCard(step: EdacStep, open: Boolean, done: Boolean, outlets: Int?
                 )
             }
             when {
-                done -> Icon(Icons.Default.CheckCircle, contentDescription = "Đã xong", tint = Kpi.Green.first())
+                done -> Icon(Icons.Default.CheckCircle, contentDescription = stringResource(R.string.mg_90), tint = Kpi.Green.first())
                 open -> Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
-                else -> Icon(Icons.Default.Lock, contentDescription = "Chưa mở", tint = MaterialTheme.colorScheme.outline)
+                else -> Icon(Icons.Default.Lock, contentDescription = stringResource(R.string.mg_91), tint = MaterialTheme.colorScheme.outline)
             }
         }
     }

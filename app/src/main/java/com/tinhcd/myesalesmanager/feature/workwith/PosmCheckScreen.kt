@@ -183,7 +183,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                 Text("${draft.item.programCode} · đang đặt ${draft.item.placedQty} ${draft.item.unitName}", style = MaterialTheme.typography.labelSmall)
                 OutlinedTextField(
                     draft.counted, { v -> viewModel.edit { it.copy(counted = v.filter(Char::isDigit).take(4)) } },
-                    label = { Text("Số lượng kiểm được") },
+                    label = { Text(stringResource(R.string.mg_369)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -192,11 +192,11 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                         FilterChip(selected = draft.condition == c, onClick = { viewModel.edit { it.copy(condition = c) } }, label = { Text(c.label) })
                     }
                 }
-                OutlinedTextField(draft.remark, { v -> viewModel.edit { it.copy(remark = v) } }, label = { Text("Ghi chú") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(draft.remark, { v -> viewModel.edit { it.copy(remark = v) } }, label = { Text(stringResource(R.string.mg_89)) }, modifier = Modifier.fillMaxWidth())
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(draft.photos) { path ->
                         AsyncImage(
-                            model = File(path), contentDescription = "Ảnh POSM", contentScale = ContentScale.Crop,
+                            model = File(path), contentDescription = stringResource(R.string.mg_370), contentScale = ContentScale.Crop,
                             modifier = Modifier.size(80.dp).clip(RoundedCornerShape(8.dp)),
                         )
                     }
@@ -210,7 +210,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                     ) {
                         Text("Chụp ảnh (${draft.photos.size})", maxLines = 1)
                     }
-                    PrimaryButton("Lưu", viewModel::save, Modifier.weight(1f), enabled = !state.saving, loading = state.saving, height = 48.dp)
+                    PrimaryButton(stringResource(R.string.mg_57), viewModel::save, Modifier.weight(1f), enabled = !state.saving, loading = state.saving, height = 48.dp)
                 }
             }
             else -> LazyColumn(
@@ -218,7 +218,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                if (items.isEmpty()) item { Text("Điểm bán không có POSM", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                if (items.isEmpty()) item { Text(stringResource(R.string.mg_371), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 items(items, key = { it.programId + it.itemId }) { i ->
                     Card(onClick = { viewModel.open(i) }, modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -232,7 +232,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                                     if (i.condition == "usable") Kpi.Green.first() else Kpi.Orange.first(),
                                 )
                             } else {
-                                TextButton(onClick = { viewModel.open(i) }) { Text("Kiểm") }
+                                TextButton(onClick = { viewModel.open(i) }) { Text(stringResource(R.string.mg_372)) }
                             }
                         }
                     }

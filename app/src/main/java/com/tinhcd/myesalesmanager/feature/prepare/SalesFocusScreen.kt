@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.prepare
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -78,7 +80,7 @@ private val number = NumberFormat.getIntegerInstance(Locale.forLanguageTag("vi-V
 @Composable
 fun SalesFocusScreen(onBack: () -> Unit, viewModel: SalesFocusViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    SubScreen(title = "Trọng tâm bán hàng", subtitle = formatDay(todayVn()), onBack = onBack) { padding ->
+    SubScreen(title = stringResource(R.string.mg_155), subtitle = formatDay(todayVn()), onBack = onBack) { padding ->
         val f = state.focus
         when {
             f == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::refresh, modifier = Modifier.padding(padding))
@@ -88,25 +90,25 @@ fun SalesFocusScreen(onBack: () -> Unit, viewModel: SalesFocusViewModel = hiltVi
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                item { Text("Sản phẩm trọng tâm", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold) }
-                if (f.products.isEmpty()) item { Text("Hôm nay không có sản phẩm trọng tâm", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                item { Text(stringResource(R.string.mg_156), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold) }
+                if (f.products.isEmpty()) item { Text(stringResource(R.string.mg_157), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 items(f.products, key = { it.productCode + it.fromDate }) { FocusCard(it) }
 
                 item {
                     Text(
-                        "Chương trình đang chạy",
+                        stringResource(R.string.mg_158),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }
-                if (f.programs.isEmpty()) item { Text("Không có chương trình", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                if (f.programs.isEmpty()) item { Text(stringResource(R.string.mg_159), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 items(f.programs, key = { it.kind + it.code }) { p ->
                     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text("${p.code} – ${p.name}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
-                                StatusPill(if (p.kind == "display") "Trưng bày" else "Tích lũy", if (p.kind == "display") Kpi.Blue.first() else Kpi.Violet.first())
+                                StatusPill(if (p.kind == "display") stringResource(R.string.mg_160) else stringResource(R.string.mg_161), if (p.kind == "display") Kpi.Blue.first() else Kpi.Violet.first())
                             }
                             Text(
                                 "${formatIsoDate(p.fromDate)} – ${formatIsoDate(p.toDate)} · nhóm đã đăng ký ${p.registered} điểm",

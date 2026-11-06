@@ -153,14 +153,14 @@ fun EdacFinishScreen(
     LaunchedEffect(state.message) { state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() } }
 
     SubScreen(
-        title = "8. Hoàn tất",
-        subtitle = "Kết quả huấn luyện",
+        title = stringResource(R.string.mg_60),
+        subtitle = stringResource(R.string.mg_61),
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
             Surface(tonalElevation = 3.dp) {
                 PrimaryButton(
-                    "Kết thúc huấn luyện", viewModel::finish,
+                    stringResource(R.string.mg_62), viewModel::finish,
                     Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp, 10.dp),
                     enabled = !state.saving, loading = state.saving,
                 )
@@ -174,15 +174,15 @@ fun EdacFinishScreen(
             OutlinedTextField(
                 value = state.result,
                 onValueChange = viewModel::setResult,
-                label = { Text("Kết quả huấn luyện *") },
+                label = { Text(stringResource(R.string.mg_63)) },
                 minLines = 4,
                 modifier = Modifier.fillMaxWidth(),
             )
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                PhotoSlot("Ảnh giám sát *", state.supervisorPhoto, Modifier.weight(1f)) {
+                PhotoSlot(stringResource(R.string.mg_64), state.supervisorPhoto, Modifier.weight(1f)) {
                     cameraPermission.launch { takePicture.launch(viewModel.newShot(supervisor = true).uri) }
                 }
-                PhotoSlot("Ảnh nhân viên *", state.salespersonPhoto, Modifier.weight(1f)) {
+                PhotoSlot(stringResource(R.string.mg_65), state.salespersonPhoto, Modifier.weight(1f)) {
                     cameraPermission.launch { takePicture.launch(viewModel.newShot(supervisor = false).uri) }
                 }
             }
@@ -208,7 +208,7 @@ private fun PhotoSlot(label: String, path: String?, modifier: Modifier, onShoot:
             } else {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.PhotoCamera, contentDescription = null)
-                    Text("Chụp ảnh", style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(R.string.mg_66), style = MaterialTheme.typography.labelSmall)
                 }
             }
         }

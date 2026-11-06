@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.core.ui
 
 import androidx.compose.material3.DatePicker
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,8 +27,8 @@ fun DatePickDialog(initial: LocalDate, onPick: (LocalDate) -> Unit, onDismiss: (
             TextButton(onClick = {
                 state.selectedDateMillis?.let { onPick(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) }
                 onDismiss()
-            }) { Text("Chọn") }
+            }) { Text(stringResource(R.string.mg_3)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Huỷ") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) } },
     ) { DatePicker(state = state) }
 }

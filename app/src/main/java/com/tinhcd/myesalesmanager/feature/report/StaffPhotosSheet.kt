@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import androidx.compose.foundation.background
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,7 +61,7 @@ fun StaffPhotosSheet(sheet: PhotoSheet, day: String, onClose: () -> Unit) {
 
     Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         SubScreen(
-            title = "Ảnh trong ngày",
+            title = stringResource(R.string.mg_244),
             subtitle = "${sheet.name} · $day",
             onBack = onClose,
         ) { padding ->
@@ -78,7 +80,7 @@ fun StaffPhotosSheet(sheet: PhotoSheet, day: String, onClose: () -> Unit) {
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         if (visits.isEmpty() && punches.isEmpty()) {
-                            item { Faded("Không có chấm công hay lượt ghé nào trong ngày") }
+                            item { Faded(stringResource(R.string.mg_245)) }
                         }
                         items(opening) { p ->
                             PunchCard(p.label, time(p.at), p.url) { zoomed = it }
@@ -94,7 +96,7 @@ fun StaffPhotosSheet(sheet: PhotoSheet, day: String, onClose: () -> Unit) {
                                         "Check-out",
                                         v.checkOutUrl,
                                         Modifier.weight(1f),
-                                        missing = if (v.checkOutAt == null) "Chưa check-out" else "Không có ảnh",
+                                        missing = if (v.checkOutAt == null) stringResource(R.string.mg_246) else stringResource(R.string.mg_247),
                                         onOpen = { zoomed = it },
                                     )
                                 }
@@ -146,7 +148,7 @@ private fun PhotoTile(
     caption: String?,
     url: String?,
     modifier: Modifier = Modifier,
-    missing: String = "Không có ảnh",
+    missing: String = stringResource(R.string.mg_247),
     onOpen: (String) -> Unit,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -180,7 +182,7 @@ private fun ZoomedPhoto(url: String, onClose: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
             )
             IconButton(onClick = onClose, modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)) {
-                Icon(Icons.Default.Close, contentDescription = "Đóng", tint = Color.White)
+                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.mg_203), tint = Color.White)
             }
         }
     }

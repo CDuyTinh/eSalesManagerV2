@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.route
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -292,10 +294,10 @@ fun RouteDetailScreen(
     state.removing?.let { o ->
         AlertDialog(
             onDismissRequest = viewModel::dismiss,
-            title = { Text("Bỏ khỏi tuyến") },
+            title = { Text(stringResource(R.string.mg_251)) },
             text = { Text("Bỏ ${o.code} – ${o.name} khỏi tuyến? Nhân viên sẽ không còn ghé điểm này theo lịch.") },
-            confirmButton = { TextButton(onClick = viewModel::remove, enabled = !state.busy) { Text("Bỏ") } },
-            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.busy) { Text("Huỷ") } },
+            confirmButton = { TextButton(onClick = viewModel::remove, enabled = !state.busy) { Text(stringResource(R.string.mg_252)) } },
+            dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.busy) { Text(stringResource(R.string.action_cancel)) } },
         )
     }
     if (state.assigning && route != null) AssignDialog(route, team, state.busy, viewModel)
@@ -328,29 +330,29 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         OutlinedButton(onClick = viewModel::openCandidates, modifier = Modifier.weight(1f)) {
                             Icon(Icons.Default.Add, contentDescription = null)
-                            Text(" Thêm điểm")
+                            Text(stringResource(R.string.mg_253))
                         }
                         OutlinedButton(onClick = viewModel::askAssign, modifier = Modifier.weight(1f)) {
                             Icon(Icons.Default.SwapHoriz, contentDescription = null)
-                            Text(" Giao tuyến")
+                            Text(stringResource(R.string.mg_254))
                         }
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         OutlinedButton(onClick = viewModel::startOrdering, enabled = route.outlets.size > 1, modifier = Modifier.weight(1f)) {
                             Icon(Icons.Default.SwapVert, contentDescription = null)
-                            Text(" Thứ tự ghé")
+                            Text(stringResource(R.string.mg_255))
                         }
                         OutlinedButton(onClick = viewModel::toggleMap, modifier = Modifier.weight(1f)) {
                             Icon(Icons.Default.Map, contentDescription = null)
-                            Text(if (state.showMap) " Ẩn bản đồ" else " Bản đồ")
+                            Text(if (state.showMap) stringResource(R.string.mg_256) else stringResource(R.string.mg_257))
                         }
                     }
                 }
             } else {
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    OutlinedButton(onClick = viewModel::cancelOrdering, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text("Huỷ") }
+                    OutlinedButton(onClick = viewModel::cancelOrdering, enabled = !state.busy, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.action_cancel)) }
                     OutlinedButton(onClick = viewModel::saveOrder, enabled = !state.busy, modifier = Modifier.weight(1f)) {
-                        Text(if (state.busy) "Đang lưu…" else "Lưu thứ tự")
+                        Text(if (state.busy) stringResource(R.string.action_saving) else stringResource(R.string.mg_258))
                     }
                 }
             }
@@ -360,13 +362,13 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
         }
         item {
             Text(
-                if (ordering != null) "Sắp thứ tự ghé (ghé trước ở trên)" else "${route.outlets.size} điểm bán trên tuyến",
+                if (ordering != null) stringResource(R.string.mg_259) else "${route.outlets.size} điểm bán trên tuyến",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
         }
         if (route.outlets.isEmpty()) {
-            item { Text("Tuyến chưa có điểm bán nào", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            item { Text(stringResource(R.string.mg_260), color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         if (ordering != null) {
             itemsIndexed(ordering, key = { _, o -> o.customerId }) { i, o ->
@@ -374,10 +376,10 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
                     Row(Modifier.padding(start = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text("${i + 1}. ${o.code} – ${o.name}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                         IconButton(onClick = { viewModel.move(i, -1) }, enabled = i > 0) {
-                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = "Lên")
+                            Icon(Icons.Default.KeyboardArrowUp, contentDescription = stringResource(R.string.mg_261))
                         }
                         IconButton(onClick = { viewModel.move(i, 1) }, enabled = i < ordering.lastIndex) {
-                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = "Xuống")
+                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.mg_262))
                         }
                     }
                 }
@@ -390,7 +392,7 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
         if (route.sales.isNotEmpty() && ordering == null) {
             item {
                 Text(
-                    "Doanh số theo tháng",
+                    stringResource(R.string.mg_263),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 8.dp),
@@ -401,7 +403,7 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
         if (route.history.isNotEmpty()) {
             item {
                 Text(
-                    "Lịch sử thay đổi",
+                    stringResource(R.string.mg_264),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.padding(top = 8.dp),
@@ -463,8 +465,8 @@ private fun OutletCard(o: RouteOutlet, onEdit: () -> Unit, onRemove: () -> Unit)
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = "Sửa lịch ghé") }
-            IconButton(onClick = onRemove) { Icon(Icons.Default.Delete, contentDescription = "Bỏ khỏi tuyến") }
+            IconButton(onClick = onEdit) { Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.mg_265)) }
+            IconButton(onClick = onRemove) { Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.mg_251)) }
         }
     }
 }
@@ -474,11 +476,11 @@ private fun OutletCard(o: RouteOutlet, onEdit: () -> Unit, onRemove: () -> Unit)
 private fun ScheduleDialog(edit: ScheduleEdit, busy: Boolean, viewModel: RouteDetailViewModel) {
     AlertDialog(
         onDismissRequest = viewModel::dismiss,
-        title = { Text(if (edit.adding) "Thêm vào tuyến" else "Lịch ghé") },
+        title = { Text(if (edit.adding) stringResource(R.string.mg_266) else stringResource(R.string.mg_267)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(edit.title, fontWeight = FontWeight.SemiBold)
-                Text("Ngày ghé trong tuần", style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.mg_268), style = MaterialTheme.typography.labelSmall)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     WEEKDAY_LABELS.forEachIndexed { i, label ->
                         FilterChip(selected = (i + 1) in edit.weekdays, onClick = { viewModel.toggleDay(i + 1) }, label = { Text(label) })
@@ -497,10 +499,10 @@ private fun ScheduleDialog(edit: ScheduleEdit, busy: Boolean, viewModel: RouteDe
         },
         confirmButton = {
             TextButton(onClick = viewModel::saveSchedule, enabled = !busy && edit.weekdays.isNotEmpty()) {
-                Text(if (busy) "Đang lưu…" else "Lưu")
+                Text(if (busy) stringResource(R.string.action_saving) else stringResource(R.string.mg_57))
             }
         },
-        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !busy) { Text("Huỷ") } },
+        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !busy) { Text(stringResource(R.string.action_cancel)) } },
     )
 }
 
@@ -530,12 +532,12 @@ private fun AssignDialog(route: RouteDetail, team: List<TeamMember>, busy: Boole
                 OutlinedTextField(
                     value = note,
                     onValueChange = { note = it },
-                    label = { Text("Ghi chú (không bắt buộc)") },
+                    label = { Text(stringResource(R.string.appr_note_optional)) },
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 )
                 // The legacy hand-over's effective date: the rep keeps the route until then.
                 OutlinedButton(onClick = { pickingDate = true }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                    Text(if (from == todayVn()) "Áp dụng: ngay hôm nay" else "Áp dụng từ ${formatDay(from)}")
+                    Text(if (from == todayVn()) stringResource(R.string.mg_269) else "Áp dụng từ ${formatDay(from)}")
                 }
             }
         },
@@ -543,9 +545,9 @@ private fun AssignDialog(route: RouteDetail, team: List<TeamMember>, busy: Boole
             TextButton(
                 onClick = { picked?.let { viewModel.assign(it, note, from) } },
                 enabled = !busy && picked != null && (picked != route.rep?.id || from != todayVn()),
-            ) { Text(if (busy) "Đang lưu…" else "Giao") }
+            ) { Text(if (busy) stringResource(R.string.action_saving) else "Giao") }
         },
-        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !busy) { Text("Huỷ") } },
+        dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !busy) { Text(stringResource(R.string.action_cancel)) } },
     )
 }
 
@@ -553,13 +555,13 @@ private fun AssignDialog(route: RouteDetail, team: List<TeamMember>, busy: Boole
 private fun CandidatesDialog(candidates: List<RouteCandidate>, query: String, viewModel: RouteDetailViewModel) {
     AlertDialog(
         onDismissRequest = viewModel::dismiss,
-        title = { Text("Thêm điểm bán") },
+        title = { Text(stringResource(R.string.mg_270)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                SearchBox(query, viewModel::queryCandidates, placeholder = "Mã, tên, địa chỉ")
+                SearchBox(query, viewModel::queryCandidates, placeholder = stringResource(R.string.mg_271))
                 LazyColumn(Modifier.heightIn(max = 380.dp)) {
                     if (candidates.isEmpty()) {
-                        item { Text("Không có điểm bán phù hợp", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        item { Text(stringResource(R.string.mg_272), color = MaterialTheme.colorScheme.onSurfaceVariant) }
                     }
                     items(candidates, key = { it.customerId }) { c ->
                         Column(
@@ -578,6 +580,6 @@ private fun CandidatesDialog(candidates: List<RouteCandidate>, query: String, vi
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = viewModel::dismiss) { Text("Đóng") } },
+        dismissButton = { TextButton(onClick = viewModel::dismiss) { Text(stringResource(R.string.mg_203)) } },
     )
 }
