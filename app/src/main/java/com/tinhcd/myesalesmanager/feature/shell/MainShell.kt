@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.shell
 
 import com.tinhcd.myesalesmanager.core.ui.UpdateDialog
+import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.annotation.StringRes
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
@@ -118,14 +120,17 @@ fun MainShell(
     val dayOpen by viewModel.dayOpen.collectAsStateWithLifecycle()
     // The service posts its notification when it starts, which may be before
     // notifications were allowed; starting it again re-posts it.
-    val notifications = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted && dayOpen == true) TrackingService.start(context)
-    }
+    val currentDayOpen by rememberUpdatedState(dayOpen)
+    val notifications = rememberPermissionRequest(
+        listOf(Manifest.permission.POST_NOTIFICATIONS),
+        stringResource(R.string.permission_rationale_notifications),
+        quietWhenBlocked = true,
+    )
     // Asked on entering the app, not only once the day opens: pushes (approvals,
     // plans) arrive on any day, and without this they are received but never shown.
     LaunchedEffect(Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            notifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+            notifications.launch { if (currentDayOpen == true) TrackingService.start(context) }
         }
     }
     LaunchedEffect(dayOpen) {

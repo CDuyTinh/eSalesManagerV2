@@ -1,6 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.height
+import androidx.compose.ui.res.stringResource
+import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -157,8 +160,13 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
     val takePicture = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { viewModel.onShot(it) }
-    val cameraPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
-    LaunchedEffect(Unit) { cameraPermission.launch(Manifest.permission.CAMERA) }
+    // Asked on entry, as before, and again from the shutter: refused, it explains
+    // why rather than opening a camera that cannot start.
+    val cameraPermission = rememberPermissionRequest(
+        listOf(Manifest.permission.CAMERA),
+        stringResource(R.string.permission_rationale_camera),
+    )
+    LaunchedEffect(Unit) { cameraPermission.launch() }
     LaunchedEffect(state.message) { state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() } }
 
     val draft = state.draft
@@ -196,7 +204,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                 // Side by side, half each, as every form's foot is in both apps.
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     OutlinedButton(
-                        onClick = { takePicture.launch(viewModel.newShot().uri) },
+                        onClick = { cameraPermission.launch { takePicture.launch(viewModel.newShot().uri) } },
                         enabled = !state.saving,
                         modifier = Modifier.weight(1f).height(48.dp),
                     ) {

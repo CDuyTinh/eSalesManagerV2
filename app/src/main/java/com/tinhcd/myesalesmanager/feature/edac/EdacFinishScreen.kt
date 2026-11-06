@@ -1,6 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import android.Manifest
+import androidx.compose.ui.res.stringResource
+import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -139,8 +142,13 @@ fun EdacFinishScreen(
     val snackbar = remember { SnackbarHostState() }
 
     val takePicture = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { viewModel.onShot(it) }
-    val cameraPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
-    LaunchedEffect(Unit) { cameraPermission.launch(Manifest.permission.CAMERA) }
+    // Asked on entry, as before, and again from the shutter: refused, it explains
+    // why rather than opening a camera that cannot start.
+    val cameraPermission = rememberPermissionRequest(
+        listOf(Manifest.permission.CAMERA),
+        stringResource(R.string.permission_rationale_camera),
+    )
+    LaunchedEffect(Unit) { cameraPermission.launch() }
     LaunchedEffect(state.done) { if (state.done) onDone() }
     LaunchedEffect(state.message) { state.message?.let { snackbar.showSnackbar(it); viewModel.messageShown() } }
 
@@ -172,10 +180,10 @@ fun EdacFinishScreen(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 PhotoSlot("Ảnh giám sát *", state.supervisorPhoto, Modifier.weight(1f)) {
-                    takePicture.launch(viewModel.newShot(supervisor = true).uri)
+                    cameraPermission.launch { takePicture.launch(viewModel.newShot(supervisor = true).uri) }
                 }
                 PhotoSlot("Ảnh nhân viên *", state.salespersonPhoto, Modifier.weight(1f)) {
-                    takePicture.launch(viewModel.newShot(supervisor = false).uri)
+                    cameraPermission.launch { takePicture.launch(viewModel.newShot(supervisor = false).uri) }
                 }
             }
         }

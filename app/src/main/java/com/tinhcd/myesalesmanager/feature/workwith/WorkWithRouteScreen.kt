@@ -1,6 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import android.Manifest
+import androidx.compose.ui.res.stringResource
+import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -161,10 +164,12 @@ fun WorkWithRouteScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbar = remember { SnackbarHostState() }
 
-    val permissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { }
-    LaunchedEffect(Unit) {
-        permissions.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
-    }
+    val locationPermission = rememberPermissionRequest(
+        listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+        stringResource(R.string.permission_rationale_location),
+        anyOf = true,
+    )
+    LaunchedEffect(Unit) { locationPermission.launch() }
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
         onPauseOrDispose { }

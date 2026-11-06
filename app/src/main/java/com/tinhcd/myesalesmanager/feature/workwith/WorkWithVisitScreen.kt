@@ -1,6 +1,9 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import android.Manifest
+import androidx.compose.ui.res.stringResource
+import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -237,8 +240,13 @@ fun WorkWithVisitScreen(
     }
 
     val takePicture = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { viewModel.onShot(it) }
-    val cameraPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
-    LaunchedEffect(Unit) { cameraPermission.launch(Manifest.permission.CAMERA) }
+    // Asked on entry, as before, and again from the shutter: refused, it explains
+    // why rather than opening a camera that cannot start.
+    val cameraPermission = rememberPermissionRequest(
+        listOf(Manifest.permission.CAMERA),
+        stringResource(R.string.permission_rationale_camera),
+    )
+    LaunchedEffect(Unit) { cameraPermission.launch() }
 
     LaunchedEffect(state.closed) { if (state.closed) onBack() }
     LaunchedEffect(state.message) {
@@ -294,7 +302,7 @@ fun WorkWithVisitScreen(
             onFaces = viewModel::setFaces,
             onAchieved = viewModel::setAchieved,
             onNote = viewModel::setNote,
-            onShoot = { takePicture.launch(viewModel.newShot().uri) },
+            onShoot = { cameraPermission.launch { takePicture.launch(viewModel.newShot().uri) } },
             onRemove = viewModel::removePhoto,
             onSave = viewModel::saveScore,
             onDismiss = viewModel::closeScore,
