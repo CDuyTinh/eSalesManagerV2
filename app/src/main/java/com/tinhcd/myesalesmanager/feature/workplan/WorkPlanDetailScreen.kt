@@ -322,7 +322,7 @@ private fun DetailBody(detail: WorkPlanDetail, padding: PaddingValues) {
                     LabeledLine(stringResource(R.string.mg_89), detail.note)
                     LabeledLine(
                         stringResource(R.string.mg_334),
-                        if (p.isAssigned) "Giao bởi ${p.author?.name ?: stringResource(R.string.mg_335)}" else "Nhân viên tự lập",
+                        if (p.isAssigned) stringResource(R.string.mgt_88, p.author?.name ?: stringResource(R.string.mg_335)) else "Nhân viên tự lập",
                     )
                     LabeledLine(stringResource(R.string.mg_76), p.result)
                     LabeledLine(stringResource(R.string.lbl_reason), p.reason)

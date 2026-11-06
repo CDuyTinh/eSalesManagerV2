@@ -685,4 +685,15 @@
     <string name="pw_upper">Có chữ hoa</string>
     <string name="pw_digit">Có chữ số</string>
     <string name="pw_special">Có ký tự đặc biệt</string>
+
+    <!-- Nhãn trong hàm -->
+    <string name="mgc_13">Ngày báo cáo</string>
+    <string name="mgc_14">Tháng báo cáo</string>
+    <string name="mgc_15">Khoảng thời gian</string>
+    <string name="mgc_16">Tháng %1$02d/%2$d</string>
+    <string name="mgc_18">Mới</string>
+    <string name="mgc_19">Đã xác nhận</string>
+
+    <!-- Nhãn trong hàm (2) -->
+    <string name="mgc_41">Ngày %1$s</string>
 </resources>

@@ -174,7 +174,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
 
     val draft = state.draft
     SubScreen(
-        title = draft?.let { "Kiểm ${it.item.itemName}" } ?: "Kiểm POSM",
+        title = draft?.let { stringResource(R.string.mgt_96, it.item.itemName) } ?: "Kiểm POSM",
         onBack = if (draft != null) viewModel::close else onBack,
         snackbar = snackbar,
     ) { padding ->

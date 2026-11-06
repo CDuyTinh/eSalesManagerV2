@@ -182,9 +182,10 @@ fun ReportScreen(
 }
 
 /** The period on screen, as the header states it. */
+@Composable
 private fun periodLabel(state: ReportState): String = when (state.kind.period) {
-    PeriodKind.DAY -> "Ngày ${formatDay(state.anchor)}"
-    PeriodKind.MONTH -> "Tháng %02d/%d".format(state.anchor.monthValue, state.anchor.year)
+    PeriodKind.DAY -> stringResource(R.string.mgc_41, formatDay(state.anchor))
+    PeriodKind.MONTH -> stringResource(R.string.mgc_16).format(state.anchor.monthValue, state.anchor.year)
     PeriodKind.RANGE -> "${formatIsoDate(state.period.from)} – ${formatIsoDate(state.period.to)}"
 }
 
@@ -241,17 +242,19 @@ private fun LazyListScope.empty(text: String = "Không có dữ liệu trong k�
     }
 }
 
+@Composable
 private fun orderStatusLabel(s: String) = when (s) {
-    "new" -> "Mới"
-    "confirmed" -> "Đã xác nhận"
-    "cancelled" -> "Đã huỷ"
+    "new" -> stringResource(R.string.mgc_18)
+    "confirmed" -> stringResource(R.string.mgc_19)
+    "cancelled" -> stringResource(R.string.mg_220)
     else -> s
 }
 
+@Composable
 private fun approvalLabel(s: String) = when (s) {
-    "pending" -> "Chờ duyệt"
-    "approved" -> "Đã duyệt"
-    "rejected" -> "Từ chối"
+    "pending" -> stringResource(R.string.status_pending)
+    "approved" -> stringResource(R.string.status_approved)
+    "rejected" -> stringResource(R.string.status_rejected)
     else -> s
 }
 
@@ -347,7 +350,7 @@ private fun LazyListScope.orders(d: OrdersReport, team: Boolean, rows: LazyPagin
         Block {
             Line(stringResource(R.string.mg_181), "${d.total}")
             Line(stringResource(R.string.mg_230), formatDong(d.totalAmount))
-            Faint(d.counts.entries.joinToString(" · ") { "${orderStatusLabel(it.key)}: ${it.value}" })
+            Faint(d.counts.entries.map { "${orderStatusLabel(it.key)}: ${it.value}" }.joinToString(" · "))
         }
     }
     when (rows.loadState.refresh) {

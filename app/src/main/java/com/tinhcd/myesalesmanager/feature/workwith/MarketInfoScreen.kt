@@ -122,7 +122,7 @@ fun MarketInfoScreen(
                                 Text("${s.code} – ${s.name}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                                 Text(
                                     listOfNotNull(
-                                        if (competitor) "Khảo sát đối thủ · ${s.itemCount} cặp sản phẩm" else "Khảo sát thị trường (làm trên app nhân viên)",
+                                        if (competitor) stringResource(R.string.mgt_93, s.itemCount) else "Khảo sát thị trường (làm trên app nhân viên)",
                                         s.toDate?.let { stringResource(R.string.mgt_94, formatIsoDate(it)) },
                                     ).joinToString(" · "),
                                     style = MaterialTheme.typography.labelSmall,

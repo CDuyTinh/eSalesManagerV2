@@ -247,7 +247,7 @@ private fun NoteDialog(d: NoteDraft, saving: Boolean, viewModel: WorkNotesViewMo
                 OutlinedTextField(d.title, { v -> viewModel.edit { it.copy(title = v) } }, label = { Text(stringResource(R.string.tab_tasks)) }, modifier = Modifier.fillMaxWidth())
                 OutlinedTextField(d.body, { v -> viewModel.edit { it.copy(body = v) } }, label = { Text(stringResource(R.string.mg_140)) }, minLines = 2, modifier = Modifier.fillMaxWidth())
                 OutlinedButton(onClick = { picking = true }) {
-                    Text(d.dueOn?.let { "Hạn ${formatIsoDate(it.toString())}" } ?: "Chọn hạn (không bắt buộc)")
+                    Text(d.dueOn?.let { stringResource(R.string.mgt_31, formatIsoDate(it.toString())) } ?: "Chọn hạn (không bắt buộc)")
                 }
             }
         },

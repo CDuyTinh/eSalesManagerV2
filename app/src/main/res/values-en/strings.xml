@@ -682,4 +682,15 @@
     <string name="pw_upper">An uppercase letter</string>
     <string name="pw_digit">A digit</string>
     <string name="pw_special">A special character</string>
+
+    <!-- Nhãn trong hàm -->
+    <string name="mgc_13">Report date</string>
+    <string name="mgc_14">Report month</string>
+    <string name="mgc_15">Period</string>
+    <string name="mgc_16">Month %1$02d/%2$d</string>
+    <string name="mgc_18">New</string>
+    <string name="mgc_19">Confirmed</string>
+
+    <!-- Nhãn trong hàm (2) -->
+    <string name="mgc_41">Date %1$s</string>
 </resources>

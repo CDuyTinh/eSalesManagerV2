@@ -112,7 +112,7 @@ fun NotificationsScreen(
     val feed = state.feed
     SubScreen(
         title = stringResource(R.string.action_notifications),
-        subtitle = feed?.let { if (it.unread > 0) "${it.unread} chưa đọc" else "Đã đọc hết" },
+        subtitle = feed?.let { if (it.unread > 0) stringResource(R.string.mgt_27, it.unread) else "Đã đọc hết" },
         onBack = onBack,
     ) { padding ->
         when {

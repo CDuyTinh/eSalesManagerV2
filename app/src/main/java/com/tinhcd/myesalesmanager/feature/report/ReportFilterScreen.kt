@@ -210,10 +210,11 @@ private val FilterHeaderHeight = 150.dp
 
 private val FieldDateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
+@Composable
 private fun titleFor(kind: PeriodKind): String = when (kind) {
-    PeriodKind.DAY -> "Ngày báo cáo"
-    PeriodKind.MONTH -> "Tháng báo cáo"
-    PeriodKind.RANGE -> "Khoảng thời gian"
+    PeriodKind.DAY -> stringResource(R.string.mgc_13)
+    PeriodKind.MONTH -> stringResource(R.string.mgc_14)
+    PeriodKind.RANGE -> stringResource(R.string.mgc_15)
 }
 
 @Composable
