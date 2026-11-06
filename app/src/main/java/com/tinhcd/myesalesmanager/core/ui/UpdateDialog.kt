@@ -47,9 +47,9 @@ fun UpdateDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
                     if (required) {
-                        "Phiên bản $versionName không còn được hỗ trợ. Vui lòng cập nhật để tiếp tục làm việc."
+                        stringResource(R.string.mgt_5, versionName)
                     } else {
-                        "Bạn đang dùng phiên bản $versionName. Cập nhật để có các thay đổi mới nhất."
+                        stringResource(R.string.mgt_6, versionName)
                     },
                     style = MaterialTheme.typography.bodyLarge,
                 )

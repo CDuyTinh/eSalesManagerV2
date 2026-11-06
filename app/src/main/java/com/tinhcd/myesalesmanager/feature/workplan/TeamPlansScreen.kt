@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.core.ui.theme.status
@@ -113,6 +114,7 @@ data class TeamPlansState(
 
 @HiltViewModel
 class TeamPlansViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: WorkPlanRepository,
     auth: AuthRepository,
@@ -150,7 +152,7 @@ class TeamPlansViewModel @Inject constructor(
                 is DataResult.Success -> _state.update {
                     it.copy(loading = false, counts = r.data.counts, items = r.data.items)
                 }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -190,11 +192,11 @@ class TeamPlansViewModel @Inject constructor(
             when (val r = repository.decide(pending.id, pending.approve, note)) {
                 is DataResult.Success -> {
                     _state.update {
-                        it.copy(deciding = false, pending = null, message = if (pending.approve) "Đã duyệt" else "Đã từ chối")
+                        it.copy(deciding = false, pending = null, message = if (pending.approve) strings(R.string.status_approved) else strings(R.string.mgv_1))
                     }
                     refresh()
                 }
-                is DataResult.Failure -> _state.update { it.copy(deciding = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(deciding = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -239,7 +241,7 @@ fun TeamPlansScreen(
                     FilterChip(
                         selected = state.status == null,
                         onClick = { viewModel.selectStatus(null) },
-                        label = { Text("Tất cả (${state.counts.values.sum()})") },
+                        label = { Text(stringResource(R.string.mgt_87, state.counts.values.sum())) },
                     )
                 }
                 items(WorkPlanStatus.visible) { s ->
@@ -365,7 +367,7 @@ private fun PlanCard(
         LabeledLine(
             stringResource(R.string.mg_334),
             when {
-                plan.isAssigned -> "Giao bởi ${plan.author?.name ?: stringResource(R.string.mg_335)}"
+                plan.isAssigned -> stringResource(R.string.mgt_88, plan.author?.name ?: stringResource(R.string.mg_335))
                 mine -> stringResource(R.string.mg_336)
                 else -> stringResource(R.string.mg_337)
             },

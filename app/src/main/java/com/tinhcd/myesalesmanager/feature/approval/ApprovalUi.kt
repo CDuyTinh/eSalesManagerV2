@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.domain.model.TradeKind
@@ -223,15 +224,17 @@ fun LabeledLine(label: String, value: String?) {
     }
 }
 
-fun AppError.toMessage(): String = when (this) {
+/** What went wrong, for a snackbar, in the app's language. The server's own message is passed through. */
+fun AppError.toMessage(strings: AppStrings): String = when (this) {
     is AppError.Rule -> message ?: when (key) {
-        "reject_needs_note" -> "Vui lòng nhập lý do từ chối"
-        else -> "Dữ liệu không hợp lệ"
+        "reject_needs_note" -> strings(R.string.error_reject_needs_note)
+        else -> strings(R.string.error_invalid)
     }
-    is AppError.Network -> "Không có kết nối mạng"
-    is AppError.Auth -> "Phiên đăng nhập đã hết hạn"
-    is AppError.Server -> message?.takeIf { it.isNotBlank() } ?: "Lỗi máy chủ${code?.let { " ($it)" }.orEmpty()}"
-    is AppError.Unknown -> message?.takeIf { it.isNotBlank() } ?: "Đã có lỗi xảy ra"
+    is AppError.Network -> strings(R.string.error_network)
+    is AppError.Auth -> strings(R.string.error_session_expired)
+    is AppError.Server -> message?.takeIf { it.isNotBlank() }
+        ?: code?.let { strings(R.string.error_server_code, it) } ?: strings(R.string.error_server)
+    is AppError.Unknown -> message?.takeIf { it.isNotBlank() } ?: strings(R.string.error_unknown)
 }
 
 /** The status's name, in the app's language. */

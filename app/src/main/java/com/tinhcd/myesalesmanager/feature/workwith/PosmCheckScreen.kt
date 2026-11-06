@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.height
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
 import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
@@ -88,6 +89,7 @@ data class PosmCheckState(
 
 @HiltViewModel
 class PosmCheckViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: InStoreRepository,
     private val photos: PhotoStore,
@@ -106,7 +108,7 @@ class PosmCheckViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.posm(visitId)) {
                 is DataResult.Success -> _state.update { it.copy(items = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -131,8 +133,8 @@ class PosmCheckViewModel @Inject constructor(
         val d = _state.value.draft ?: return
         val counted = d.counted.toIntOrNull()
         val problem = when {
-            counted == null || counted < 0 -> "Nhập số lượng kiểm được"
-            d.photos.isEmpty() -> "Chụp ít nhất một ảnh"
+            counted == null || counted < 0 -> strings(R.string.mgv_67)
+            d.photos.isEmpty() -> strings(R.string.mgv_68)
             else -> null
         }
         if (problem != null) {
@@ -143,10 +145,10 @@ class PosmCheckViewModel @Inject constructor(
             _state.update { it.copy(saving = true) }
             when (val r = repository.checkPosm(PosmCheck(visitId, d.item, counted!!, d.condition, d.remark, d.photos))) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(saving = false, draft = null, message = "Đã lưu kiểm POSM") }
+                    _state.update { it.copy(saving = false, draft = null, message = strings(R.string.mgv_69)) }
                     load()
                 }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -180,7 +182,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
             items == null && state.error != null -> ErrorBox(state.error!!, onRetry = viewModel::load, modifier = Modifier.padding(padding))
             items == null -> LoadingBox(Modifier.padding(padding))
             draft != null -> Column(Modifier.padding(padding).fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("${draft.item.programCode} · đang đặt ${draft.item.placedQty} ${draft.item.unitName}", style = MaterialTheme.typography.labelSmall)
+                Text(stringResource(R.string.mgt_97, draft.item.programCode, draft.item.placedQty, draft.item.unitName), style = MaterialTheme.typography.labelSmall)
                 OutlinedTextField(
                     draft.counted, { v -> viewModel.edit { it.copy(counted = v.filter(Char::isDigit).take(4)) } },
                     label = { Text(stringResource(R.string.mg_369)) },
@@ -208,7 +210,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                         enabled = !state.saving,
                         modifier = Modifier.weight(1f).height(48.dp),
                     ) {
-                        Text("Chụp ảnh (${draft.photos.size})", maxLines = 1)
+                        Text(stringResource(R.string.mgt_98, draft.photos.size), maxLines = 1)
                     }
                     PrimaryButton(stringResource(R.string.mg_57), viewModel::save, Modifier.weight(1f), enabled = !state.saving, loading = state.saving, height = 48.dp)
                 }
@@ -224,7 +226,7 @@ fun PosmCheckScreen(onBack: () -> Unit, viewModel: PosmCheckViewModel = hiltView
                         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(i.itemName, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-                                Text("${i.programCode} · đặt ${i.placedQty} ${i.unitName}", style = MaterialTheme.typography.labelSmall)
+                                Text(stringResource(R.string.mgt_99, i.programCode, i.placedQty, i.unitName), style = MaterialTheme.typography.labelSmall)
                             }
                             if (i.countedQty != null) {
                                 StatusPill(

@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -70,6 +71,7 @@ data class LeaveCalendarState(
 
 @HiltViewModel
 class LeaveCalendarViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: ApprovalRepository,
 ) : ViewModel() {
 
@@ -86,7 +88,7 @@ class LeaveCalendarViewModel @Inject constructor(
                         error = null,
                     )
                 }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }

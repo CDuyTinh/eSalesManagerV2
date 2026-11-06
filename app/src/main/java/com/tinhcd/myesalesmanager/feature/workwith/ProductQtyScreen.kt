@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -90,6 +91,7 @@ private fun key(productId: String, uom: String) = "$productId|$uom"
 
 @HiltViewModel
 class ProductQtyViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: InStoreRepository,
 ) : ViewModel() {
@@ -116,7 +118,7 @@ class ProductQtyViewModel @Inject constructor(
                     }
                     s.copy(data = r.data, qty = counted, error = null)
                 }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -151,7 +153,7 @@ class ProductQtyViewModel @Inject constructor(
             _state.update { it.copy(previewing = true) }
             when (val r = repository.preview(visitId, l)) {
                 is DataResult.Success -> _state.update { it.copy(previewing = false, preview = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(previewing = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(previewing = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -159,7 +161,7 @@ class ProductQtyViewModel @Inject constructor(
     fun submit() {
         val l = lines()
         if (l.isEmpty()) {
-            _state.update { it.copy(message = "Chưa nhập số lượng") }
+            _state.update { it.copy(message = strings(R.string.mgv_73)) }
             return
         }
         viewModelScope.launch {
@@ -173,7 +175,7 @@ class ProductQtyViewModel @Inject constructor(
             }
             when (r) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -192,7 +194,7 @@ fun ProductQtyScreen(onBack: () -> Unit, viewModel: ProductQtyViewModel = hiltVi
 
     SubScreen(
         title = viewModel.mode.title,
-        subtitle = if (order) stringResource(R.string.mg_376) else state.data?.previousCountDate?.let { "Lần kiểm trước ${formatIsoDate(it)}" },
+        subtitle = if (order) stringResource(R.string.mg_376) else state.data?.previousCountDate?.let { stringResource(R.string.mgt_100, formatIsoDate(it)) },
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
@@ -202,11 +204,11 @@ fun ProductQtyScreen(onBack: () -> Unit, viewModel: ProductQtyViewModel = hiltVi
                         val gross = viewModel.gross()
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
-                                Text("Tạm tính ${formatDong(gross)}", fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.mgt_101, formatDong(gross)), fontWeight = FontWeight.SemiBold)
                                 state.preview?.let { p ->
                                     Text(
                                         if (p.earned.isEmpty()) stringResource(R.string.mg_377) else "KM: ${p.earned.joinToString("; ")}" +
-                                            (if (p.totalDiscount > 0) " · giảm ${formatDong(p.totalDiscount)}" else ""),
+                                            (if (p.totalDiscount > 0) stringResource(R.string.mgt_102, formatDong(p.totalDiscount)) else ""),
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                 }
@@ -260,7 +262,7 @@ private fun ProductRow(p: VisitProduct, order: Boolean, qty: Map<String, String>
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("${p.code} – ${p.name}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             if (!order && p.previousBaseQty != null) {
-                Text("Lần trước: ${p.previousBaseQty} ${p.baseUom}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.mgt_103, p.previousBaseQty, p.baseUom), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (units.isEmpty()) {
                 Text(stringResource(R.string.mg_383), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

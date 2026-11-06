@@ -273,11 +273,11 @@ private fun LazyListScope.activities(d: ActivitiesReport, team: Boolean, onPhoto
     if (team && d.members.isNotEmpty()) {
         item { Block { Title(stringResource(R.string.mg_224))
             d.members.forEach { m ->
-                Line(m.name, "${m.visited}/${m.planned} · ${m.strike} đơn · ${compactMoney(m.orderAmount)}")
+                Line(m.name, stringResource(R.string.mgt_50, m.visited, m.planned, m.strike, compactMoney(m.orderAmount)))
                 Faint(
                     if (m.firstCheckIn == null) stringResource(R.string.mg_225)
-                    else "Bắt đầu ${formatDateTime(m.firstCheckIn).takeLast(5)}" +
-                        (m.lastCheckOut?.let { " · kết thúc ${formatDateTime(it).takeLast(5)}" } ?: ""),
+                    else stringResource(R.string.mgt_16, formatDateTime(m.firstCheckIn).takeLast(5)) +
+                        (m.lastCheckOut?.let { stringResource(R.string.mgt_17, formatDateTime(it).takeLast(5)) } ?: ""),
                 )
             }
         } }
@@ -292,7 +292,7 @@ private fun LazyListScope.activities(d: ActivitiesReport, team: Boolean, onPhoto
                 listOfNotNull(
                     if (team) who(r.salesperson) else null,
                     r.checkInAt?.let { formatDateTime(it).takeLast(5) },
-                    r.minutes?.let { "$it phút" },
+                    r.minutes?.let { stringResource(R.string.mgt_51, it) },
                     if (r.orderAmount > 0) formatDong(r.orderAmount) else when (r.status) { "closed" -> stringResource(R.string.mg_227); else -> stringResource(R.string.mg_228) },
                 ).joinToString(" · "),
             )
@@ -310,7 +310,7 @@ private fun LazyListScope.sales(d: SalesReport, team: Boolean) {
             val pct = percent(d.revenue, d.target)
             if (pct != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Chỉ tiêu ${compactMoney(d.target!!)}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.mgt_52, compactMoney(d.target!!)), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                     PercentPill(pct, Kpi.Violet.first())
                 }
                 KpiBar(pct / 100f, Kpi.Violet)
@@ -321,16 +321,16 @@ private fun LazyListScope.sales(d: SalesReport, team: Boolean) {
         item { Block { Title(stringResource(R.string.mg_224))
             d.members.forEach { m ->
                 Line(m.name, compactMoney(m.revenue) + (percent(m.revenue, m.target)?.let { " · $it%" } ?: ""))
-                Faint("${m.orders} đơn" + (m.target?.let { " · chỉ tiêu ${compactMoney(it)}" } ?: ""))
+                Faint(stringResource(R.string.mgt_53, m.orders) + (m.target?.let { stringResource(R.string.mgt_54, compactMoney(it)) } ?: ""))
             }
         } }
     }
-    item { Block { Title("Theo khách hàng (${d.customers.size})")
+    item { Block { Title(stringResource(R.string.mgt_55, d.customers.size))
         if (d.customers.isEmpty()) Faint(stringResource(R.string.mg_229))
         d.customers.take(20).forEach { c -> Line("${c.code} – ${c.name}", compactMoney(c.revenue)) }
-        if (d.customers.size > 20) Faint("… và ${d.customers.size - 20} khách hàng khác")
+        if (d.customers.size > 20) Faint(stringResource(R.string.mgt_56, d.customers.size - 20))
     } }
-    item { Block { Title("Theo sản phẩm (${d.products.size})")
+    item { Block { Title(stringResource(R.string.mgt_57, d.products.size))
         if (d.products.isEmpty()) Faint(stringResource(R.string.mg_229))
         d.products.forEach { p ->
             Line(p.name, compactMoney(p.revenue))
@@ -363,7 +363,7 @@ private fun LazyListScope.orders(d: OrdersReport, team: Boolean, rows: LazyPagin
             }
             Faint(
                 listOfNotNull(o.orderNo, formatIsoDate(o.orderDate), if (team) who(o.salesperson) else null,
-                    "${o.lineCount} dòng", orderStatusLabel(o.status)).joinToString(" · "),
+                    stringResource(R.string.mgt_58, o.lineCount), orderStatusLabel(o.status)).joinToString(" · "),
             )
         }
     }
@@ -398,7 +398,7 @@ private fun LazyListScope.sku(d: SkuReport) {
     if (d.items.isEmpty()) empty() else items(d.items, key = { it.code }) { r ->
         Block {
             Line(r.name, "${r.qtyTotal} ${r.uom}")
-            Faint("${r.code} · đã xác nhận ${r.qtyConfirmed} · chờ ${r.qtyPending} · ${compactMoney(r.amountTotal)}")
+            Faint(stringResource(R.string.mgt_59, r.code, r.qtyConfirmed, r.qtyPending, compactMoney(r.amountTotal)))
         }
     }
 }
@@ -425,7 +425,7 @@ private fun LazyListScope.trade(d: TradeReport, team: Boolean) {
                 listOfNotNull(
                     if (r.kind == "display") stringResource(R.string.mg_160) else stringResource(R.string.mg_161),
                     "${r.programCode} ${r.levelName.orEmpty()}".trim(),
-                    "${r.portion} suất",
+                    stringResource(R.string.mgt_60, r.portion),
                     formatIsoDate(r.registeredAt),
                     if (team) who(r.salesperson) else null,
                 ).joinToString(" · "),
@@ -454,7 +454,7 @@ private fun LazyListScope.work(d: WorkReport, team: Boolean) {
                     if (r.status == "completed") Kpi.Green.first() else Kpi.Orange.first())
             }
             Faint(listOfNotNull(r.categoryName, formatWindow(r.fromAt, r.toAt), if (team) who(r.salesperson) else null).joinToString(" · "))
-            r.outcome?.let { Text("Kết quả: $it", style = MaterialTheme.typography.bodyLarge) }
+            r.outcome?.let { Text(stringResource(R.string.mgt_32, it), style = MaterialTheme.typography.bodyLarge) }
         }
     }
 }
@@ -469,7 +469,7 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
                 StatTile(stringResource(R.string.mg_236), "${d.untrained}", Kpi.Orange, Modifier.weight(1f))
                 StatTile(stringResource(R.string.mg_198), d.score?.let { "$it%" } ?: "—", Kpi.Blue, Modifier.weight(1f))
             }
-            Faint("${d.outlets} điểm bán đã kèm cặp · điểm = trung bình bước Đánh giá theo thang tối đa")
+            Faint(stringResource(R.string.mgt_61, d.outlets))
         }
     }
     if (team && d.members.isNotEmpty()) {
@@ -477,7 +477,7 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
             Block {
                 Title(stringResource(R.string.mg_224))
                 d.members.forEach { m ->
-                    Line(m.name, "${m.trained}/${m.plans} buổi" + (m.score?.let { " · $it%" } ?: ""))
+                    Line(m.name, stringResource(R.string.mgt_62, m.trained, m.plans) + (m.score?.let { " · $it%" } ?: ""))
                 }
             }
         }
@@ -496,18 +496,18 @@ private fun LazyListScope.training(d: TrainingReport, team: Boolean, onOpen: (St
                     Text(r.rep.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     when (r.status) {
                         "completed" -> StatusPill(stringResource(R.string.mg_196), Kpi.Green.first())
-                        "in_progress" -> StatusPill("Đang ở bước ${(r.currentStep ?: 0) + 1}/8", Kpi.Orange.first())
+                        "in_progress" -> StatusPill(stringResource(R.string.mgt_63, (r.currentStep ?: 0) + 1), Kpi.Orange.first())
                         else -> StatusPill(stringResource(R.string.mg_238), Kpi.Slate.first())
                     }
                 }
                 Faint(
                     listOfNotNull(
                         formatWindow(r.fromAt, r.toAt),
-                        if (r.outlets > 0) "${r.outlets} điểm bán" else null,
-                        r.score?.let { "điểm $it%" },
+                        if (r.outlets > 0) stringResource(R.string.mgt_14, r.outlets) else null,
+                        r.score?.let { stringResource(R.string.mgt_64, it) },
                     ).joinToString(" · "),
                 )
-                r.result?.let { Text("Kết quả: $it", style = MaterialTheme.typography.bodyLarge) }
+                r.result?.let { Text(stringResource(R.string.mgt_32, it), style = MaterialTheme.typography.bodyLarge) }
             }
         }
     }
@@ -536,18 +536,18 @@ private fun LazyListScope.tracking(d: TrackingReport, team: Boolean, onPhotos: (
                     else -> StatusPill(stringResource(R.string.mg_242), Kpi.Slate.first())
                 }
             }
-            m.inVisit?.let { Text("Tại $it" + (m.inVisitSince?.let { s -> " từ ${formatDateTime(s).takeLast(5)}" } ?: ""), style = MaterialTheme.typography.bodyLarge) }
+            m.inVisit?.let { Text(stringResource(R.string.mgt_65, it) + (m.inVisitSince?.let { s -> stringResource(R.string.mgt_66, formatDateTime(s).takeLast(5)) } ?: ""), style = MaterialTheme.typography.bodyLarge) }
             Faint(
                 listOfNotNull(
-                    m.clockIn?.let { "vào ${formatDateTime(it).takeLast(5)}" },
+                    m.clockIn?.let { stringResource(R.string.mgt_43, formatDateTime(it).takeLast(5)) },
                     m.clockOut?.let { "ra ${formatDateTime(it).takeLast(5)}" },
-                    "ghé ${m.visited}/${m.planned}",
-                    "${m.orders} đơn · ${compactMoney(m.revenue)}",
+                    stringResource(R.string.mgt_67, m.visited, m.planned),
+                    stringResource(R.string.mgt_68, m.orders, compactMoney(m.revenue)),
                     m.batteryPct?.let { "pin $it%" },
                 ).joinToString(" · "),
             )
             m.last?.let { l ->
-                Faint("Gần nhất: ${l.label} ${formatDateTime(l.at).takeLast(5)}" + (l.detail?.let { " · $it" } ?: ""))
+                Faint(stringResource(R.string.mgt_69, l.label, formatDateTime(l.at).takeLast(5)) + (l.detail?.let { " · $it" } ?: ""))
             }
             if (m.clockIn != null || m.visited > 0) {
                 TextButton(onClick = { onPhotos(m.code) }, contentPadding = PaddingValues(0.dp)) {
@@ -558,7 +558,7 @@ private fun LazyListScope.tracking(d: TrackingReport, team: Boolean, onPhotos: (
         }
     }
     if (d.orders.isNotEmpty()) {
-        item { Text("Đơn hàng trong ngày (${d.orders.size})", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 16.dp)) }
+        item { Text(stringResource(R.string.mgt_70, d.orders.size), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(horizontal = 16.dp)) }
         items(d.orders, key = { it.orderNo }) { o ->
             Block {
                 Row {

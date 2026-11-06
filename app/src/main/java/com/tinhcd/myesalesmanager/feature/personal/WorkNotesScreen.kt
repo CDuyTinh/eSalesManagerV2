@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
@@ -81,6 +82,7 @@ data class WorkNotesState(
 
 @HiltViewModel
 class WorkNotesViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: PersonalRepository,
 ) : ViewModel() {
 
@@ -93,7 +95,7 @@ class WorkNotesViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.notes()) {
                 is DataResult.Success -> _state.update { it.copy(notes = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -108,24 +110,24 @@ class WorkNotesViewModel @Inject constructor(
     fun add() {
         val d = _state.value.draft ?: return
         if (d.title.isBlank()) {
-            _state.update { it.copy(message = "Nhập nội dung công việc") }
+            _state.update { it.copy(message = strings(R.string.mgv_25)) }
             return
         }
-        run("Đã thêm ghi chú") { repository.addNote(d.title, d.body, d.dueOn?.toString()) }
+        run(strings(R.string.mgv_26)) { repository.addNote(d.title, d.body, d.dueOn?.toString()) }
     }
 
     fun complete(result: String) {
         val n = _state.value.completing ?: return
         if (result.isBlank()) {
-            _state.update { it.copy(message = "Nhập kết quả") }
+            _state.update { it.copy(message = strings(R.string.mgv_27)) }
             return
         }
-        run("Đã hoàn thành") { repository.completeNote(n.id, result) }
+        run(strings(R.string.mgv_28)) { repository.completeNote(n.id, result) }
     }
 
     fun delete() {
         val n = _state.value.deleting ?: return
-        run("Đã xoá ghi chú") { repository.deleteNote(n.id) }
+        run(strings(R.string.mgv_29)) { repository.deleteNote(n.id) }
     }
 
     private fun run(done: String, block: suspend () -> DataResult<Unit>) {
@@ -136,7 +138,7 @@ class WorkNotesViewModel @Inject constructor(
                     _state.update { it.copy(saving = false, draft = null, completing = null, deleting = null, message = done) }
                     refresh()
                 }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -164,8 +166,8 @@ fun WorkNotesScreen(onBack: () -> Unit, viewModel: WorkNotesViewModel = hiltView
                 ) {
                     item {
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            item { FilterChip(!state.showDone, { viewModel.showDone(false) }, { Text("Đang làm (${notes.count { !it.done }})") }) }
-                            item { FilterChip(state.showDone, { viewModel.showDone(true) }, { Text("Đã xong (${notes.count { it.done }})") }) }
+                            item { FilterChip(!state.showDone, { viewModel.showDone(false) }, { Text(stringResource(R.string.mgt_29, notes.count { !it.done })) }) }
+                            item { FilterChip(state.showDone, { viewModel.showDone(true) }, { Text(stringResource(R.string.mgt_30, notes.count { it.done })) }) }
                         }
                     }
                     if (shown.isEmpty()) {
@@ -221,11 +223,11 @@ private fun NoteCard(n: WorkNote, onComplete: () -> Unit, onDelete: () -> Unit) 
                 n.body?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
                 n.dueOn?.let { due ->
                     val late = !n.done && LocalDate.parse(due).isBefore(todayVn())
-                    StatusPill("Hạn ${formatIsoDate(due)}", if (late) Kpi.Orange.first() else Kpi.Slate.first())
+                    StatusPill(stringResource(R.string.mgt_31, formatIsoDate(due)), if (late) Kpi.Orange.first() else Kpi.Slate.first())
                 }
                 if (n.done) {
-                    Text("Kết quả: ${n.result.orEmpty()}", style = MaterialTheme.typography.labelSmall)
-                    n.doneAt?.let { Text("Xong lúc ${formatDateTime(it)}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                    Text(stringResource(R.string.mgt_32, n.result.orEmpty()), style = MaterialTheme.typography.labelSmall)
+                    n.doneAt?.let { Text(stringResource(R.string.mgt_33, formatDateTime(it)), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
                 }
             }
             if (!n.done) IconButton(onClick = onComplete) { Icon(Icons.Default.CheckCircle, contentDescription = stringResource(R.string.mg_137), tint = Kpi.Green.first()) }

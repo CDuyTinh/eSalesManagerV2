@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -76,6 +77,7 @@ data class EdacHomeState(
 
 @HiltViewModel
 class EdacHomeViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: EdacRepository,
     auth: AuthRepository,
 ) : ViewModel() {
@@ -91,7 +93,7 @@ class EdacHomeViewModel @Inject constructor(
             _state.update { it.copy(error = null) }
             when (val r = repository.sessions(today.toString())) {
                 is DataResult.Success -> _state.update { it.copy(sessions = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
             val h = repository.history(today.minusDays(60).toString(), today.toString())
             if (h is DataResult.Success) _state.update { it.copy(history = h.data) }
@@ -111,7 +113,7 @@ class EdacHomeViewModel @Inject constructor(
             _state.update { it.copy(starting = true) }
             when (val r = repository.start(repId, planId)) {
                 is DataResult.Success -> _state.update { it.copy(starting = false, picking = false, open = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(starting = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(starting = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -239,7 +241,7 @@ private fun HistoryCard(h: EdacHistoryItem, onClick: () -> Unit) {
                 )
                 ProgressPill(true, h.completed, h.currentStep)
             }
-            Text("${h.outlets} điểm bán", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.mgt_14, h.outlets), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             h.result?.let { Text(it, style = MaterialTheme.typography.labelSmall, maxLines = 2) }
         }
     }
@@ -248,6 +250,6 @@ private fun HistoryCard(h: EdacHistoryItem, onClick: () -> Unit) {
 @Composable
 private fun ProgressPill(started: Boolean, completed: Boolean, currentStep: Int) = when {
     completed -> StatusPill(stringResource(R.string.mg_74), Kpi.Green.first())
-    started -> StatusPill("Bước ${currentStep + 1}/8 · ${EdacStep.of(currentStep).title}", Kpi.Orange.first())
+    started -> StatusPill(stringResource(R.string.mgt_15, currentStep + 1, EdacStep.of(currentStep).title), Kpi.Orange.first())
     else -> StatusPill(stringResource(R.string.mg_75), Kpi.Slate.first())
 }

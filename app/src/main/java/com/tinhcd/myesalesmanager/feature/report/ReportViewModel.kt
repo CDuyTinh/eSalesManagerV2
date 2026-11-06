@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import androidx.lifecycle.SavedStateHandle
+import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -94,6 +96,7 @@ data class PhotoSheet(
 
 @HiltViewModel
 class ReportViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: ReportRepository,
     auth: AuthRepository,
@@ -119,7 +122,7 @@ class ReportViewModel @Inject constructor(
                 OffsetPagingSource { offset, limit ->
                     when (val r = nextPage(s, offset, limit)) {
                         is DataResult.Success -> r.data.items
-                        is DataResult.Failure -> throw IllegalStateException(r.error.toMessage())
+                        is DataResult.Failure -> throw IllegalStateException(r.error.toMessage(strings))
                     }
                 }
             }.flow
@@ -141,7 +144,7 @@ class ReportViewModel @Inject constructor(
             _state.update { it.copy(loading = true, error = null) }
             when (val r = repository.load(s.kind, s.period, s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors))) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, data = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -181,7 +184,7 @@ class ReportViewModel @Inject constructor(
         photoJob = viewModelScope.launch {
             when (val r = repository.photos(salespersonId, date)) {
                 is DataResult.Success -> _state.update { it.copy(photos = it.photos?.copy(loading = false, data = r.data)) }
-                is DataResult.Failure -> _state.update { it.copy(photos = it.photos?.copy(loading = false, error = r.error.toMessage())) }
+                is DataResult.Failure -> _state.update { it.copy(photos = it.photos?.copy(loading = false, error = r.error.toMessage(strings))) }
             }
         }
     }

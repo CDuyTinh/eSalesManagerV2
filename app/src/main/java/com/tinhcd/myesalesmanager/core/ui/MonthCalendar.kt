@@ -59,7 +59,7 @@ fun MonthCalendar(
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.mg_5))
             }
             Text(
-                "Tháng ${month.monthValue}/${month.year}",
+                stringResource(R.string.mgt_2, month.monthValue, month.year),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,

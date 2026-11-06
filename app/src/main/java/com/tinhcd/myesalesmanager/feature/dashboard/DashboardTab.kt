@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -88,6 +89,7 @@ data class DashboardState(
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: DashboardRepository,
     auth: AuthRepository,
 ) : ViewModel() {
@@ -110,7 +112,7 @@ class DashboardViewModel @Inject constructor(
             _state.update { it.copy(loading = true, error = null) }
             when (val r = repository.overview(s.date.toString(), s.salespersonId, s.supervisorId, s.place.branchIds(s.team + s.supervisors))) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, data = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -249,7 +251,7 @@ private fun TodayCard(d: TeamDashboard) {
         }
         if (d.teamSize > 1) {
             Text(
-                "Nhân viên đã đi tuyến: ${t.activeReps}/${d.teamSize}",
+                stringResource(R.string.mgt_7, t.activeReps, d.teamSize),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -338,7 +340,7 @@ private fun ChartCard(d: TeamDashboard, range: ChartRange, onRange: (ChartRange)
         }
         val points = d.charts[range].orEmpty()
         Text(
-            "Tổng: ${formatDong(points.sumOf { it.actual })}",
+            stringResource(R.string.mgt_8, formatDong(points.sumOf { it.actual })),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -357,14 +359,14 @@ private fun MemberRow(rank: Int, m: MemberFigures, kpi: KpiThresholds, onClick: 
                 if (pct != null) PercentPill(pct, ramp.first())
             }
             Text(
-                "Tháng: ${compactMoney(m.monthRevenue)}" +
+                stringResource(R.string.mgt_9, compactMoney(m.monthRevenue)) +
                     (m.revenueTarget?.let { " / ${compactMoney(it)}" } ?: "") +
-                    " · ${m.monthOrders} đơn",
+                    stringResource(R.string.mgt_10, m.monthOrders),
                 style = MaterialTheme.typography.bodyLarge,
             )
             if (pct != null) KpiBar(pct / 100f, ramp)
             Text(
-                "Hôm nay: ${m.todayVisits}/${m.todayPlanned} viếng thăm · ${m.todayOrders} đơn · ${compactMoney(m.todayRevenue)}",
+                stringResource(R.string.mgt_11, m.todayVisits, m.todayPlanned, m.todayOrders, compactMoney(m.todayRevenue)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

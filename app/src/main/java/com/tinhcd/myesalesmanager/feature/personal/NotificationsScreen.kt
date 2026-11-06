@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.background
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,7 @@ data class NotificationsState(val feed: NotificationFeed? = null, val error: Str
 
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: PersonalRepository,
 ) : ViewModel() {
 
@@ -65,7 +67,7 @@ class NotificationsViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.notifications()) {
                 is DataResult.Success -> _state.update { it.copy(feed = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }

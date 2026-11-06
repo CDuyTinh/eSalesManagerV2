@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.prepare
 
 import android.Manifest
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
 import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
@@ -76,6 +77,7 @@ data class EditCustomerState(
 
 @HiltViewModel
 class EditCustomerViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: PrepareRepository,
     private val location: LocationProvider,
@@ -92,7 +94,7 @@ class EditCustomerViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.customer(id)) {
                 is DataResult.Success -> _state.update { it.copy(original = r.data, draft = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -106,7 +108,7 @@ class EditCustomerViewModel @Inject constructor(
             val here = runCatching { location.currentLocation() }.getOrNull()
             _state.update { s ->
                 if (here == null) {
-                    s.copy(locating = false, message = "Không lấy được vị trí hiện tại")
+                    s.copy(locating = false, message = strings(R.string.mgv_31))
                 } else {
                     s.copy(locating = false, draft = s.draft?.copy(lat = here.lat, lng = here.lng))
                 }
@@ -122,10 +124,10 @@ class EditCustomerViewModel @Inject constructor(
             _state.update { it.copy(saving = true) }
             when (val r = repository.updateCustomer(before, after)) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(saving = false, message = if (r.data == 0) "Không có thay đổi" else "Đã lưu ${r.data} thay đổi") }
+                    _state.update { it.copy(saving = false, message = if (r.data == 0) strings(R.string.mgv_32) else strings(R.string.mgv_33, r.data)) }
                     if (r.data > 0) load()
                 }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }

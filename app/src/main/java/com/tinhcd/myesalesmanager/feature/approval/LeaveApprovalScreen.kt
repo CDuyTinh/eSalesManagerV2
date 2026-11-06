@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Row
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LeaveApprovalViewModel @Inject constructor(
+    override val strings: AppStrings,
     private val repository: ApprovalRepository,
 ) : ApprovalListViewModel<LeaveApproval>() {
 

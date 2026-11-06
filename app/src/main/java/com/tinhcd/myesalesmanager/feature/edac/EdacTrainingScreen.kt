@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -68,6 +69,7 @@ data class EdacTrainingState(
 
 @HiltViewModel
 class EdacTrainingViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: EdacRepository,
 ) : ViewModel() {
@@ -81,7 +83,7 @@ class EdacTrainingViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.training(trainingId)) {
                 is DataResult.Success -> _state.update { it.copy(training = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -177,7 +179,7 @@ private fun StepCard(step: EdacStep, open: Boolean, done: Boolean, outlets: Int?
             Column(Modifier.weight(1f)) {
                 Text(step.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                 Text(
-                    step.hint + (if (step.perOutlet && outlets != null && outlets > 0) " · $outlets điểm" else ""),
+                    step.hint + (if (step.perOutlet && outlets != null && outlets > 0) stringResource(R.string.mgt_23, outlets) else ""),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

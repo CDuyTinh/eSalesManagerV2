@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import android.Manifest
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
 import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
@@ -71,6 +72,7 @@ data class EdacFinishState(
 
 @HiltViewModel
 class EdacFinishViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: EdacRepository,
     private val photos: PhotoStore,
@@ -111,8 +113,8 @@ class EdacFinishViewModel @Inject constructor(
     fun finish() {
         val s = _state.value
         val message = when {
-            s.result.isBlank() -> "Nhập kết quả huấn luyện"
-            s.supervisorPhoto == null || s.salespersonPhoto == null -> "Cần chụp ảnh giám sát và nhân viên"
+            s.result.isBlank() -> strings(R.string.mgv_6)
+            s.supervisorPhoto == null || s.salespersonPhoto == null -> strings(R.string.mgv_7)
             else -> null
         }
         if (message != null) {
@@ -123,7 +125,7 @@ class EdacFinishViewModel @Inject constructor(
             _state.update { it.copy(saving = true) }
             when (val r = repository.finish(trainingId, s.result, s.supervisorPhoto!!, s.salespersonPhoto!!)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }

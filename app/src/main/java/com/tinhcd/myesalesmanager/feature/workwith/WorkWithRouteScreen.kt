@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import android.Manifest
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
 import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
@@ -80,6 +81,7 @@ data class WorkWithRouteState(
 
 @HiltViewModel
 class WorkWithRouteViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: WorkWithRepository,
     private val location: LocationProvider,
     auth: AuthRepository,
@@ -102,7 +104,7 @@ class WorkWithRouteViewModel @Inject constructor(
             _state.update { it.copy(loading = true, error = null) }
             when (val r = repository.route(rep, todayVn().toString())) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, route = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -122,7 +124,7 @@ class WorkWithRouteViewModel @Inject constructor(
         when {
             stop.myVisitId != null -> _state.update { it.copy(openVisit = stop.myVisitId) }
             route.openVisitId != null -> _state.update {
-                it.copy(message = "Đang có lượt viếng thăm chưa check-out. Mở lượt đó để kết thúc trước.")
+                it.copy(message = strings(R.string.mgv_74))
             }
             else -> _state.update { it.copy(confirm = stop) }
         }
@@ -144,7 +146,7 @@ class WorkWithRouteViewModel @Inject constructor(
                     it.copy(checkingIn = false, confirm = null, openVisit = r.data)
                 }
                 is DataResult.Failure -> _state.update {
-                    it.copy(checkingIn = false, confirm = null, message = r.error.toMessage())
+                    it.copy(checkingIn = false, confirm = null, message = r.error.toMessage(strings))
                 }
             }
         }
@@ -183,7 +185,7 @@ fun WorkWithRouteScreen(
 
     SubScreen(
         title = stringResource(R.string.mg_320),
-        subtitle = "Hôm nay · ${formatDay(todayVn())}",
+        subtitle = stringResource(R.string.mgt_104, formatDay(todayVn())),
         onBack = onBack,
         snackbar = snackbar,
     ) { padding ->
@@ -200,7 +202,7 @@ fun WorkWithRouteScreen(
                 route != null -> {
                     val done = route.stops.count { it.repStatus != null }
                     Text(
-                        "${route.stops.size} điểm · nhân viên đã ghé $done · ${route.stops.count { it.myStatus != null }} điểm có giám sát",
+                        stringResource(R.string.mgt_105, route.stops.size, done, route.stops.count { it.myStatus != null }),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(horizontal = 16.dp),
@@ -223,7 +225,7 @@ fun WorkWithRouteScreen(
         AlertDialog(
             onDismissRequest = { if (!state.checkingIn) viewModel.dismiss() },
             title = { Text("Check-in") },
-            text = { Text("Bắt đầu viếng thăm ${stop.name} cùng nhân viên? Vị trí hiện tại sẽ được ghi lại.") },
+            text = { Text(stringResource(R.string.mgt_106, stop.name)) },
             confirmButton = {
                 TextButton(onClick = viewModel::checkIn, enabled = !state.checkingIn) {
                     Text(if (state.checkingIn) stringResource(R.string.mg_386) else "Check-in")
@@ -256,8 +258,8 @@ private fun StopCard(stop: WorkWithStop, onClick: () -> Unit) {
             if (stop.repCheckIn != null || stop.repOrderAmount > 0) {
                 Text(
                     listOfNotNull(
-                        stop.repCheckIn?.let { "Vào lúc ${formatDateTime(it).takeLast(5)}" },
-                        if (stop.repOrderAmount > 0) "Đơn ${compactMoney(stop.repOrderAmount)}" else null,
+                        stop.repCheckIn?.let { stringResource(R.string.mgt_107, formatDateTime(it).takeLast(5)) },
+                        if (stop.repOrderAmount > 0) stringResource(R.string.mgt_108, compactMoney(stop.repOrderAmount)) else null,
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

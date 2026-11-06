@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.height
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
 import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
@@ -73,6 +74,7 @@ data class CustomerFeedbackState(
 
 @HiltViewModel
 class CustomerFeedbackViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: InStoreRepository,
     private val photoStore: PhotoStore,
@@ -95,7 +97,7 @@ class CustomerFeedbackViewModel @Inject constructor(
                 is DataResult.Success -> _state.update {
                     it.copy(form = r.data, error = null, topicId = r.data.filed?.topicId, note = r.data.filed?.note.orEmpty())
                 }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -116,9 +118,9 @@ class CustomerFeedbackViewModel @Inject constructor(
         val form = s.form ?: return
         // The rules submit_feedback applies, said before the round trip.
         val problem = when {
-            s.note.trim().length < form.noteMinLength -> "Ghi nội dung phản hồi (ít nhất ${form.noteMinLength} ký tự)"
-            s.photos.size < form.photoMin -> "Chụp ít nhất ${form.photoMin} ảnh"
-            s.photos.size > form.photoMax -> "Tối đa ${form.photoMax} ảnh"
+            s.note.trim().length < form.noteMinLength -> strings(R.string.mgv_60, form.noteMinLength)
+            s.photos.size < form.photoMin -> strings(R.string.mgv_61, form.photoMin)
+            s.photos.size > form.photoMax -> strings(R.string.mgv_62, form.photoMax)
             else -> null
         }
         if (problem != null) {
@@ -129,7 +131,7 @@ class CustomerFeedbackViewModel @Inject constructor(
             _state.update { it.copy(saving = true) }
             when (val r = repository.submitFeedback(visitId, s.topicId, s.note, s.photos)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -204,7 +206,7 @@ fun CustomerFeedbackScreen(onBack: () -> Unit, viewModel: CustomerFeedbackViewMo
                         enabled = !state.saving && state.photos.size < form.photoMax,
                         modifier = Modifier.weight(1f).height(48.dp),
                     ) {
-                        Text("Chụp ảnh (${state.photos.size}/${form.photoMax})", maxLines = 1)
+                        Text(stringResource(R.string.mgt_92, state.photos.size, form.photoMax), maxLines = 1)
                     }
                     PrimaryButton(stringResource(R.string.mg_359), viewModel::save, Modifier.weight(1f), enabled = !state.saving, loading = state.saving, height = 48.dp)
                 }

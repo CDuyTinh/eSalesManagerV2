@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,7 @@ data class MarketInfoState(val surveys: List<MarketSurvey>? = null, val error: S
 
 @HiltViewModel
 class MarketInfoViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: InStoreRepository,
 ) : ViewModel() {
@@ -75,7 +77,7 @@ class MarketInfoViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.surveys(visitId)) {
                 is DataResult.Success -> _state.update { it.copy(surveys = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -121,7 +123,7 @@ fun MarketInfoScreen(
                                 Text(
                                     listOfNotNull(
                                         if (competitor) "Khảo sát đối thủ · ${s.itemCount} cặp sản phẩm" else "Khảo sát thị trường (làm trên app nhân viên)",
-                                        s.toDate?.let { "đến ${formatIsoDate(it)}" },
+                                        s.toDate?.let { stringResource(R.string.mgt_94, formatIsoDate(it)) },
                                     ).joinToString(" · "),
                                     style = MaterialTheme.typography.labelSmall,
                                 )
@@ -149,6 +151,7 @@ data class CompetitorSurveyState(
 
 @HiltViewModel
 class CompetitorSurveyViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: InStoreRepository,
 ) : ViewModel() {
@@ -170,7 +173,7 @@ class CompetitorSurveyViewModel @Inject constructor(
                     }.toMap()
                     s.copy(survey = r.data, answers = earlier, error = null)
                 }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -184,14 +187,14 @@ class CompetitorSurveyViewModel @Inject constructor(
             survey.criteria.any { c -> c.required && s.answers[Triple(p.productId, p.competitorProductId, c.id)].isNullOrBlank() }
         }
         if (missing) {
-            _state.update { it.copy(message = "Vui lòng trả lời đủ các tiêu chí bắt buộc") }
+            _state.update { it.copy(message = strings(R.string.mgv_66)) }
             return
         }
         viewModelScope.launch {
             _state.update { it.copy(saving = true) }
             when (val r = repository.submitSurvey(visitId, surveyId, s.answers)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -233,7 +236,7 @@ fun CompetitorSurveyScreen(onBack: () -> Unit, viewModel: CompetitorSurveyViewMo
                     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
                         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(p.productName, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-                            Text("so với ${p.competitorProduct} (${p.competitorName})", style = MaterialTheme.typography.labelSmall)
+                            Text(stringResource(R.string.mgt_95, p.competitorProduct, p.competitorName), style = MaterialTheme.typography.labelSmall)
                             survey.criteria.forEach { c ->
                                 val key = Triple(p.productId, p.competitorProductId, c.id)
                                 OutlinedTextField(

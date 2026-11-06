@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.prepare
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,7 @@ data class TeamCustomersState(
 
 @HiltViewModel
 class TeamCustomersViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: PrepareRepository,
     auth: AuthRepository,
 ) : ViewModel() {
@@ -82,7 +84,7 @@ class TeamCustomersViewModel @Inject constructor(
         search = viewModelScope.launch {
             when (val r = repository.customers(rep, s.query)) {
                 is DataResult.Success -> _state.update { it.copy(customers = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -136,8 +138,8 @@ fun TeamCustomersScreen(
                                 c.address?.let { Text(it, style = MaterialTheme.typography.labelSmall) }
                                 Text(
                                     listOfNotNull(
-                                        c.contactName, c.phone, c.routes?.let { "Tuyến $it" },
-                                        c.editedAt?.let { "sửa ${formatDateTime(it)}" },
+                                        c.contactName, c.phone, c.routes?.let { stringResource(R.string.mgt_40, it) },
+                                        c.editedAt?.let { stringResource(R.string.mgt_41, formatDateTime(it)) },
                                     ).joinToString(" · "),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,

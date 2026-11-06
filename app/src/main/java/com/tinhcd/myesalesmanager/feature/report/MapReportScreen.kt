@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.report
 
 import android.content.Context
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import android.graphics.Color as AndroidColor
@@ -89,6 +90,7 @@ data class MapReportState(
 
 @HiltViewModel
 class MapReportViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: LocationMapRepository,
     auth: AuthRepository,
 ) : ViewModel() {
@@ -108,7 +110,7 @@ class MapReportViewModel @Inject constructor(
             _state.update { it.copy(error = null) }
             when (val r = repository.day(s.date.toString(), s.salespersonId)) {
                 is DataResult.Success -> _state.update { it.copy(days = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -196,16 +198,16 @@ private fun RepLegend(d: RepDay, colour: Color) {
         Spacer(Modifier.width(10.dp))
         Column(Modifier.weight(1f)) {
             Text(
-                if (d.isSupervisor) "${d.rep.name} (giám sát)" else d.rep.name,
+                if (d.isSupervisor) stringResource(R.string.mgt_42, d.rep.name) else d.rep.name,
                 style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold,
             )
             Text(
                 listOfNotNull(
-                    d.clockIn?.let { "vào ${formatDateTime(it).takeLast(5)}" },
+                    d.clockIn?.let { stringResource(R.string.mgt_43, formatDateTime(it).takeLast(5)) },
                     d.clockOut?.let { "ra ${formatDateTime(it).takeLast(5)}" },
-                    "${d.visits.size} điểm ghé",
-                    "${d.path.size} điểm GPS",
-                    d.path.lastOrNull()?.let { "thấy lần cuối ${formatDateTime(it.at).takeLast(5)}" },
+                    stringResource(R.string.mgt_44, d.visits.size),
+                    stringResource(R.string.mgt_45, d.path.size),
+                    d.path.lastOrNull()?.let { stringResource(R.string.mgt_46, formatDateTime(it.at).takeLast(5)) },
                 ).joinToString(stringResource(R.string.mg_174)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

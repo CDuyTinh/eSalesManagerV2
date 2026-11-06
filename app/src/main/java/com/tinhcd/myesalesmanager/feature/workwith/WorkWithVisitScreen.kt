@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workwith
 
 import android.Manifest
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
 import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
@@ -105,6 +106,7 @@ data class WorkWithVisitState(
 
 @HiltViewModel
 class WorkWithVisitViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: WorkWithRepository,
     private val photos: PhotoStore,
@@ -128,7 +130,7 @@ class WorkWithVisitViewModel @Inject constructor(
             _state.update { it.copy(loading = true, error = null) }
             when (val r = repository.visit(visitId)) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, visit = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -189,11 +191,11 @@ class WorkWithVisitViewModel @Inject constructor(
         val d = _state.value.draft ?: return
         val faces = d.faces.toIntOrNull()
         if (faces == null) {
-            _state.update { it.copy(message = "Nhập số mặt hàng đếm được") }
+            _state.update { it.copy(message = strings(R.string.mgv_75)) }
             return
         }
         if (d.photos.isEmpty()) {
-            _state.update { it.copy(message = "Chụp ít nhất 1 ảnh trưng bày") }
+            _state.update { it.copy(message = strings(R.string.mgv_76)) }
             return
         }
         viewModelScope.launch {
@@ -201,10 +203,10 @@ class WorkWithVisitViewModel @Inject constructor(
             val score = DisplayScore(visitId, d.program.programId, d.program.levelId, faces, d.achieved, d.note, d.photos)
             when (val r = repository.scoreDisplay(score)) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(saving = false, draft = null, message = "Đã lưu điểm ${d.program.programCode}") }
+                    _state.update { it.copy(saving = false, draft = null, message = strings(R.string.mgv_77, d.program.programCode)) }
                     load()
                 }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -217,7 +219,7 @@ class WorkWithVisitViewModel @Inject constructor(
             val here = runCatching { location.currentLocation() }.getOrNull()
             when (val r = repository.checkOut(visitId, note, here)) {
                 is DataResult.Success -> _state.update { it.copy(checkingOut = false, askCheckOut = false, closed = true) }
-                is DataResult.Failure -> _state.update { it.copy(checkingOut = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(checkingOut = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -256,7 +258,7 @@ fun WorkWithVisitScreen(
     val visit = state.visit
     SubScreen(
         title = visit?.customerName ?: stringResource(R.string.mg_29),
-        subtitle = visit?.let { "Cùng ${it.rep?.name.orEmpty()}" },
+        subtitle = visit?.let { stringResource(R.string.mgt_110, it.rep?.name.orEmpty()) },
         onBack = onBack,
         snackbar = snackbar,
         bottomBar = {
@@ -283,7 +285,7 @@ fun WorkWithVisitScreen(
                     item { InStoreSteps(tasks, open = visit.isOpen) { step -> onOpenStep(step, visit.visitId) } }
                 }
                 item {
-                    Text("Chấm điểm trưng bày (${visit.programs.size})", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.mgt_111, visit.programs.size), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
                 }
                 if (visit.programs.isEmpty()) {
                     item { Text(stringResource(R.string.mg_393), color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -341,14 +343,14 @@ private fun VisitInfo(v: WorkWithVisit) {
             }
             LabeledLine(stringResource(R.string.lbl_address), v.customerAddress)
             LabeledLine(stringResource(R.string.lbl_phone), v.customerPhone)
-            LabeledLine("Check-in", v.checkInAt?.let { formatDateTime(it) + (v.distanceM?.let { d -> " · cách $d m" } ?: "") })
+            LabeledLine("Check-in", v.checkInAt?.let { formatDateTime(it) + (v.distanceM?.let { d -> stringResource(R.string.mgt_112, d) } ?: "") })
             LabeledLine("Check-out", v.checkOutAt?.let(::formatDateTime))
             LabeledLine(
                 stringResource(R.string.mg_396),
                 listOfNotNull(
                     v.repStatus?.label ?: stringResource(R.string.mg_387),
-                    v.repCheckIn?.let { "vào ${formatDateTime(it).takeLast(5)}" },
-                    if (v.repOrderAmount > 0) "đơn ${formatDong(v.repOrderAmount)}" else null,
+                    v.repCheckIn?.let { stringResource(R.string.mgt_43, formatDateTime(it).takeLast(5)) },
+                    if (v.repOrderAmount > 0) stringResource(R.string.mgt_113, formatDong(v.repOrderAmount)) else null,
                 ).joinToString(" · "),
             )
             LabeledLine(stringResource(R.string.mg_397), v.note)
@@ -361,7 +363,7 @@ private fun ProgramCard(p: DisplayToScore, canScore: Boolean, onScore: () -> Uni
     Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("${p.programCode} – ${p.programName}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-            Text("${p.levelName} · yêu cầu ${p.requiredFaces} mặt", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.mgt_114, p.levelName, p.requiredFaces), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ScorePill("NV", p.repFaces, p.repAchieved)
                 ScorePill(stringResource(R.string.mg_398), p.myFaces, p.myAchieved)
@@ -377,7 +379,7 @@ private fun ProgramCard(p: DisplayToScore, canScore: Boolean, onScore: () -> Uni
 
 @Composable
 private fun ScorePill(who: String, faces: Int?, achieved: Boolean?) {
-    val text = if (faces == null) "$who: chưa chấm" else "$who: $faces mặt · ${if (achieved == true) stringResource(R.string.mg_401) else stringResource(R.string.mg_402)}"
+    val text = if (faces == null) stringResource(R.string.mgt_115, who) else stringResource(R.string.mgt_116, who, faces, if (achieved == true) stringResource(R.string.mg_401) else stringResource(R.string.mg_402))
     val color = when (achieved) {
         true -> Kpi.Green.first()
         false -> Kpi.Orange.first()
@@ -400,10 +402,10 @@ private fun ScoreDialog(
 ) {
     AlertDialog(
         onDismissRequest = { if (!saving) onDismiss() },
-        title = { Text("Chấm ${draft.program.programCode}") },
+        title = { Text(stringResource(R.string.mgt_117, draft.program.programCode)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("${draft.program.levelName} · yêu cầu ${draft.program.requiredFaces} mặt", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.mgt_114, draft.program.levelName, draft.program.requiredFaces), style = MaterialTheme.typography.bodyLarge)
                 OutlinedTextField(
                     value = draft.faces, onValueChange = onFaces,
                     label = { Text(stringResource(R.string.mg_403)) }, singleLine = true,
@@ -429,7 +431,7 @@ private fun ScoreDialog(
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onShoot, enabled = !saving) { Text("Chụp ảnh (${draft.photos.size})") }
+                    OutlinedButton(onClick = onShoot, enabled = !saving) { Text(stringResource(R.string.mgt_98, draft.photos.size)) }
                     if (draft.photos.isNotEmpty()) {
                         TextButton(onClick = { onRemove(draft.photos.last()) }, enabled = !saving) { Text(stringResource(R.string.mg_406)) }
                     }
@@ -459,10 +461,10 @@ private fun InStoreSteps(t: VisitTasks, open: Boolean, onOpen: (InStoreStep) -> 
             Text(stringResource(R.string.mg_408), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
             InStoreStep.entries.forEach { step ->
                 val done = when (step) {
-                    InStoreStep.STOCK -> t.stockCountedAt?.let { "${t.stockCountLines} dòng · ${formatDateTime(it).takeLast(5)}" }
-                    InStoreStep.ORDER -> t.orders.takeIf { it.isNotEmpty() }?.let { o -> "${o.size} đơn · ${formatDong(o.sumOf { it.totalAmount })}" }
-                    InStoreStep.POSM -> t.posmChecked.takeIf { it > 0 }?.let { "$it vật phẩm" }
-                    InStoreStep.MARKET -> t.surveysDone.takeIf { it > 0 }?.let { "$it khảo sát" }
+                    InStoreStep.STOCK -> t.stockCountedAt?.let { stringResource(R.string.mgt_118, t.stockCountLines, formatDateTime(it).takeLast(5)) }
+                    InStoreStep.ORDER -> t.orders.takeIf { it.isNotEmpty() }?.let { o -> stringResource(R.string.mgt_68, o.size, formatDong(o.sumOf { it.totalAmount })) }
+                    InStoreStep.POSM -> t.posmChecked.takeIf { it > 0 }?.let { stringResource(R.string.mgt_119, it) }
+                    InStoreStep.MARKET -> t.surveysDone.takeIf { it > 0 }?.let { stringResource(R.string.mgt_120, it) }
                     InStoreStep.FEEDBACK -> if (t.feedback) stringResource(R.string.mg_409) else null
                 }
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
@@ -475,7 +477,7 @@ private fun InStoreSteps(t: VisitTasks, open: Boolean, onOpen: (InStoreStep) -> 
                 }
             }
             if (open && t.minMinutes > 0) {
-                Text("Cần ở điểm bán ít nhất ${t.minMinutes} phút trước khi check-out", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.mgt_121, t.minMinutes), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

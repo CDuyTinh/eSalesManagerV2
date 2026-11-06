@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -89,6 +90,7 @@ data class PlanDetailState(
 
 @HiltViewModel
 class WorkPlanDetailViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: WorkPlanRepository,
     auth: AuthRepository,
@@ -119,10 +121,10 @@ class WorkPlanDetailViewModel @Inject constructor(
             _state.update { it.copy(busy = true) }
             when (val r = repository.moveOwn(id, WorkPlanStatus.SUBMITTED, null)) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(busy = false, message = "Đã gửi duyệt") }
+                    _state.update { it.copy(busy = false, message = strings(R.string.mgv_53)) }
                     load()
                 }
-                is DataResult.Failure -> _state.update { it.copy(busy = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(busy = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -134,8 +136,8 @@ class WorkPlanDetailViewModel @Inject constructor(
             it.copy(
                 pending = PendingDecision(
                     if (complete) OWN_COMPLETE else OWN_CANCEL, false, d.plan.content,
-                    heading = if (complete) "Báo hoàn thành" else "Huỷ kế hoạch",
-                    reasonLabel = if (complete) "Kết quả *" else "Lý do huỷ *",
+                    heading = if (complete) strings(R.string.mg_340) else strings(R.string.mg_341),
+                    reasonLabel = if (complete) strings(R.string.mgv_54) else strings(R.string.mgv_55),
                 ),
                 cancelling = false,
             )
@@ -147,7 +149,7 @@ class WorkPlanDetailViewModel @Inject constructor(
             _state.update { it.copy(loading = true, error = null) }
             when (val r = repository.detail(id)) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, detail = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -164,7 +166,7 @@ class WorkPlanDetailViewModel @Inject constructor(
             it.copy(
                 pending = PendingDecision(
                     CANCEL, false, d.plan.content,
-                    heading = "Huỷ công việc", reasonLabel = "Lý do huỷ *",
+                    heading = strings(R.string.mgv_56), reasonLabel = strings(R.string.mgv_55),
                 ),
                 cancelling = true,
             )
@@ -190,17 +192,17 @@ class WorkPlanDetailViewModel @Inject constructor(
                         it.copy(
                             busy = false, pending = null, cancelling = false,
                             message = when {
-                                pending.id == OWN_COMPLETE -> "Đã báo hoàn thành"
-                                pending.id == OWN_CANCEL -> "Đã huỷ kế hoạch"
-                                s.cancelling -> "Đã huỷ công việc"
-                                pending.approve -> "Đã duyệt"
-                                else -> "Đã từ chối"
+                                pending.id == OWN_COMPLETE -> strings(R.string.mgv_57)
+                                pending.id == OWN_CANCEL -> strings(R.string.mgv_58)
+                                s.cancelling -> strings(R.string.mgv_59)
+                                pending.approve -> strings(R.string.status_approved)
+                                else -> strings(R.string.mgv_1)
                             },
                         )
                     }
                     load()
                 }
-                is DataResult.Failure -> _state.update { it.copy(busy = false, message = result.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(busy = false, message = result.error.toMessage(strings)) }
             }
         }
     }
@@ -341,7 +343,7 @@ private fun DetailBody(detail: WorkPlanDetail, padding: PaddingValues) {
 
         if (detail.photos.isNotEmpty()) {
             item {
-                Section("Hình ảnh (${detail.photos.size})")
+                Section(stringResource(R.string.cust_photos, detail.photos.size))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(detail.photos) { photo ->
                         AsyncImage(

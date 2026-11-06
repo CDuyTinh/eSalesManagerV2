@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -73,6 +74,7 @@ data class CustomerDetailState(
 
 @HiltViewModel
 class CustomerApprovalDetailViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: ApprovalRepository,
 ) : ViewModel() {
@@ -101,7 +103,7 @@ class CustomerApprovalDetailViewModel @Inject constructor(
                     )
                 }
                 is DataResult.Failure -> _state.update {
-                    it.copy(loading = false, error = result.error.toMessage())
+                    it.copy(loading = false, error = result.error.toMessage(strings))
                 }
             }
         }
@@ -131,7 +133,7 @@ class CustomerApprovalDetailViewModel @Inject constructor(
             when (val result = repository.decideCustomer(pending.id, decision)) {
                 is DataResult.Success -> _state.update { it.copy(deciding = false, pending = null, done = true) }
                 is DataResult.Failure -> _state.update {
-                    it.copy(deciding = false, message = result.error.toMessage())
+                    it.copy(deciding = false, message = result.error.toMessage(strings))
                 }
             }
         }

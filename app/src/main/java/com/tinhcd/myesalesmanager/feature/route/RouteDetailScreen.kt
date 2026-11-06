@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.route
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -122,6 +123,7 @@ data class RouteDetailState(
 
 @HiltViewModel
 class RouteDetailViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: RouteRepository,
     auth: AuthRepository,
@@ -143,7 +145,7 @@ class RouteDetailViewModel @Inject constructor(
             _state.update { it.copy(loading = true, error = null) }
             when (val r = repository.detail(routeId)) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, route = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -166,7 +168,7 @@ class RouteDetailViewModel @Inject constructor(
 
     fun saveSchedule() {
         val e = _state.value.edit ?: return
-        run(if (e.adding) "Đã thêm điểm bán vào tuyến" else "Đã cập nhật lịch ghé") {
+        run(if (e.adding) strings(R.string.mgv_40) else strings(R.string.mgv_41)) {
             repository.setOutlet(routeId, e.customerId, e.weekdays.sorted(), e.weeks.sorted())
         }
     }
@@ -175,7 +177,7 @@ class RouteDetailViewModel @Inject constructor(
 
     fun remove() {
         val o = _state.value.removing ?: return
-        run("Đã bỏ ${o.code} khỏi tuyến") { repository.removeOutlet(routeId, o.customerId) }
+        run(strings(R.string.mgv_42, o.code)) { repository.removeOutlet(routeId, o.customerId) }
     }
 
     fun toggleMap() = _state.update { it.copy(showMap = !it.showMap) }
@@ -198,10 +200,10 @@ class RouteDetailViewModel @Inject constructor(
             _state.update { it.copy(busy = true) }
             when (val r = repository.reorder(routeId, order.map { it.customerId })) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(busy = false, ordering = null, message = "Đã lưu thứ tự ghé") }
+                    _state.update { it.copy(busy = false, ordering = null, message = strings(R.string.mgv_43)) }
                     refresh()
                 }
-                is DataResult.Failure -> _state.update { it.copy(busy = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(busy = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -211,7 +213,7 @@ class RouteDetailViewModel @Inject constructor(
     /** From today it changes hands now; from a later day it waits for that morning. */
     fun assign(salespersonId: String, note: String, from: LocalDate) {
         val later = from.isAfter(todayVn())
-        run(if (later) "Sẽ giao tuyến từ ${formatDay(from)}" else "Đã giao tuyến") {
+        run(if (later) strings(R.string.mgv_44, formatDay(from)) else strings(R.string.mgv_45)) {
             repository.assign(routeId, salespersonId, note, if (later) from.toString() else null)
         }
     }
@@ -234,7 +236,7 @@ class RouteDetailViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.candidates(routeId, q)) {
                 is DataResult.Success -> _state.update { if (it.candidates == null) it else it.copy(candidates = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -257,7 +259,7 @@ class RouteDetailViewModel @Inject constructor(
                     refresh()
                 }
                 // The dialog stays open so the supervisor can fix what the server refused.
-                is DataResult.Failure -> _state.update { it.copy(busy = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(busy = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -295,7 +297,7 @@ fun RouteDetailScreen(
         AlertDialog(
             onDismissRequest = viewModel::dismiss,
             title = { Text(stringResource(R.string.mg_251)) },
-            text = { Text("Bỏ ${o.code} – ${o.name} khỏi tuyến? Nhân viên sẽ không còn ghé điểm này theo lịch.") },
+            text = { Text(stringResource(R.string.mgt_73, o.code, o.name)) },
             confirmButton = { TextButton(onClick = viewModel::remove, enabled = !state.busy) { Text(stringResource(R.string.mg_252)) } },
             dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.busy) { Text(stringResource(R.string.action_cancel)) } },
         )
@@ -362,7 +364,7 @@ private fun RouteBody(route: RouteDetail, state: RouteDetailState, modifier: Mod
         }
         item {
             Text(
-                if (ordering != null) stringResource(R.string.mg_259) else "${route.outlets.size} điểm bán trên tuyến",
+                if (ordering != null) stringResource(R.string.mg_259) else stringResource(R.string.mgt_75, route.outlets.size),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -430,11 +432,11 @@ private fun SalesMonthRow(m: RouteSalesMonth) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                LocalDate.parse(m.month).let { "Tháng ${it.monthValue}/${it.year}" },
+                LocalDate.parse(m.month).let { stringResource(R.string.mgt_2, it.monthValue, it.year) },
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.weight(1f),
             )
-            Text("${formatDong(m.revenue)} · ${m.orders} đơn", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.mgt_76, formatDong(m.revenue), m.orders), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
         }
         if (m.bySalesperson.size > 1) {
             Text(
@@ -487,12 +489,12 @@ private fun ScheduleDialog(edit: ScheduleEdit, busy: Boolean, viewModel: RouteDe
                     }
                 }
                 Text(
-                    "Tuần trong chu kỳ 4 tuần (bỏ trống = mọi tuần) · tuần này là tuần ${mclWeek(todayVn())}",
+                    stringResource(R.string.mgt_77, mclWeek(todayVn())),
                     style = MaterialTheme.typography.labelSmall,
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     (1..4).forEach { w ->
-                        FilterChip(selected = w in edit.weeks, onClick = { viewModel.toggleWeek(w) }, label = { Text("Tuần $w") })
+                        FilterChip(selected = w in edit.weeks, onClick = { viewModel.toggleWeek(w) }, label = { Text(stringResource(R.string.mgt_78, w)) })
                     }
                 }
             }
@@ -517,7 +519,7 @@ private fun AssignDialog(route: RouteDetail, team: List<TeamMember>, busy: Boole
     }
     AlertDialog(
         onDismissRequest = viewModel::dismiss,
-        title = { Text("Giao tuyến ${route.code}") },
+        title = { Text(stringResource(R.string.mgt_79, route.code)) },
         text = {
             Column {
                 team.forEach { m ->
@@ -537,7 +539,7 @@ private fun AssignDialog(route: RouteDetail, team: List<TeamMember>, busy: Boole
                 )
                 // The legacy hand-over's effective date: the rep keeps the route until then.
                 OutlinedButton(onClick = { pickingDate = true }, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                    Text(if (from == todayVn()) stringResource(R.string.mg_269) else "Áp dụng từ ${formatDay(from)}")
+                    Text(if (from == todayVn()) stringResource(R.string.mg_269) else stringResource(R.string.mgt_80, formatDay(from)))
                 }
             }
         },
@@ -569,7 +571,7 @@ private fun CandidatesDialog(candidates: List<RouteCandidate>, query: String, vi
                         ) {
                             Text("${c.code} – ${c.name}", fontWeight = FontWeight.SemiBold)
                             Text(
-                                listOfNotNull(c.address, c.onRoutes?.let { "Đang ở tuyến $it" }).joinToString(" · "),
+                                listOfNotNull(c.address, c.onRoutes?.let { stringResource(R.string.mgt_81, it) }).joinToString(" · "),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

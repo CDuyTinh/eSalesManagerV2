@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.core.ui.theme.status
@@ -72,6 +73,7 @@ data class PasswordState(
 
 @HiltViewModel
 class PasswordViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val auth: AuthRepository,
 ) : ViewModel() {
 

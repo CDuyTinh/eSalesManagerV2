@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.prepare
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -54,6 +55,7 @@ data class StockState(
 
 @HiltViewModel
 class StockViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: PrepareRepository,
 ) : ViewModel() {
 
@@ -67,7 +69,7 @@ class StockViewModel @Inject constructor(
             _state.update { it.copy(error = null) }
             when (val r = repository.stock(siteId)) {
                 is DataResult.Success -> _state.update { it.copy(stock = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -107,7 +109,7 @@ fun StockScreen(onBack: () -> Unit, viewModel: StockViewModel = hiltViewModel())
                 LazyColumn(contentPadding = PaddingValues(16.dp)) {
                     item {
                         Text(
-                            "${shown.size} sản phẩm",
+                            stringResource(R.string.mgt_38, shown.size),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -118,7 +120,7 @@ fun StockScreen(onBack: () -> Unit, viewModel: StockViewModel = hiltViewModel())
                             Column(Modifier.weight(1f)) {
                                 Text(i.productName, style = MaterialTheme.typography.bodyLarge)
                                 Text(
-                                    listOfNotNull(i.productCode, i.updatedAt?.let { "cập nhật ${formatDateTime(it)}" }).joinToString(" · "),
+                                    listOfNotNull(i.productCode, i.updatedAt?.let { stringResource(R.string.mgt_39, formatDateTime(it)) }).joinToString(" · "),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

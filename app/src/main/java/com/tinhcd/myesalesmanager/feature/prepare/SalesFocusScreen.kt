@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.prepare
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -56,6 +57,7 @@ data class SalesFocusState(val focus: SalesFocus? = null, val error: String? = n
 
 @HiltViewModel
 class SalesFocusViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: PrepareRepository,
 ) : ViewModel() {
 
@@ -68,7 +70,7 @@ class SalesFocusViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.salesFocus(todayVn().toString())) {
                 is DataResult.Success -> _state.update { it.copy(focus = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -111,7 +113,7 @@ fun SalesFocusScreen(onBack: () -> Unit, viewModel: SalesFocusViewModel = hiltVi
                                 StatusPill(if (p.kind == "display") stringResource(R.string.mg_160) else stringResource(R.string.mg_161), if (p.kind == "display") Kpi.Blue.first() else Kpi.Violet.first())
                             }
                             Text(
-                                "${formatIsoDate(p.fromDate)} – ${formatIsoDate(p.toDate)} · nhóm đã đăng ký ${p.registered} điểm",
+                                stringResource(R.string.mgt_35, formatIsoDate(p.fromDate), formatIsoDate(p.toDate), p.registered),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -137,8 +139,8 @@ private fun FocusCard(p: FocusProduct) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                "Nhóm: ${number.format(p.soldBaseQty)}" + (p.teamTarget?.let { " / ${number.format(it)}" } ?: "") +
-                    " ${p.baseUom} · ${p.outlets} điểm bán",
+                stringResource(R.string.mgt_36, number.format(p.soldBaseQty)) + (p.teamTarget?.let { " / ${number.format(it)}" } ?: "") +
+                    stringResource(R.string.mgt_37, p.baseUom, p.outlets),
                 style = MaterialTheme.typography.bodyLarge,
             )
             p.teamTarget?.let { KpiBar((p.soldBaseQty.toFloat() / it).coerceIn(0f, 1f), Kpi.Green) }
@@ -148,7 +150,7 @@ private fun FocusCard(p: FocusProduct) {
                     Text(r.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
                     Text(
                         "${number.format(r.soldBaseQty)}" + (p.targetBaseQty?.let { " / ${number.format(it)}" } ?: "") +
-                            " · ${r.outlets} điểm",
+                            stringResource(R.string.mgt_23, r.outlets),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = if (p.targetBaseQty != null && r.soldBaseQty < p.targetBaseQty) Kpi.Orange.first() else MaterialTheme.colorScheme.onSurface,

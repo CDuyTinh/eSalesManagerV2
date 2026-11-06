@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
@@ -82,6 +83,7 @@ data class MyLeaveState(
 
 @HiltViewModel
 class MyLeaveViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: PersonalRepository,
 ) : ViewModel() {
 
@@ -94,7 +96,7 @@ class MyLeaveViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.leave()) {
                 is DataResult.Success -> _state.update { it.copy(board = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -107,21 +109,21 @@ class MyLeaveViewModel @Inject constructor(
     fun submit() {
         val d = _state.value.draft ?: return
         val problem = when {
-            d.typeId == null -> "Chọn loại nghỉ"
-            d.to.isBefore(d.from) -> "Ngày kết thúc phải từ ngày bắt đầu trở đi"
-            d.reason.isBlank() -> "Nhập lý do nghỉ"
+            d.typeId == null -> strings(R.string.mgv_9)
+            d.to.isBefore(d.from) -> strings(R.string.mgv_10)
+            d.reason.isBlank() -> strings(R.string.mgv_11)
             else -> null
         }
         if (problem != null) {
             _state.update { it.copy(message = problem) }
             return
         }
-        run("Đã gửi đơn nghỉ phép") { repository.requestLeave(d.typeId!!, d.from.toString(), d.to.toString(), d.reason) }
+        run(strings(R.string.mgv_12)) { repository.requestLeave(d.typeId!!, d.from.toString(), d.to.toString(), d.reason) }
     }
 
     fun withdraw() {
         val l = _state.value.withdrawing ?: return
-        run("Đã rút đơn") { repository.withdrawLeave(l.id) }
+        run(strings(R.string.mgv_13)) { repository.withdrawLeave(l.id) }
     }
 
     private fun run(done: String, block: suspend () -> DataResult<Unit>) {
@@ -132,7 +134,7 @@ class MyLeaveViewModel @Inject constructor(
                     _state.update { it.copy(saving = false, draft = null, withdrawing = null, message = done) }
                     refresh()
                 }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -186,7 +188,7 @@ fun MyLeaveScreen(onBack: () -> Unit, viewModel: MyLeaveViewModel = hiltViewMode
         AlertDialog(
             onDismissRequest = viewModel::dismiss,
             title = { Text(stringResource(R.string.mg_100)) },
-            text = { Text("Rút đơn ${l.typeName} ${formatIsoDate(l.fromDate)} – ${formatIsoDate(l.toDate)}?") },
+            text = { Text(stringResource(R.string.mgt_24, l.typeName, formatIsoDate(l.fromDate), formatIsoDate(l.toDate))) },
             confirmButton = { TextButton(onClick = viewModel::withdraw, enabled = !state.saving) { Text(stringResource(R.string.mg_100)) } },
             dismissButton = { TextButton(onClick = viewModel::dismiss, enabled = !state.saving) { Text(stringResource(R.string.action_cancel)) } },
         )
@@ -211,7 +213,7 @@ private fun LeaveCard(l: MyLeave, onWithdraw: () -> Unit) {
             Text("${formatIsoDate(l.fromDate)} – ${formatIsoDate(l.toDate)} · ${if (l.isPaid) stringResource(R.string.mg_102) else stringResource(R.string.mg_103)}",
                 style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (l.reason.isNotBlank()) Text(l.reason, style = MaterialTheme.typography.bodyLarge)
-            l.decisionNote?.let { Text("Ghi chú duyệt: $it", style = MaterialTheme.typography.labelSmall) }
+            l.decisionNote?.let { Text(stringResource(R.string.appr_decision_note, it), style = MaterialTheme.typography.labelSmall) }
             if (l.status == "pending") OutlinedButton(onClick = onWithdraw) { Text(stringResource(R.string.mg_100)) }
         }
     }
@@ -232,8 +234,8 @@ private fun LeaveDialog(d: LeaveDraft, board: LeaveBoard, saving: Boolean, viewM
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { picking = "from" }, modifier = Modifier.weight(1f)) { Text("Từ ${formatIsoDate(d.from.toString())}") }
-                    OutlinedButton(onClick = { picking = "to" }, modifier = Modifier.weight(1f)) { Text("Đến ${formatIsoDate(d.to.toString())}") }
+                    OutlinedButton(onClick = { picking = "from" }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.mgt_25, formatIsoDate(d.from.toString()))) }
+                    OutlinedButton(onClick = { picking = "to" }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.mgt_26, formatIsoDate(d.to.toString()))) }
                 }
                 OutlinedTextField(
                     value = d.reason,

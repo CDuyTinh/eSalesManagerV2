@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.personal
 
 import android.Manifest
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.compose.ui.res.stringResource
 import com.tinhcd.myesalesmanager.R
 import com.tinhcd.myesalesmanager.core.permission.rememberPermissionRequest
@@ -60,6 +61,7 @@ data class WorkDayState(
 
 @HiltViewModel
 class WorkDayViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: PersonalRepository,
     private val location: LocationProvider,
 ) : ViewModel() {
@@ -71,7 +73,7 @@ class WorkDayViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.workDay(todayVn().toString())) {
                 is DataResult.Success -> _state.update { it.copy(day = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -86,10 +88,10 @@ class WorkDayViewModel @Inject constructor(
             val here = runCatching { location.currentLocation() }.getOrNull()
             when (val r = repository.punch(day, checkIn, here)) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(punching = false, message = if (checkIn) "Đã chấm công vào" else "Đã chấm công ra") }
+                    _state.update { it.copy(punching = false, message = if (checkIn) strings(R.string.mgv_23) else strings(R.string.mgv_24)) }
                     refresh()
                 }
-                is DataResult.Failure -> _state.update { it.copy(punching = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(punching = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -131,7 +133,7 @@ fun WorkDayScreen(onBack: () -> Unit, viewModel: WorkDayViewModel = hiltViewMode
                         PunchLine("Ra", day.checkOutAt)
                         if (day.openVisits > 0) {
                             Text(
-                                "Còn ${day.openVisits} lượt viếng thăm chưa check-out",
+                                stringResource(R.string.mgt_28, day.openVisits),
                                 color = Kpi.Orange.first(),
                                 style = MaterialTheme.typography.labelSmall,
                             )

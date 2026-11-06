@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -86,6 +87,7 @@ data class EdacCriteriaState(
 
 @HiltViewModel
 class EdacCriteriaViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: EdacRepository,
 ) : ViewModel() {
 
@@ -98,7 +100,7 @@ class EdacCriteriaViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.criteria()) {
                 is DataResult.Success -> _state.update { it.copy(book = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -124,10 +126,10 @@ class EdacCriteriaViewModel @Inject constructor(
             _state.update { it.copy(saving = true) }
             when (val r = repository.saveCriterion(c)) {
                 is DataResult.Success -> {
-                    _state.update { it.copy(saving = false, editing = null, message = "Đã lưu tiêu chí") }
+                    _state.update { it.copy(saving = false, editing = null, message = strings(R.string.mgv_5)) }
                     load()
                 }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -211,7 +213,7 @@ fun EdacCriteriaScreen(onBack: () -> Unit, viewModel: EdacCriteriaViewModel = hi
 private fun CriterionDialog(c: EdacCriterionAdmin, saving: Boolean, viewModel: EdacCriteriaViewModel) {
     AlertDialog(
         onDismissRequest = viewModel::dismiss,
-        title = { Text(if (c.id == null) "Thêm tiêu chí — ${EdacStep.of(c.step).title}" else "Sửa tiêu chí ${c.code}") },
+        title = { Text(if (c.id == null) stringResource(R.string.mgt_12, EdacStep.of(c.step).title) else stringResource(R.string.mgt_13, c.code)) },
         text = {
             Column(Modifier.heightIn(max = 480.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 OutlinedTextField(

@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -83,6 +84,7 @@ data class EdacStepState(
 
 @HiltViewModel
 class EdacStepViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: EdacRepository,
 ) : ViewModel() {
@@ -104,7 +106,7 @@ class EdacStepViewModel @Inject constructor(
             if (isOutletList) {
                 when (val r = repository.outlets(trainingId, step)) {
                     is DataResult.Success -> _state.update { it.copy(outlets = r.data, error = null) }
-                    is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                    is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
                 }
                 return@launch
             }
@@ -125,7 +127,7 @@ class EdacStepViewModel @Inject constructor(
                         )
                     }
                 }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -143,7 +145,7 @@ class EdacStepViewModel @Inject constructor(
         if (form != null) {
             val missing = form.criteria.firstOrNull { c -> c.required && !s.answers[c.id].isComplete(c.kind) }
             if (missing != null) {
-                _state.update { it.copy(message = "Vui lòng trả lời: ${missing.content}") }
+                _state.update { it.copy(message = strings(R.string.mgv_8, missing.content)) }
                 return
             }
         }
@@ -158,7 +160,7 @@ class EdacStepViewModel @Inject constructor(
             _state.update { it.copy(saving = true) }
             when (val r = repository.save(trainingId, step, customerId, answers, note, finish)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -207,7 +209,7 @@ fun EdacStepScreen(
                 ) {
                     when {
                         viewModel.isOutletList -> PrimaryButton(
-                            "Hoàn tất bước ${step.title.lowercase()}", viewModel::finishStep,
+                            stringResource(R.string.mgt_20, step.title.lowercase()), viewModel::finishStep,
                             Modifier.weight(1f), enabled = !state.saving && state.outlets != null, loading = state.saving,
                         )
                         step.perOutlet -> PrimaryButton(
@@ -249,7 +251,7 @@ private fun OutletList(outlets: List<EdacOutlet>, step: EdacStep, modifier: Modi
     ) {
         item {
             Text(
-                "${outlets.count { step.index in it.doneSteps }}/${outlets.size} điểm đã ghi nhận ở bước này",
+                stringResource(R.string.mgt_21, outlets.count { step.index in it.doneSteps }, outlets.size),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
@@ -298,7 +300,7 @@ private fun FormBody(state: EdacStepState, form: EdacStepForm, modifier: Modifie
                             Row {
                                 Text(o.content, style = MaterialTheme.typography.labelSmall, modifier = Modifier.weight(1f))
                                 Text(
-                                    "Có ${o.yes} · Không ${o.no}",
+                                    stringResource(R.string.mgt_22, o.yes, o.no),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = if (o.no > 0) Kpi.Orange.first() else MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

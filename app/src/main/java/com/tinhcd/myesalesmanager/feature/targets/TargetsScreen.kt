@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.targets
 
 import androidx.compose.foundation.clickable
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
@@ -94,6 +95,7 @@ data class TargetsState(
 
 @HiltViewModel
 class TargetsViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: TargetRepository,
     auth: AuthRepository,
 ) : ViewModel() {
@@ -145,7 +147,7 @@ class TargetsViewModel @Inject constructor(
                         )
                     }
                 }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, sheet = null, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, sheet = null, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -175,9 +177,9 @@ class TargetsViewModel @Inject constructor(
             when (r) {
                 is DataResult.Success -> {
                     _state.update { it.copy(saving = false) }
-                    load(message = "Đã lưu chỉ tiêu")
+                    load(message = strings(R.string.mgv_49))
                 }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, error = r.error.toMessage(strings)) }
             }
         }
     }

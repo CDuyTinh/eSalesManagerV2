@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.edac
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -54,6 +55,7 @@ data class EdacResultState(val result: EdacResult? = null, val error: String? = 
 
 @HiltViewModel
 class EdacResultViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: EdacRepository,
 ) : ViewModel() {
@@ -69,7 +71,7 @@ class EdacResultViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.result(trainingId)) {
                 is DataResult.Success -> _state.update { it.copy(result = r.data, error = null) }
-                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -99,8 +101,8 @@ fun EdacResultScreen(onBack: () -> Unit, viewModel: EdacResultViewModel = hiltVi
                             Text(stringResource(R.string.mg_76), fontWeight = FontWeight.SemiBold)
                             Text(r.training.result ?: "—")
                             Text(
-                                "Bắt đầu ${formatDateTime(r.training.checkInAt)}" +
-                                    (r.training.checkOutAt?.let { " · kết thúc ${formatDateTime(it)}" } ?: ""),
+                                stringResource(R.string.mgt_16, formatDateTime(r.training.checkInAt)) +
+                                    (r.training.checkOutAt?.let { stringResource(R.string.mgt_17, formatDateTime(it)) } ?: ""),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -150,7 +152,7 @@ private fun AnswerGroup(customer: String?, lines: List<EdacResultLine>) {
                 if (i > 0) HorizontalDivider()
                 Text(line.content, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(line.answer ?: "—", style = MaterialTheme.typography.bodyLarge)
-                line.note?.let { Text("Ghi chú: $it", style = MaterialTheme.typography.labelSmall) }
+                line.note?.let { Text(stringResource(R.string.mgt_18, it), style = MaterialTheme.typography.labelSmall) }
             }
         }
     }

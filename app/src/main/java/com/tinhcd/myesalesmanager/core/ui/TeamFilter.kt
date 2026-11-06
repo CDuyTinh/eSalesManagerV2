@@ -93,7 +93,7 @@ fun TeamFilter(
             )
         }
         ChipRow(
-            all = if (supervisorId == null) "Cả nhóm (${shownReps.size})" else "Cả tổ (${shownReps.size})",
+            all = if (supervisorId == null) stringResource(R.string.mgt_3, shownReps.size) else stringResource(R.string.mgt_4, shownReps.size),
             allSelected = salespersonId == null, onAll = { onRep(null) },
             options = shownReps.map { it.id to it.fullName },
             selected = salespersonId, onPick = onRep,

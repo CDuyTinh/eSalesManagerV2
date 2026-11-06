@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature.approval
 
 import androidx.lifecycle.ViewModel
+import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import androidx.lifecycle.viewModelScope
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.ApprovalPage
@@ -30,6 +32,9 @@ data class ApprovalListState<T>(
  * reload — so each screen only says how to load its rows and how to rule on one.
  */
 abstract class ApprovalListViewModel<T> : ViewModel() {
+    /** For error messages in the app's language; each list hands its own in. */
+    protected abstract val strings: AppStrings
+
 
     private val _state = MutableStateFlow(ApprovalListState<T>())
     val state: StateFlow<ApprovalListState<T>> = _state.asStateFlow()
@@ -54,7 +59,7 @@ abstract class ApprovalListViewModel<T> : ViewModel() {
                     it.copy(loading = false, counts = result.data.counts, items = result.data.items)
                 }
                 is DataResult.Failure -> _state.update {
-                    it.copy(loading = false, error = result.error.toMessage())
+                    it.copy(loading = false, error = result.error.toMessage(strings))
                 }
             }
         }
@@ -80,13 +85,13 @@ abstract class ApprovalListViewModel<T> : ViewModel() {
                         it.copy(
                             deciding = false,
                             pending = null,
-                            message = if (pending.approve) "Đã duyệt" else "Đã từ chối",
+                            message = if (pending.approve) strings(R.string.status_approved) else strings(R.string.mgv_1),
                         )
                     }
                     refresh()
                 }
                 is DataResult.Failure -> _state.update {
-                    it.copy(deciding = false, message = result.error.toMessage())
+                    it.copy(deciding = false, message = result.error.toMessage(strings))
                 }
             }
         }

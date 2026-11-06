@@ -1,6 +1,8 @@
 package com.tinhcd.myesalesmanager.feature
 
 import androidx.compose.ui.text.AnnotatedString
+import com.tinhcd.myesalesmanager.R
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.domain.AppError
 import com.tinhcd.myesalesmanager.domain.DataResult
 import com.tinhcd.myesalesmanager.domain.model.Position
@@ -55,6 +57,9 @@ class TargetsViewModelTest {
     )
 
     private val repository = mockk<TargetRepository>()
+    private val strings = mockk<AppStrings>().also {
+        every { it(R.string.mgv_49, *anyVararg()) } returns "Đã lưu chỉ tiêu"
+    }
     private val auth = mockk<AuthRepository>()
 
     @Before
@@ -68,7 +73,7 @@ class TargetsViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun newViewModel() = TargetsViewModel(repository, auth)
+    private fun newViewModel() = TargetsViewModel(strings, repository, auth)
 
     @Test
     fun `opens on the first rep and fills the form from the sheet`() = runTest(dispatcher) {

@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.workplan
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Column
@@ -149,6 +150,7 @@ data class AssignState(
 
 @HiltViewModel
 class AssignWorkPlanViewModel @Inject constructor(
+    private val strings: AppStrings,
     savedState: SavedStateHandle,
     private val repository: WorkPlanRepository,
     auth: AuthRepository,
@@ -185,7 +187,7 @@ class AssignWorkPlanViewModel @Inject constructor(
                         }
                         loadCustomers()
                     }
-                    is DataResult.Failure -> _state.update { it.copy(message = r.error.toMessage()) }
+                    is DataResult.Failure -> _state.update { it.copy(message = r.error.toMessage(strings)) }
                 }
             }
         }
@@ -207,7 +209,7 @@ class AssignWorkPlanViewModel @Inject constructor(
         viewModelScope.launch {
             when (val r = repository.categories()) {
                 is DataResult.Success -> _state.update { it.copy(categories = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -246,7 +248,7 @@ class AssignWorkPlanViewModel @Inject constructor(
                 it.copy(
                     loadingCustomers = false,
                     customers = (r as? DataResult.Success)?.data ?: it.customers,
-                    message = (r as? DataResult.Failure)?.error?.toMessage() ?: it.message,
+                    message = (r as? DataResult.Failure)?.error?.toMessage(strings) ?: it.message,
                 )
             }
         }
@@ -292,7 +294,7 @@ class AssignWorkPlanViewModel @Inject constructor(
             }
             when (r) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, done = true) }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, message = r.error.toMessage(strings)) }
             }
         }
     }
@@ -368,14 +370,14 @@ fun AssignWorkPlanScreen(
                 // 720px-wide phone.
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = { picking = "date" }, modifier = Modifier.fillMaxWidth()) {
-                        Text("Ngày: ${formatDay(state.date)}")
+                        Text(stringResource(R.string.mgt_84, formatDay(state.date)))
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                         OutlinedButton(onClick = { picking = "from" }, modifier = Modifier.weight(1f)) {
-                            Text("Từ ${formatTime(state.from)}", maxLines = 1)
+                            Text(stringResource(R.string.mgt_25, formatTime(state.from)), maxLines = 1)
                         }
                         OutlinedButton(onClick = { picking = "to" }, modifier = Modifier.weight(1f)) {
-                            Text("Đến ${formatTime(state.to)}", maxLines = 1)
+                            Text(stringResource(R.string.mgt_26, formatTime(state.to)), maxLines = 1)
                         }
                     }
                 }
@@ -392,7 +394,7 @@ fun AssignWorkPlanScreen(
                     }
                     if (state.repeat != null) {
                         OutlinedButton(onClick = { picking = "until" }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Đến ngày: ${formatDay(state.repeatUntil)}")
+                            Text(stringResource(R.string.mgt_85, formatDay(state.repeatUntil)))
                         }
                     }
                 }
@@ -421,7 +423,7 @@ fun AssignWorkPlanScreen(
             if (kind != null) {
                 item {
                     Text(
-                        "${kind.label} (${state.selected.size} đã chọn) *",
+                        stringResource(R.string.mgt_86, kind.label, state.selected.size),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold,
                     )

@@ -1,6 +1,7 @@
 package com.tinhcd.myesalesmanager.feature.route
 
 import androidx.compose.foundation.layout.Arrangement
+import com.tinhcd.myesalesmanager.core.ui.AppStrings
 import com.tinhcd.myesalesmanager.R
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Box
@@ -77,6 +78,7 @@ data class NewRouteDraft(val repId: String? = null, val name: String = "", val c
 
 @HiltViewModel
 class RoutesViewModel @Inject constructor(
+    private val strings: AppStrings,
     private val repository: RouteRepository,
     auth: AuthRepository,
 ) : ViewModel() {
@@ -99,7 +101,7 @@ class RoutesViewModel @Inject constructor(
             _state.update { it.copy(saving = true) }
             when (val r = repository.create(d.repId!!, d.name, d.code)) {
                 is DataResult.Success -> _state.update { it.copy(saving = false, draft = null, created = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(saving = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(saving = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -111,7 +113,7 @@ class RoutesViewModel @Inject constructor(
             _state.update { it.copy(loading = true, error = null) }
             when (val r = repository.routes()) {
                 is DataResult.Success -> _state.update { it.copy(loading = false, routes = r.data) }
-                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage()) }
+                is DataResult.Failure -> _state.update { it.copy(loading = false, error = r.error.toMessage(strings)) }
             }
         }
     }
@@ -210,7 +212,7 @@ private fun RouteCard(route: SalesRoute, onClick: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                StatusPill("${route.customerCount} điểm", Kpi.Blue.first())
+                StatusPill(stringResource(R.string.mgt_82, route.customerCount), Kpi.Blue.first())
             }
             WeekStrip(route.perWeekday)
         }

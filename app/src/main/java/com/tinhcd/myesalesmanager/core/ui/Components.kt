@@ -90,7 +90,7 @@ fun ErrorBox(
 fun formatDong(amount: Long): String {
     val digits = amount.toString()
     val grouped = digits.reversed().chunked(3).joinToString(".").reversed()
-    return "$grouped đ"
+    return "${grouped} đ"
 }
 
 /**
