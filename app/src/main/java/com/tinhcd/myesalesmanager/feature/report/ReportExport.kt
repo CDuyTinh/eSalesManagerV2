@@ -79,7 +79,7 @@ fun shareReport(context: Context, kind: ReportKind, period: ReportPeriod, data: 
     val dir = File(context.cacheDir, "exports").apply { mkdirs() }
     val span = if (period.from == period.to) period.from else "${period.from}_${period.to}"
     val file = File(dir, "bao-cao-${kind.code}-$span.csv")
-    file.writeText("﻿" + csv(data.table()), Charsets.UTF_8)
+    file.writeText("\uFEFF" + csv(data.table()), Charsets.UTF_8)
 
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.photos", file)
     val send = Intent(Intent.ACTION_SEND)
